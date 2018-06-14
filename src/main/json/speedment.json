@@ -1,0 +1,194 @@
+{
+  "config" : {
+    "speedmentVersion" : "Speedment:3.1.3",
+    "nameProtected" : false,
+    "expanded" : true,
+    "appId" : "ca52fc32-67aa-48ae-afb0-612c438a17c1",
+    "companyName" : "company",
+    "name" : "parser",
+    "packageLocation" : "src/main/java/",
+    "packageName" : "com.ef.parser.db",
+    "id" : "parser",
+    "enabled" : true,
+    "dbmses" : [
+      {
+        "nameProtected" : true,
+        "expanded" : true,
+        "port" : 3306,
+        "schemas" : [
+          {
+            "nameProtected" : true,
+            "tables" : [
+              {
+                "expanded" : true,
+                "primaryKeyColumns" : [
+                  {
+                    "expanded" : true,
+                    "name" : "id",
+                    "id" : "id",
+                    "ordinalPosition" : 1,
+                    "enabled" : true
+                  }
+                ],
+                "indexes" : [
+                  {
+                    "expanded" : false,
+                    "unique" : true,
+                    "name" : "PRIMARY",
+                    "indexColumns" : [
+                      {
+                        "orderType" : "ASC",
+                        "expanded" : true,
+                        "name" : "id",
+                        "id" : "id",
+                        "ordinalPosition" : 1
+                      }
+                    ],
+                    "id" : "PRIMARY",
+                    "enabled" : true
+                  }
+                ],
+                "isView" : false,
+                "columns" : [
+                  {
+                    "databaseType" : "java.lang.Long",
+                    "typeMapper" : "com.speedment.runtime.typemapper.primitive.PrimitiveTypeMapper",
+                    "expanded" : true,
+                    "nullable" : false,
+                    "autoIncrement" : true,
+                    "name" : "id",
+                    "id" : "id",
+                    "ordinalPosition" : 1,
+                    "enabled" : true
+                  },
+                  {
+                    "databaseType" : "java.sql.Timestamp",
+                    "nameProtected" : true,
+                    "expanded" : true,
+                    "typeMapper" : "com.speedment.runtime.typemapper.time.TimestampToLocalDateTimeMapper",
+                    "nullable" : false,
+                    "autoIncrement" : false,
+                    "name" : "date",
+                    "nullableImplementation" : "OPTIONAL",
+                    "id" : "date",
+                    "ordinalPosition" : 2,
+                    "enabled" : true
+                  },
+                  {
+                    "databaseType" : "java.lang.Long",
+                    "typeMapper" : "com.speedment.runtime.typemapper.primitive.PrimitiveTypeMapper",
+                    "expanded" : true,
+                    "nullable" : false,
+                    "name" : "ip_address",
+                    "id" : "ip_address",
+                    "ordinalPosition" : 3,
+                    "enabled" : true
+                  },
+                  {
+                    "databaseType" : "java.lang.String",
+                    "expanded" : true,
+                    "nullable" : false,
+                    "name" : "request",
+                    "id" : "request",
+                    "ordinalPosition" : 4,
+                    "enabled" : true
+                  },
+                  {
+                    "databaseType" : "java.lang.Integer",
+                    "typeMapper" : "com.speedment.runtime.typemapper.primitive.PrimitiveTypeMapper",
+                    "expanded" : true,
+                    "nullable" : false,
+                    "name" : "status",
+                    "id" : "status",
+                    "ordinalPosition" : 5,
+                    "enabled" : true
+                  },
+                  {
+                    "databaseType" : "java.lang.String",
+                    "expanded" : true,
+                    "nullable" : false,
+                    "name" : "user_agent",
+                    "id" : "user_agent",
+                    "ordinalPosition" : 6,
+                    "enabled" : true
+                  }
+                ],
+                "name" : "access_log",
+                "id" : "access_log",
+                "enabled" : true
+              },
+              {
+                "nameProtected" : true,
+                "expanded" : true,
+                "primaryKeyColumns" : [
+                  {
+                    "expanded" : true,
+                    "name" : "id",
+                    "id" : "id",
+                    "ordinalPosition" : 1,
+                    "enabled" : true
+                  }
+                ],
+                "indexes" : [
+                  {
+                    "expanded" : false,
+                    "unique" : true,
+                    "name" : "PRIMARY",
+                    "indexColumns" : [
+                      {
+                        "orderType" : "ASC",
+                        "expanded" : true,
+                        "name" : "id",
+                        "id" : "id",
+                        "ordinalPosition" : 1
+                      }
+                    ],
+                    "id" : "PRIMARY",
+                    "enabled" : true
+                  }
+                ],
+                "isView" : false,
+                "columns" : [
+                  {
+                    "databaseType" : "java.lang.Long",
+                    "typeMapper" : "com.speedment.runtime.typemapper.primitive.PrimitiveTypeMapper",
+                    "expanded" : true,
+                    "nullable" : false,
+                    "autoIncrement" : true,
+                    "name" : "id",
+                    "id" : "id",
+                    "ordinalPosition" : 1,
+                    "enabled" : true
+                  },
+                  {
+                    "databaseType" : "java.lang.String",
+                    "expanded" : true,
+                    "nullable" : false,
+                    "name" : "comment",
+                    "id" : "comment",
+                    "ordinalPosition" : 2,
+                    "enabled" : true
+                  }
+                ],
+                "name" : "blocked_ips",
+                "alias" : "blocked_ip",
+                "id" : "blocked_ips",
+                "enabled" : true
+              }
+            ],
+            "expanded" : true,
+            "name" : "parser",
+            "id" : "parser",
+            "enabled" : true
+          }
+        ],
+        "typeName" : "MySQL",
+        "ipAddress" : "127.0.0.1",
+        "name" : "parser",
+        "id" : "parser",
+        "enabled" : true,
+        "username" : "parser"
+      }
+    ]
+  }
+}
