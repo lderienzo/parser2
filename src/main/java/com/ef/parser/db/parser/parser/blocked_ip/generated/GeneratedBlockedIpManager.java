@@ -24,6 +24,7 @@ public interface GeneratedBlockedIpManager extends Manager<BlockedIp> {
     TableIdentifier<BlockedIp> IDENTIFIER = TableIdentifier.of("parser", "parser", "blocked_ips");
     List<Field<BlockedIp>> FIELDS = unmodifiableList(asList(
         BlockedIp.ID,
+        BlockedIp.IP_ADDRESS,
         BlockedIp.COMMENT
     ));
     

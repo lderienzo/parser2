@@ -30,8 +30,9 @@ public abstract class GeneratedBlockedIpSqlAdapter implements SqlAdapter<Blocked
     
     protected BlockedIp apply(ResultSet resultSet, int offset) throws SQLException {
         return createEntity()
-            .setId(      resultSet.getLong(1 + offset))
-            .setComment( resultSet.getString(2 + offset))
+            .setId(        resultSet.getLong(1 + offset))
+            .setIpAddress( resultSet.getLong(2 + offset))
+            .setComment(   resultSet.getString(3 + offset))
             ;
     }
     

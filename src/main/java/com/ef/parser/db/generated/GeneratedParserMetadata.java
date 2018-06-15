@@ -24,6 +24,7 @@ public class GeneratedParserMetadata extends AbstractApplicationMetadata {
         final StringBuilder sb = new StringBuilder();
         initPart0(sb);
         initPart1(sb);
+        initPart2(sb);
         return sb.toString();
     }
     
@@ -173,13 +174,26 @@ public class GeneratedParserMetadata extends AbstractApplicationMetadata {
             "                    \"typeMapper\" : \"com.speedment.runtime.typemapper.primitive.PrimitiveTypeMapper\"",
             "                  },",
             "                  {",
+            "                    \"autoIncrement\" : false,",
+            "                    \"databaseType\" : \"java.lang.Long\",",
+            "                    \"enabled\" : true,",
+            "                    \"expanded\" : true,",
+            "                    \"id\" : \"ip_address\",",
+            "                    \"name\" : \"ip_address\",",
+            "                    \"nameProtected\" : true,",
+            "                    \"nullable\" : false,",
+            "                    \"nullableImplementation\" : \"OPTIONAL\",",
+            "                    \"ordinalPosition\" : 2,",
+            "                    \"typeMapper\" : \"com.speedment.runtime.typemapper.primitive.PrimitiveTypeMapper\"",
+            "                  },",
+            "                  {",
             "                    \"databaseType\" : \"java.lang.String\",",
             "                    \"enabled\" : true,",
             "                    \"expanded\" : true,",
             "                    \"id\" : \"comment\",",
             "                    \"name\" : \"comment\",",
             "                    \"nullable\" : false,",
-            "                    \"ordinalPosition\" : 2",
+            "                    \"ordinalPosition\" : 3",
             "                  }",
             "                ],",
             "                \"enabled\" : true,",
@@ -227,7 +241,12 @@ public class GeneratedParserMetadata extends AbstractApplicationMetadata {
             "    \"expanded\" : true,",
             "    \"id\" : \"parser\",",
             "    \"name\" : \"parser\",",
-            "    \"nameProtected\" : false,",
+            "    \"nameProtected\" : false,"
+        ).forEachOrdered(sb::append);
+    }
+    
+    private static void initPart2(StringBuilder sb) {
+        Stream.of(
             "    \"packageLocation\" : \"src/main/java/\",",
             "    \"packageName\" : \"com.ef.parser.db\",",
             "    \"speedmentVersion\" : \"Speedment:3.1.3\"",

@@ -18,6 +18,7 @@
         "schemas" : [
           {
             "nameProtected" : true,
+            "expanded" : true,
             "tables" : [
               {
                 "expanded" : true,
@@ -52,8 +53,8 @@
                 "columns" : [
                   {
                     "databaseType" : "java.lang.Long",
-                    "typeMapper" : "com.speedment.runtime.typemapper.primitive.PrimitiveTypeMapper",
                     "expanded" : true,
+                    "typeMapper" : "com.speedment.runtime.typemapper.primitive.PrimitiveTypeMapper",
                     "nullable" : false,
                     "autoIncrement" : true,
                     "name" : "id",
@@ -76,8 +77,8 @@
                   },
                   {
                     "databaseType" : "java.lang.Long",
-                    "typeMapper" : "com.speedment.runtime.typemapper.primitive.PrimitiveTypeMapper",
                     "expanded" : true,
+                    "typeMapper" : "com.speedment.runtime.typemapper.primitive.PrimitiveTypeMapper",
                     "nullable" : false,
                     "name" : "ip_address",
                     "id" : "ip_address",
@@ -95,8 +96,8 @@
                   },
                   {
                     "databaseType" : "java.lang.Integer",
-                    "typeMapper" : "com.speedment.runtime.typemapper.primitive.PrimitiveTypeMapper",
                     "expanded" : true,
+                    "typeMapper" : "com.speedment.runtime.typemapper.primitive.PrimitiveTypeMapper",
                     "nullable" : false,
                     "name" : "status",
                     "id" : "status",
@@ -151,8 +152,8 @@
                 "columns" : [
                   {
                     "databaseType" : "java.lang.Long",
-                    "typeMapper" : "com.speedment.runtime.typemapper.primitive.PrimitiveTypeMapper",
                     "expanded" : true,
+                    "typeMapper" : "com.speedment.runtime.typemapper.primitive.PrimitiveTypeMapper",
                     "nullable" : false,
                     "autoIncrement" : true,
                     "name" : "id",
@@ -161,12 +162,25 @@
                     "enabled" : true
                   },
                   {
+                    "databaseType" : "java.lang.Long",
+                    "nameProtected" : true,
+                    "expanded" : true,
+                    "typeMapper" : "com.speedment.runtime.typemapper.primitive.PrimitiveTypeMapper",
+                    "nullable" : false,
+                    "autoIncrement" : false,
+                    "name" : "ip_address",
+                    "nullableImplementation" : "OPTIONAL",
+                    "id" : "ip_address",
+                    "ordinalPosition" : 2,
+                    "enabled" : true
+                  },
+                  {
                     "databaseType" : "java.lang.String",
                     "expanded" : true,
                     "nullable" : false,
                     "name" : "comment",
                     "id" : "comment",
-                    "ordinalPosition" : 2,
+                    "ordinalPosition" : 3,
                     "enabled" : true
                   }
                 ],
@@ -176,7 +190,6 @@
                 "enabled" : true
               }
             ],
-            "expanded" : true,
             "name" : "parser",
             "id" : "parser",
             "enabled" : true

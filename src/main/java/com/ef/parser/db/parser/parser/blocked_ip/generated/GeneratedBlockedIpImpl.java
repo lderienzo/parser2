@@ -18,6 +18,7 @@ import java.util.StringJoiner;
 public abstract class GeneratedBlockedIpImpl implements BlockedIp {
     
     private long id;
+    private long ipAddress;
     private String comment;
     
     protected GeneratedBlockedIpImpl() {}
@@ -25,6 +26,11 @@ public abstract class GeneratedBlockedIpImpl implements BlockedIp {
     @Override
     public long getId() {
         return id;
+    }
+    
+    @Override
+    public long getIpAddress() {
+        return ipAddress;
     }
     
     @Override
@@ -39,6 +45,12 @@ public abstract class GeneratedBlockedIpImpl implements BlockedIp {
     }
     
     @Override
+    public BlockedIp setIpAddress(long ipAddress) {
+        this.ipAddress = ipAddress;
+        return this;
+    }
+    
+    @Override
     public BlockedIp setComment(String comment) {
         this.comment = comment;
         return this;
@@ -47,8 +59,9 @@ public abstract class GeneratedBlockedIpImpl implements BlockedIp {
     @Override
     public String toString() {
         final StringJoiner sj = new StringJoiner(", ", "{ ", " }");
-        sj.add("id = "      + Objects.toString(getId()));
-        sj.add("comment = " + Objects.toString(getComment()));
+        sj.add("id = "        + Objects.toString(getId()));
+        sj.add("ipAddress = " + Objects.toString(getIpAddress()));
+        sj.add("comment = "   + Objects.toString(getComment()));
         return "BlockedIpImpl " + sj.toString();
     }
     
@@ -58,6 +71,7 @@ public abstract class GeneratedBlockedIpImpl implements BlockedIp {
         if (!(that instanceof BlockedIp)) { return false; }
         final BlockedIp thatBlockedIp = (BlockedIp)that;
         if (this.getId() != thatBlockedIp.getId()) { return false; }
+        if (this.getIpAddress() != thatBlockedIp.getIpAddress()) { return false; }
         if (!Objects.equals(this.getComment(), thatBlockedIp.getComment())) { return false; }
         return true;
     }
@@ -66,6 +80,7 @@ public abstract class GeneratedBlockedIpImpl implements BlockedIp {
     public int hashCode() {
         int hash = 7;
         hash = 31 * hash + Long.hashCode(getId());
+        hash = 31 * hash + Long.hashCode(getIpAddress());
         hash = 31 * hash + Objects.hashCode(getComment());
         return hash;
     }

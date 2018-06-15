@@ -34,6 +34,17 @@ public interface GeneratedBlockedIp {
     );
     /**
      * This Field corresponds to the {@link BlockedIp} field that can be
+     * obtained using the {@link BlockedIp#getIpAddress()} method.
+     */
+    LongField<BlockedIp, Long> IP_ADDRESS = LongField.create(
+        Identifier.IP_ADDRESS,
+        BlockedIp::getIpAddress,
+        BlockedIp::setIpAddress,
+        TypeMapper.primitive(),
+        false
+    );
+    /**
+     * This Field corresponds to the {@link BlockedIp} field that can be
      * obtained using the {@link BlockedIp#getComment()} method.
      */
     StringField<BlockedIp, String> COMMENT = StringField.create(
@@ -53,6 +64,14 @@ public interface GeneratedBlockedIp {
     long getId();
     
     /**
+     * Returns the ipAddress of this BlockedIp. The ipAddress field corresponds
+     * to the database column parser.parser.blocked_ips.ip_address.
+     * 
+     * @return the ipAddress of this BlockedIp
+     */
+    long getIpAddress();
+    
+    /**
      * Returns the comment of this BlockedIp. The comment field corresponds to
      * the database column parser.parser.blocked_ips.comment.
      * 
@@ -70,6 +89,15 @@ public interface GeneratedBlockedIp {
     BlockedIp setId(long id);
     
     /**
+     * Sets the ipAddress of this BlockedIp. The ipAddress field corresponds to
+     * the database column parser.parser.blocked_ips.ip_address.
+     * 
+     * @param ipAddress to set of this BlockedIp
+     * @return          this BlockedIp instance
+     */
+    BlockedIp setIpAddress(long ipAddress);
+    
+    /**
      * Sets the comment of this BlockedIp. The comment field corresponds to the
      * database column parser.parser.blocked_ips.comment.
      * 
@@ -80,8 +108,9 @@ public interface GeneratedBlockedIp {
     
     enum Identifier implements ColumnIdentifier<BlockedIp> {
         
-        ID      ("id"),
-        COMMENT ("comment");
+        ID         ("id"),
+        IP_ADDRESS ("ip_address"),
+        COMMENT    ("comment");
         
         private final String columnId;
         private final TableIdentifier<BlockedIp> tableIdentifier;
