@@ -21,6 +21,7 @@
             "expanded" : true,
             "tables" : [
               {
+                "nameProtected" : true,
                 "expanded" : true,
                 "primaryKeyColumns" : [
                   {
@@ -53,11 +54,13 @@
                 "columns" : [
                   {
                     "databaseType" : "java.lang.Long",
+                    "nameProtected" : true,
                     "expanded" : true,
                     "typeMapper" : "com.speedment.runtime.typemapper.primitive.PrimitiveTypeMapper",
                     "nullable" : false,
                     "autoIncrement" : true,
                     "name" : "id",
+                    "nullableImplementation" : "OPTIONAL",
                     "id" : "id",
                     "ordinalPosition" : 1,
                     "enabled" : true
@@ -115,6 +118,7 @@
                   }
                 ],
                 "name" : "access_log",
+                "alias" : "access_log_entry",
                 "id" : "access_log",
                 "enabled" : true
               },

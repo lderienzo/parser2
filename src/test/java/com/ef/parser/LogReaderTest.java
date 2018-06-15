@@ -17,6 +17,6 @@ public class LogReaderTest {
     public void testLogReader() {
         ClassLoader classLoader = getClass().getClassLoader();
         File file = new File(classLoader.getResource("test_access.log").getFile());
-        logReader.read( file.getAbsolutePath());
+        logReader.read(file.getAbsolutePath());
     }
 }

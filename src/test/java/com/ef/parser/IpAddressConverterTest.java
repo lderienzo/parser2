@@ -1,5 +1,7 @@
 package com.ef.parser;
 
+import static org.junit.Assert.assertEquals;
+
 import org.junit.Before;
 import org.junit.Test;
 
@@ -15,6 +17,6 @@ public class IpAddressConverterTest {
 
     @Test
     public void testConvertFromIpToLong() {
-        converter.toLong("192.168.72.173");
+        assertEquals(3232254125L, converter.toLong("192.168.72.173"));
     }
 }

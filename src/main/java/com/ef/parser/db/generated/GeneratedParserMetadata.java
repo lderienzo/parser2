@@ -57,6 +57,7 @@ public class GeneratedParserMetadata extends AbstractApplicationMetadata {
             "            \"nameProtected\" : true,",
             "            \"tables\" : [",
             "              {",
+            "                \"alias\" : \"access_log_entry\",",
             "                \"columns\" : [",
             "                  {",
             "                    \"autoIncrement\" : true,",
@@ -65,7 +66,9 @@ public class GeneratedParserMetadata extends AbstractApplicationMetadata {
             "                    \"expanded\" : true,",
             "                    \"id\" : \"id\",",
             "                    \"name\" : \"id\",",
+            "                    \"nameProtected\" : true,",
             "                    \"nullable\" : false,",
+            "                    \"nullableImplementation\" : \"OPTIONAL\",",
             "                    \"ordinalPosition\" : 1,",
             "                    \"typeMapper\" : \"com.speedment.runtime.typemapper.primitive.PrimitiveTypeMapper\"",
             "                  },",
@@ -132,15 +135,15 @@ public class GeneratedParserMetadata extends AbstractApplicationMetadata {
             "                    \"indexColumns\" : [",
             "                      {",
             "                        \"expanded\" : true,",
-            "                        \"id\" : \"id\",",
-            "                        \"name\" : \"id\",",
-            "                        \"orderType\" : \"ASC\",",
-            "                        \"ordinalPosition\" : 1"
+            "                        \"id\" : \"id\","
         ).forEachOrdered(sb::append);
     }
     
     private static void initPart1(StringBuilder sb) {
         Stream.of(
+            "                        \"name\" : \"id\",",
+            "                        \"orderType\" : \"ASC\",",
+            "                        \"ordinalPosition\" : 1",
             "                      }",
             "                    ],",
             "                    \"name\" : \"PRIMARY\",",
@@ -149,6 +152,7 @@ public class GeneratedParserMetadata extends AbstractApplicationMetadata {
             "                ],",
             "                \"isView\" : false,",
             "                \"name\" : \"access_log\",",
+            "                \"nameProtected\" : true,",
             "                \"primaryKeyColumns\" : [",
             "                  {",
             "                    \"enabled\" : true,",
@@ -237,16 +241,16 @@ public class GeneratedParserMetadata extends AbstractApplicationMetadata {
             "        \"username\" : \"parser\"",
             "      }",
             "    ],",
-            "    \"enabled\" : true,",
-            "    \"expanded\" : true,",
-            "    \"id\" : \"parser\",",
-            "    \"name\" : \"parser\",",
-            "    \"nameProtected\" : false,"
+            "    \"enabled\" : true,"
         ).forEachOrdered(sb::append);
     }
     
     private static void initPart2(StringBuilder sb) {
         Stream.of(
+            "    \"expanded\" : true,",
+            "    \"id\" : \"parser\",",
+            "    \"name\" : \"parser\",",
+            "    \"nameProtected\" : false,",
             "    \"packageLocation\" : \"src/main/java/\",",
             "    \"packageName\" : \"com.ef.parser.db\",",
             "    \"speedmentVersion\" : \"Speedment:3.1.3\"",
