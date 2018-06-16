@@ -2,7 +2,6 @@ package com.ef.parser.db;
 
 import java.util.Arrays;
 import java.util.List;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -13,7 +12,6 @@ public class IpAddressConverter {
                 .flatMap(Arrays::stream)
                 .map(string -> Integer.parseInt(string))
                 .collect(Collectors.toList());
-//                .forEach(System.out::println);
 
         long result = 0;
         for (int octetPosition = 0; octetPosition < octets.size(); octetPosition++) {
@@ -22,5 +20,13 @@ public class IpAddressConverter {
         }
 
         return result;
+    }
+
+    public static String toIp(Long longIp) {
+        // TODO: understand this!
+        return ((longIp >> 24) & 0xFF) + "."
+                + ((longIp >> 16) & 0xFF) + "."
+                + ((longIp >> 8) & 0xFF) + "."
+                + (longIp & 0xFF);
     }
 }

@@ -19,4 +19,9 @@ public class IpAddressConverterTest {
     public void testConvertFromIpToLong() {
         assertEquals(3232254125L, converter.toLong("192.168.72.173"));
     }
+
+    @Test
+    public void testConvertFromLongToIp() {
+        assertEquals("192.168.72.173", converter.toIp(3232254125L));
+    }
 }
