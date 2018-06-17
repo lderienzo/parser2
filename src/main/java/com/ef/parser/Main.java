@@ -1,5 +1,8 @@
 package com.ef.parser;
 
+import static com.ef.parser.ParserUtils.DB_PWD;
+import static com.ef.parser.ParserUtils.LOG_FILE_NAME;
+
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.time.LocalDateTime;
@@ -23,12 +26,16 @@ public class Main {
     public static void main(String... params) throws FileNotFoundException {
 //        // initialize db connection...
         ParserApplication db = new ParserApplicationBuilder() // initialize db connection...
-                .withPassword("password").withLogging(ApplicationBuilder.LogType.PERSIST).build();
+                .withPassword(DB_PWD)
+                .withLogging(ApplicationBuilder.LogType.PERSIST)
+                .withLogging(ApplicationBuilder.LogType.STREAM)
+                .build();
 
         Map<String, Object> argsMap = parseArgs(params);
-        String logFilePath = (String)argsMap.get("accesslog");
+        String logFilePath = (String)argsMap.get(LOG_FILE_NAME);
 
         readLogFileIntoDb(db, logFilePath);
+
     }
 
     private static void readLogFileIntoDb(ParserApplication db, String pathToLogFile) {
@@ -37,6 +44,7 @@ public class Main {
         logReader.read(pathToLogFile);
     }
 
+    // TODO: temporary. Come up with a more robust and elegant way of doing this.
     private static Map<String, Object> parseArgs(String... params) throws FileNotFoundException {
 
         // check to make sure all required command line args are present
@@ -44,7 +52,7 @@ public class Main {
         if ( !paramsStr.contains("accesslog") || !paramsStr.contains("startDate")
                 || !paramsStr.contains("duration") || !paramsStr.contains("threshold")) {
             throw new IllegalArgumentException("Error: misspelled or missing argument(s). " +
-                    "Usage --accesslog=[/path/to/file.log] --startDate=[yyyy-MM-dd HH:mm:ss.SSS] " +
+                    "Usage --accesslog=[/path/to/file.log] --startDate=[yyyy-MM-dd.HH:mm:ss] " +
                     "--duration=[hourly,daily] --threshold=[positive integer]");
         }
 

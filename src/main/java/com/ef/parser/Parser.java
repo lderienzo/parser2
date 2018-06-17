@@ -22,7 +22,7 @@ public class Parser {
      * @param threshold
      * @return
      */
-    public List<BlockedIP> checkRequests(File logFile, LocalDateTime startDate, Duration duration, int threshold) {
+    public List<BlockedIP> checkRequests(File logFile, LocalDateTime startDate, String duration, int threshold) {
         // parse file
         return new ArrayList<>();
     }

@@ -5,8 +5,6 @@ import static org.junit.Assert.assertEquals;
 import org.junit.Before;
 import org.junit.Test;
 
-import com.ef.parser.db.IpAddressConverter;
-
 public class IpAddressConverterTest {
     private IpAddressConverter converter;
 
