@@ -19,10 +19,12 @@ import com.ef.parser.db.parser.parser.blocked_ip.BlockedIpManager;
 import com.speedment.runtime.core.ApplicationBuilder;
 
 public final class LogReaderTest {
-    private ParserApplication db;
     private AccessLogEntryManager logEntryManager;
     private BlockedIpManager blockedIpManager;
     private LogReader logReader;
+    private LocalDateTime startDate = ParserTestUtils.stringToLocalDateTime("2017-01-01 20:00:00");
+    private String duration = ParserTestUtils.HOURLY_DURATION;
+    private int threshold = ParserTestUtils.THRESHOLD_100;
 
     @Before
     public void setUp() {
@@ -61,16 +63,12 @@ public final class LogReaderTest {
     @Test
     public void testSaveBlockedIps() {
         Map<Long,Long> blockedIps = getBlockedIps();
-        logReader.saveBlockedIps(blockedIps);
+        logReader.saveBlockedIps(blockedIps, startDate, duration, threshold);
         // TODO: figure out how to test
     }
 
 
     private Map<Long, Long> getBlockedIps() {
-        LocalDateTime startDate = ParserTestUtils.stringToLocalDateTime("2017-01-01 20:00:00");
-        String duration = ParserTestUtils.HOURLY_DURATION;
-        int threshold = ParserTestUtils.THRESHOLD_100;
-
         return logReader.getBlockedIps(startDate, duration, threshold);
     }
 }

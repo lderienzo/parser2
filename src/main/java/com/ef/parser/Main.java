@@ -25,8 +25,8 @@ import com.speedment.runtime.core.ApplicationBuilder;
 public class Main {
 
     public static void main(String... params) throws FileNotFoundException {
-//        // initialize db connection...
-        ParserApplication db = new ParserApplicationBuilder() // initialize db connection...
+        // initialize db connection...
+        ParserApplication db = new ParserApplicationBuilder()
                 .withPassword(DB_PWD)
                 .withLogging(ApplicationBuilder.LogType.PERSIST)
                 .withLogging(ApplicationBuilder.LogType.STREAM)
@@ -37,25 +37,33 @@ public class Main {
         LogReader logReader = new AccessLogReader(logEntryManager, blockedIpManager);
 
         Map<String, Object> argsMap = parseArgs(params);
-        String logFilePath = (String)argsMap.get(LOG_FILE_NAME);
 
-        readLogFileIntoDb(logReader, logFilePath);
+        if (argsMap.containsKey("accesslog")) {
+            logReader.read((String) argsMap.get(LOG_FILE_NAME));
+        }
 
+        Map<Long, Long> blockedIps =
+                logReader.getBlockedIps((LocalDateTime)argsMap.get("startDate"),
+                                            (String)argsMap.get("duration"),
+                                            (Integer)argsMap.get("threshold"));
+
+        logReader.printBlockedIps(blockedIps);
+
+        logReader.saveBlockedIps(blockedIps,
+                    (LocalDateTime)argsMap.get("startDate"),
+                    (String)argsMap.get("duration"),
+                    (Integer)argsMap.get("threshold"));
     }
 
-    private static void readLogFileIntoDb(LogReader logReader, String pathToLogFile) {
-        logReader.read(pathToLogFile);
-    }
 
     // TODO: temporary. Come up with a more robust and elegant way of doing this.
     private static Map<String, Object> parseArgs(String... params) throws FileNotFoundException {
 
-        // check to make sure all required command line args are present
+        // check to make sure all required command line args are present. file name optional if already loaded
         String paramsStr = String.join(",", params);
-        if ( !paramsStr.contains("accesslog") || !paramsStr.contains("startDate")
-                || !paramsStr.contains("duration") || !paramsStr.contains("threshold")) {
+        if (!paramsStr.contains("startDate") || !paramsStr.contains("duration") || !paramsStr.contains("threshold")) {
             throw new IllegalArgumentException("Error: misspelled or missing argument(s). " +
-                    "Usage --accesslog=[/path/to/file.log] --startDate=[yyyy-MM-dd.HH:mm:ss] " +
+                    "Usage [--accesslog=/path/to/file.log] --startDate=[yyyy-MM-dd.HH:mm:ss] " +
                     "--duration=[hourly,daily] --threshold=[positive integer]");
         }
 

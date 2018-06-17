@@ -96,15 +96,15 @@ public class AccessLogReader implements LogReader {
     }
 
     @Override
-    public void saveBlockedIps(Map<Long, Long> blockedIps) {
+    public void saveBlockedIps(Map<Long, Long> blockedIps, LocalDateTime startDate, String duration, int threshold) {
         if (blockedIps.size() > 0) {
             try {
                 blockedIps.entrySet().stream()
-                        .map(entry -> new BlockedIpImpl()
-                                .setIpAddress(entry.getKey())
-                                .setComment("IP [" + IpAddressConverter.toIp(entry.getKey()) + "] " +
-                                        "was blocked for exceeding 'threshold number' requests within a/an'specified duration'."))
-                .forEach(blockedIpManager.persister());
+                    .map(entry -> new BlockedIpImpl()
+                            .setIpAddress(entry.getKey())
+                            .setComment("Request threshold of ["+threshold+"] exceeded by ["+ (entry.getValue()-threshold) +"] " +
+                                    "within ["+duration+"] duration starting on ["+startDate.toString()+"]'."))
+                    .forEach(blockedIpManager.persister());
             } catch (SpeedmentException ex) {
                 System.err.println(ex.getMessage());
             }
