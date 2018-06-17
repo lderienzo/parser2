@@ -11,14 +11,12 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import com.ef.parser.db.ParserApplication;
 import com.ef.parser.db.ParserApplicationBuilder;
 import com.ef.parser.db.parser.parser.access_log_entry.AccessLogEntryManager;
 import com.ef.parser.db.parser.parser.blocked_ip.BlockedIpManager;
-import com.google.common.collect.ImmutableSet;
 import com.speedment.runtime.core.ApplicationBuilder;
 
 
@@ -34,22 +32,22 @@ public class Main {
 
         AccessLogEntryManager logEntryManager = db.getOrThrow(AccessLogEntryManager.class);
         BlockedIpManager blockedIpManager = db.getOrThrow(BlockedIpManager.class);
-        LogReader logReader = new AccessLogReader(logEntryManager, blockedIpManager);
+        LogHandler logHandler = new AccessLogHandler(logEntryManager, blockedIpManager);
 
         Map<String, Object> argsMap = parseArgs(params);
 
         if (argsMap.containsKey("accesslog")) {
-            logReader.read((String) argsMap.get(LOG_FILE_NAME));
+            logHandler.read((String) argsMap.get(LOG_FILE_NAME));
         }
 
         Map<Long, Long> blockedIps =
-                logReader.getBlockedIps((LocalDateTime)argsMap.get("startDate"),
+                logHandler.getBlockedIps((LocalDateTime)argsMap.get("startDate"),
                                             (String)argsMap.get("duration"),
                                             (Integer)argsMap.get("threshold"));
 
-        logReader.printBlockedIps(blockedIps);
+        logHandler.printBlockedIps(blockedIps);
 
-        logReader.saveBlockedIps(blockedIps,
+        logHandler.saveBlockedIps(blockedIps,
                     (LocalDateTime)argsMap.get("startDate"),
                     (String)argsMap.get("duration"),
                     (Integer)argsMap.get("threshold"));

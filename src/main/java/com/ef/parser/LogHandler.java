@@ -4,7 +4,10 @@ package com.ef.parser;
 import java.time.LocalDateTime;
 import java.util.Map;
 
-public interface LogReader {
+/**
+ * API used to handle all log-processing related functions.
+ */
+public interface LogHandler {
 
     /**
      * Reads entire log file into the database.

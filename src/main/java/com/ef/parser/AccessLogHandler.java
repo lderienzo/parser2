@@ -4,7 +4,6 @@ import static com.ef.parser.ParserUtils.DAILY_DURATION;
 import static com.speedment.runtime.field.predicate.Inclusion.START_INCLUSIVE_END_INCLUSIVE;
 
 import java.io.IOException;
-import java.io.UncheckedIOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.time.LocalDateTime;
@@ -18,19 +17,18 @@ import java.util.stream.Stream;
 import com.ef.parser.db.parser.parser.access_log_entry.AccessLogEntry;
 import com.ef.parser.db.parser.parser.access_log_entry.AccessLogEntryImpl;
 import com.ef.parser.db.parser.parser.access_log_entry.AccessLogEntryManager;
-import com.ef.parser.db.parser.parser.blocked_ip.BlockedIp;
 import com.ef.parser.db.parser.parser.blocked_ip.BlockedIpImpl;
 import com.ef.parser.db.parser.parser.blocked_ip.BlockedIpManager;
 import com.speedment.runtime.core.exception.SpeedmentException;
 
-public class AccessLogReader implements LogReader {
+public class AccessLogHandler implements LogHandler {
 
     private static final String DELIMITER = "\\|";
     private static final String DATE_FORMAT = "yyyy-MM-dd HH:mm:ss.SSS";
     private AccessLogEntryManager logEntryManager;
     private BlockedIpManager blockedIpManager;
 
-    public AccessLogReader(AccessLogEntryManager logEntryManager, BlockedIpManager blockedIpManager) {
+    public AccessLogHandler(AccessLogEntryManager logEntryManager, BlockedIpManager blockedIpManager) {
         this.logEntryManager = logEntryManager;
         this.blockedIpManager = blockedIpManager;
     }

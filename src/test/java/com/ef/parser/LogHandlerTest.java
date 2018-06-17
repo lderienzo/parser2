@@ -18,10 +18,10 @@ import com.ef.parser.db.parser.parser.access_log_entry.AccessLogEntryManager;
 import com.ef.parser.db.parser.parser.blocked_ip.BlockedIpManager;
 import com.speedment.runtime.core.ApplicationBuilder;
 
-public final class LogReaderTest {
+public final class LogHandlerTest {
     private AccessLogEntryManager logEntryManager;
     private BlockedIpManager blockedIpManager;
-    private LogReader logReader;
+    private LogHandler logHandler;
     private LocalDateTime startDate = ParserTestUtils.stringToLocalDateTime("2017-01-01 20:00:00");
     private String duration = ParserTestUtils.HOURLY_DURATION;
     private int threshold = ParserTestUtils.THRESHOLD_100;
@@ -36,14 +36,14 @@ public final class LogReaderTest {
         logEntryManager = db.getOrThrow(AccessLogEntryManager.class);
         blockedIpManager = db.getOrThrow(BlockedIpManager.class);
 
-        logReader = new AccessLogReader(logEntryManager, blockedIpManager);
+        logHandler = new AccessLogHandler(logEntryManager, blockedIpManager);
     }
 
     @Test
     public void testReadOfLogIntoDatabase() { // TODO: figure out how to do this
         ClassLoader classLoader = getClass().getClassLoader();
         File file = new File(classLoader.getResource(TEST_ACCESS_LOG_FILE).getFile());
-        logReader.read(file.getAbsolutePath());
+        logHandler.read(file.getAbsolutePath());
     }
 
     @Test
@@ -56,19 +56,19 @@ public final class LogReaderTest {
     @Test
     public void testPrintBlockedIps() {
         Map<Long,Long> blockedIps = getBlockedIps();
-        logReader.printBlockedIps(blockedIps);
+        logHandler.printBlockedIps(blockedIps);
         // TODO: figure out how to test
     }
 
     @Test
     public void testSaveBlockedIps() {
         Map<Long,Long> blockedIps = getBlockedIps();
-        logReader.saveBlockedIps(blockedIps, startDate, duration, threshold);
+        logHandler.saveBlockedIps(blockedIps, startDate, duration, threshold);
         // TODO: figure out how to test
     }
 
 
     private Map<Long, Long> getBlockedIps() {
-        return logReader.getBlockedIps(startDate, duration, threshold);
+        return logHandler.getBlockedIps(startDate, duration, threshold);
     }
 }
