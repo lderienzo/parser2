@@ -71,4 +71,12 @@ public class AccessLogReader implements LogReader {
         return (blockedIps == null ? new HashMap<>() : blockedIps);
     }
 
+    @Override
+    public void printBlockedIps(Map<Long, Long> blockedIps) {
+        if (blockedIps.size() > 0) {
+            System.out.println("Blocked IPs:");
+        }
+        blockedIps.keySet().stream().sorted()
+                .forEach(key -> System.out.println(IpAddressConverter.toIp(key)));
+    }
 }

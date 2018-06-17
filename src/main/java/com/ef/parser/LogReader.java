@@ -22,9 +22,9 @@ public interface LogReader {
      */
     Map<Long, Long> getBlockedIps(LocalDateTime startDate, String duration, int threshold);
 
-    /**
+    /** Prints list of blocked IPs to console.
      * @param blockedIps - Map of blocked IP addresses with IP address as key and
      *                   number of requests resulting in the blocked status.
      */
-    void printBlockedIpsToConsole(Map<Long, Long> blockedIps);
+    void printBlockedIps(Map<Long, Long> blockedIps);
 }

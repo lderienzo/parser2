@@ -42,12 +42,23 @@ public final class LogReaderTest {
 
     @Test
     public void testGetBlockedIps() {
+        Map<Long,Long> blockedIps = getBlockedIps();
+        assertNotNull(blockedIps);
+        assertEquals(6, blockedIps.size());
+    }
+
+    @Test
+    public void testPrintBlockedIps() {
+        Map<Long,Long> blockedIps = getBlockedIps();
+        logReader.printBlockedIps(blockedIps);
+    }
+
+
+    private Map<Long, Long> getBlockedIps() {
         LocalDateTime startDate = ParserTestUtils.stringToLocalDateTime("2017-01-01 20:00:00");
         String duration = ParserTestUtils.HOURLY_DURATION;
         int threshold = ParserTestUtils.THRESHOLD_100;
 
-        Map<Long,Long> blockedIps = logReader.getBlockedIps(startDate, duration, threshold);
-        assertNotNull(blockedIps);
-        assertEquals(6, blockedIps.size());
+        return logReader.getBlockedIps(startDate, duration, threshold);
     }
 }
