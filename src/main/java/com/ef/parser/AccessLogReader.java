@@ -18,15 +18,21 @@ import java.util.stream.Stream;
 import com.ef.parser.db.parser.parser.access_log_entry.AccessLogEntry;
 import com.ef.parser.db.parser.parser.access_log_entry.AccessLogEntryImpl;
 import com.ef.parser.db.parser.parser.access_log_entry.AccessLogEntryManager;
+import com.ef.parser.db.parser.parser.blocked_ip.BlockedIp;
+import com.ef.parser.db.parser.parser.blocked_ip.BlockedIpImpl;
+import com.ef.parser.db.parser.parser.blocked_ip.BlockedIpManager;
+import com.speedment.runtime.core.exception.SpeedmentException;
 
 public class AccessLogReader implements LogReader {
 
     private static final String DELIMITER = "\\|";
     private static final String DATE_FORMAT = "yyyy-MM-dd HH:mm:ss.SSS";
     private AccessLogEntryManager logEntryManager;
+    private BlockedIpManager blockedIpManager;
 
-    public AccessLogReader(AccessLogEntryManager logEntryManager) {
+    public AccessLogReader(AccessLogEntryManager logEntryManager, BlockedIpManager blockedIpManager) {
         this.logEntryManager = logEntryManager;
+        this.blockedIpManager = blockedIpManager;
     }
 
     @Override
@@ -34,8 +40,8 @@ public class AccessLogReader implements LogReader {
         try (Stream<String> lines = Files.lines(Paths.get(path))) {
             lines.map(mapToAccessLogEntry).forEach(logEntryManager.persister());
         }
-        catch (IOException e) {
-            throw new UncheckedIOException(e);
+        catch (IOException|SpeedmentException ex) {
+            System.err.println(ex.getMessage());
         }
     }
 
@@ -57,7 +63,9 @@ public class AccessLogReader implements LogReader {
             endDate = startDate.plusDays(1);
         }
 
-        Map<Long, Long> blockedIps = logEntryManager.stream()
+        Map<Long, Long> blockedIps = new HashMap<>();
+        try {
+            blockedIps = logEntryManager.stream()
                 .filter(AccessLogEntry.DATE.between(startDate, endDate, START_INCLUSIVE_END_INCLUSIVE))
                 .collect(
                         Collectors.groupingBy(AccessLogEntry::getIpAddress,// classification function, instance of the Function<T,R> T=AccessLogEntry?, R=Long
@@ -67,6 +75,9 @@ public class AccessLogReader implements LogReader {
                 .entrySet().stream()
                 .filter(entry -> entry.getValue() >= threshold)
                 .collect(Collectors.toMap(entry -> entry.getKey(), entry -> entry.getValue()));
+        } catch (SpeedmentException ex) {
+            System.err.println(ex.getMessage());
+        }
 
         return (blockedIps == null ? new HashMap<>() : blockedIps);
     }
@@ -75,8 +86,28 @@ public class AccessLogReader implements LogReader {
     public void printBlockedIps(Map<Long, Long> blockedIps) {
         if (blockedIps.size() > 0) {
             System.out.println("Blocked IPs:");
+            blockedIps.keySet().stream().sorted()
+                    .forEach(key -> System.out.println(IpAddressConverter.toIp(key)));
         }
-        blockedIps.keySet().stream().sorted()
-                .forEach(key -> System.out.println(IpAddressConverter.toIp(key)));
+        else {
+            System.out.println("'blockedIps' map is empty. Nothing to save. Aborting...");
+        }
+
+    }
+
+    @Override
+    public void saveBlockedIps(Map<Long, Long> blockedIps) {
+        if (blockedIps.size() > 0) {
+            try {
+                blockedIps.entrySet().stream()
+                        .map(entry -> new BlockedIpImpl()
+                                .setIpAddress(entry.getKey())
+                                .setComment("IP [" + IpAddressConverter.toIp(entry.getKey()) + "] " +
+                                        "was blocked for exceeding 'threshold number' requests within a/an'specified duration'."))
+                .forEach(blockedIpManager.persister());
+            } catch (SpeedmentException ex) {
+                System.err.println(ex.getMessage());
+            }
+        }
     }
 }

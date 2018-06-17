@@ -7,7 +7,7 @@ import java.util.Map;
 public interface LogReader {
 
     /**
-     * Reads in log file and stores each row in the database.
+     * Reads entire log file into the database.
      * @param path
      */
     void read(String path);
@@ -27,4 +27,6 @@ public interface LogReader {
      *                   number of requests resulting in the blocked status.
      */
     void printBlockedIps(Map<Long, Long> blockedIps);
+
+    void saveBlockedIps(Map<Long, Long> blockedIps);
 }

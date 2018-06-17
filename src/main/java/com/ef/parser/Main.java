@@ -17,6 +17,7 @@ import java.util.stream.Collectors;
 import com.ef.parser.db.ParserApplication;
 import com.ef.parser.db.ParserApplicationBuilder;
 import com.ef.parser.db.parser.parser.access_log_entry.AccessLogEntryManager;
+import com.ef.parser.db.parser.parser.blocked_ip.BlockedIpManager;
 import com.google.common.collect.ImmutableSet;
 import com.speedment.runtime.core.ApplicationBuilder;
 
@@ -31,16 +32,18 @@ public class Main {
                 .withLogging(ApplicationBuilder.LogType.STREAM)
                 .build();
 
+        AccessLogEntryManager logEntryManager = db.getOrThrow(AccessLogEntryManager.class);
+        BlockedIpManager blockedIpManager = db.getOrThrow(BlockedIpManager.class);
+        LogReader logReader = new AccessLogReader(logEntryManager, blockedIpManager);
+
         Map<String, Object> argsMap = parseArgs(params);
         String logFilePath = (String)argsMap.get(LOG_FILE_NAME);
 
-        readLogFileIntoDb(db, logFilePath);
+        readLogFileIntoDb(logReader, logFilePath);
 
     }
 
-    private static void readLogFileIntoDb(ParserApplication db, String pathToLogFile) {
-        AccessLogEntryManager logEntryManager = db.getOrThrow(AccessLogEntryManager.class);
-        LogReader logReader = new AccessLogReader(logEntryManager);
+    private static void readLogFileIntoDb(LogReader logReader, String pathToLogFile) {
         logReader.read(pathToLogFile);
     }
 

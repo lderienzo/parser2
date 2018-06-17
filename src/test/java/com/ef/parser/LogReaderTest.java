@@ -15,11 +15,13 @@ import org.junit.Test;
 import com.ef.parser.db.ParserApplication;
 import com.ef.parser.db.ParserApplicationBuilder;
 import com.ef.parser.db.parser.parser.access_log_entry.AccessLogEntryManager;
+import com.ef.parser.db.parser.parser.blocked_ip.BlockedIpManager;
 import com.speedment.runtime.core.ApplicationBuilder;
 
 public final class LogReaderTest {
     private ParserApplication db;
     private AccessLogEntryManager logEntryManager;
+    private BlockedIpManager blockedIpManager;
     private LogReader logReader;
 
     @Before
@@ -30,7 +32,9 @@ public final class LogReaderTest {
                 .withLogging(ApplicationBuilder.LogType.STREAM)
                 .build();
         logEntryManager = db.getOrThrow(AccessLogEntryManager.class);
-        logReader = new AccessLogReader(logEntryManager);
+        blockedIpManager = db.getOrThrow(BlockedIpManager.class);
+
+        logReader = new AccessLogReader(logEntryManager, blockedIpManager);
     }
 
     @Test
@@ -51,6 +55,14 @@ public final class LogReaderTest {
     public void testPrintBlockedIps() {
         Map<Long,Long> blockedIps = getBlockedIps();
         logReader.printBlockedIps(blockedIps);
+        // TODO: figure out how to test
+    }
+
+    @Test
+    public void testSaveBlockedIps() {
+        Map<Long,Long> blockedIps = getBlockedIps();
+        logReader.saveBlockedIps(blockedIps);
+        // TODO: figure out how to test
     }
 
 
