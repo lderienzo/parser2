@@ -68,7 +68,7 @@ public class AccessLogHandler implements LogHandler {
             blockedIps = logEntryManager.stream()
                 .filter(AccessLogEntry.DATE.between(startDate, endDate, START_INCLUSIVE_END_INCLUSIVE))
                 .collect(
-                        Collectors.groupingBy(AccessLogEntry::getIpAddress,// classification function, instance of the Function<T,R> T=AccessLogEntry?, R=Long
+                        Collectors.groupingBy(AccessLogEntry::getIpAddress,
                                 Collectors.counting()
                         )
                 )

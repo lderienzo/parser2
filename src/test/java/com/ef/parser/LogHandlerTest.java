@@ -196,9 +196,6 @@ public final class LogHandlerTest {
         assertTrue(message.contains(NO_BLOCKED_IPS_TO_REPORT));
     }
 
-
-
-
     private void readLogFileIntoDb(String filePath) {
         ClassLoader classLoader = getClass().getClassLoader();
         File file = new File(classLoader.getResource(filePath).getFile());

@@ -14,7 +14,6 @@ public class JdbcMySqlConnectionTester {
     String username = "parser";
     String password = "password";
 
-
     @Before
     public void setUp() {
         try {
@@ -31,7 +30,6 @@ public class JdbcMySqlConnectionTester {
         }
 
     }
-
 
     @Test
     public void testDatabaseConnection() {
