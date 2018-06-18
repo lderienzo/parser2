@@ -23,7 +23,7 @@ public interface LogHandler {
      * @param threshold
      * @return
      */
-    Map<Long, Long> getBlockedIps(LocalDateTime startDate, String duration, int threshold);
+    Map<Long, Long> getBlockedIps(LocalDateTime startDate, Duration duration, int threshold);
 
     /**
      * Saves a list of blocked IPs to the database with a comment containing the
@@ -33,11 +33,11 @@ public interface LogHandler {
      * @param duration
      * @param threshold
      */
-    void saveBlockedIps(Map<Long, Long> blockedIps, LocalDateTime startDate, String duration, int threshold);
+    String saveBlockedIps(Map<Long, Long> blockedIps, LocalDateTime startDate, Duration duration, int threshold);
 
     /** Prints list of blocked IPs to console.
      * @param blockedIps - Map of blocked IP addresses with IP address as key and
      *                   number of requests resulting in the blocked status.
      */
-    void printBlockedIps(Map<Long, Long> blockedIps);
+    String getBlockedIpsMessage(Map<Long, Long> blockedIps);
 }

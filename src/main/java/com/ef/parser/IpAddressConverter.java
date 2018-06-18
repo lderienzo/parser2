@@ -8,10 +8,11 @@ import java.util.stream.Stream;
 public class IpAddressConverter {
 
     public static long toLong(String ip) {
-        List<Integer> octets =  Stream.of(ip).map(string -> string.split("\\."))
-                .flatMap(Arrays::stream)
-                .map(string -> Integer.parseInt(string))
-                .collect(Collectors.toList());
+        List<Integer> octets =
+                Stream.of(ip).map(string -> string.split("\\."))
+                    .flatMap(Arrays::stream)
+                    .map(string -> Integer.parseInt(string))
+                    .collect(Collectors.toList());
 
         long result = 0;
         for (int octetPosition = 0; octetPosition < octets.size(); octetPosition++) {
@@ -22,7 +23,6 @@ public class IpAddressConverter {
     }
 
     public static String toIp(Long longIp) {
-        // TODO: understand this!
         return ((longIp >> 24) & 0xFF) + "."
                 + ((longIp >> 16) & 0xFF) + "."
                 + ((longIp >> 8) & 0xFF) + "."

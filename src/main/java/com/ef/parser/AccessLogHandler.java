@@ -1,13 +1,17 @@
 package com.ef.parser;
 
-import static com.ef.parser.ParserUtils.DAILY_DURATION;
+import static com.ef.parser.Duration.DAILY;
+import static com.ef.parser.ParserUtils.BLOCKED_IPS_MESSAGE_HEADER;
+import static com.ef.parser.ParserUtils.NO_BLOCKED_IPS_TO_REPORT;
+import static com.ef.parser.ParserUtils.NO_BLOCKED_IPS_TO_SAVE;
+import static com.ef.parser.ParserUtils.STATUS_MESSAGE_FAILURE;
+import static com.ef.parser.ParserUtils.STATUS_MESSAGE_SUCCESS;
 import static com.speedment.runtime.field.predicate.Inclusion.START_INCLUSIVE_END_INCLUSIVE;
 
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Function;
@@ -24,7 +28,6 @@ import com.speedment.runtime.core.exception.SpeedmentException;
 public class AccessLogHandler implements LogHandler {
 
     private static final String DELIMITER = "\\|";
-    private static final String DATE_FORMAT = "yyyy-MM-dd HH:mm:ss.SSS";
     private AccessLogEntryManager logEntryManager;
     private BlockedIpManager blockedIpManager;
 
@@ -44,10 +47,9 @@ public class AccessLogHandler implements LogHandler {
     }
 
     private Function<String, AccessLogEntry> mapToAccessLogEntry = (line) -> {
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern(DATE_FORMAT);
         String[] entry = line.split(DELIMITER);
         return new AccessLogEntryImpl()
-                .setDate(LocalDateTime.parse(entry[0], formatter))
+                .setDate(LocalDateTime.parse(entry[0], ParserUtils.LOG_FILE_DATE_FORMATTER))
                 .setIpAddress(IpAddressConverter.toLong(entry[1]))
                 .setRequest(entry[2])
                 .setStatus(Integer.parseInt(entry[3]))
@@ -55,9 +57,9 @@ public class AccessLogHandler implements LogHandler {
     };
 
     @Override
-    public Map<Long, Long> getBlockedIps(LocalDateTime startDate, String duration, int threshold) {
+    public Map<Long, Long> getBlockedIps(LocalDateTime startDate, Duration duration, int threshold) {
         LocalDateTime endDate = startDate.plusHours(1);  // default to hourly duration
-        if (DAILY_DURATION.equals(duration)) {
+        if (DAILY == duration) {
             endDate = startDate.plusDays(1);
         }
 
@@ -81,31 +83,38 @@ public class AccessLogHandler implements LogHandler {
     }
 
     @Override
-    public void printBlockedIps(Map<Long, Long> blockedIps) {
-        if (blockedIps.size() > 0) {
-            System.out.println("Blocked IPs:");
+    public String getBlockedIpsMessage(Map<Long, Long> blockedIps) {
+        StringBuilder blockedIpsMessage = new StringBuilder();
+        if (blockedIps!= null && blockedIps.size() > 0) {
+            blockedIpsMessage.append(BLOCKED_IPS_MESSAGE_HEADER).append("\n");
             blockedIps.keySet().stream().sorted()
-                    .forEach(key -> System.out.println(IpAddressConverter.toIp(key)));
+                    .forEach(key -> blockedIpsMessage.append(IpAddressConverter.toIp(key)));
         }
         else {
-            System.out.println("'blockedIps' map is empty. Nothing to save. Aborting...");
+            blockedIpsMessage.append(NO_BLOCKED_IPS_TO_REPORT);
         }
-
+        return blockedIpsMessage.toString();
     }
 
     @Override
-    public void saveBlockedIps(Map<Long, Long> blockedIps, LocalDateTime startDate, String duration, int threshold) {
+    public String saveBlockedIps(Map<Long, Long> blockedIps, LocalDateTime startDate, Duration duration, int threshold) {
+        String statusMessage = STATUS_MESSAGE_SUCCESS;
         if (blockedIps.size() > 0) {
             try {
                 blockedIps.entrySet().stream()
                     .map(entry -> new BlockedIpImpl()
                             .setIpAddress(entry.getKey())
                             .setComment("Request threshold of ["+threshold+"] exceeded by ["+ (entry.getValue()-threshold) +"] " +
-                                    "within ["+duration+"] duration starting on ["+startDate.toString()+"]'."))
+                                    "within ["+duration.toString().toLowerCase()+"] duration starting on ["+startDate.toString()+"]'."))
                     .forEach(blockedIpManager.persister());
             } catch (SpeedmentException ex) {
+                statusMessage = STATUS_MESSAGE_FAILURE;
                 System.err.println(ex.getMessage());
             }
         }
+        else {
+            statusMessage = NO_BLOCKED_IPS_TO_SAVE;
+        }
+        return statusMessage;
     }
 }

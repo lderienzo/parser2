@@ -1,5 +1,7 @@
 package com.ef.parser;
 
+import static com.ef.parser.ParserTestUtils.HOURLY_TEST_IP;
+import static com.ef.parser.ParserTestUtils.HOURLY_TEST_IP_LONG;
 import static org.junit.Assert.assertEquals;
 
 import org.junit.Before;
@@ -15,11 +17,11 @@ public class IpAddressConverterTest {
 
     @Test
     public void testConvertFromIpToLong() {
-        assertEquals(3232254125L, converter.toLong("192.168.72.173"));
+        assertEquals(HOURLY_TEST_IP_LONG, converter.toLong(HOURLY_TEST_IP));
     }
 
     @Test
     public void testConvertFromLongToIp() {
-        assertEquals("192.168.72.173", converter.toIp(3232254125L));
+        assertEquals(HOURLY_TEST_IP, converter.toIp(HOURLY_TEST_IP_LONG));
     }
 }
