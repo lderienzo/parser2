@@ -1,15 +1,19 @@
 package com.ef.parser;
 
-import static com.ef.parser.Args.ARG_PROCESSING_MAP;
-import static com.ef.parser.Args.ArgName.ACCESS_LOG;
-import static com.ef.parser.Args.ArgName.DURATION;
-import static com.ef.parser.Args.ArgName.START_DATE;
-import static com.ef.parser.Args.ArgName.THRESHOLD;
+import static com.ef.Args.ARG_PROCESSING_MAP;
+import static com.ef.Args.ArgName.ACCESS_LOG;
+import static com.ef.Args.ArgName.DURATION;
+import static com.ef.Args.ArgName.START_DATE;
+import static com.ef.Args.ArgName.THRESHOLD;
 import static org.junit.Assert.assertTrue;
 
 
 import java.util.Map;
 import org.junit.Test;
+
+import com.ef.ArgHandler;
+import com.ef.Args;
+import com.ef.ArgsException;
 
 
 public class ArgsTest {

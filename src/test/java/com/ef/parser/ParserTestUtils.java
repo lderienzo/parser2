@@ -1,5 +1,7 @@
 package com.ef.parser;
 
+import com.ef.ParserUtils;
+
 public class ParserTestUtils extends ParserUtils {
     public static final int THRESHOLD_100 = 100;
     public static final int THRESHOLD_200 = 200;
