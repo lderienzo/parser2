@@ -57,8 +57,7 @@ public class Args {
                         ));
 
         for (Map.Entry<String, ArgHandler> argName : ARG_PROCESSING_MAP.entrySet()) {
-            //!argName.getKey().equals(ACCESS_LOG.toString()) &&
-            if (!enteredArgs.containsKey(argName.getKey())) {
+            if (!enteredArgs.containsKey(argName.getKey()) && !argName.getKey().equals(ACCESS_LOG.toString())) {
                 System.out.println("Missing argument: --"+argName.getKey());
                 System.out.println(getUsage());
                 enteredArgs.clear();

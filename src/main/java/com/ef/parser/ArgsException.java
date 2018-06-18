@@ -2,6 +2,10 @@ package com.ef.parser;
 
 public class ArgsException extends Exception {
 
+    public ArgsException(Exception e) {
+        super(e);
+    }
+
     public ArgsException(String message) {
         super(message);
     }
