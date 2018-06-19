@@ -1,6 +1,6 @@
 package com.ef.arguments;
 
-import static com.ef.arguments.Args.ARG_PROCESSING_MAP;
+import static com.ef.arguments.Args.ARG_HANDLER_MAP;
 import static com.ef.arguments.Args.ArgName.ACCESS_LOG;
 import static com.ef.arguments.Args.ArgName.DURATION;
 import static com.ef.arguments.Args.ArgName.START_DATE;
@@ -25,113 +25,133 @@ import com.ef.enums.Duration;
 public class ArgsTest {
 
     @Test
-    public void testProcess_args_map_all_args_present() {
+    public void testProcess_args_map_all_args_present() throws ArgsException {
         String[] params = {
-            "--"+ACCESS_LOG.toString()+"="+BOGUS_TEST_LOG_FILE_PATH,
-            "--"+START_DATE.toString()+"="+HOURLY_TEST_START_DATE,
-            "--"+DURATION.toString()+"="+HOURLY.toString().toLowerCase(),
-            "--"+THRESHOLD.toString()+"="+THRESHOLD_200
+            "--"+ACCESS_LOG+"="+BOGUS_TEST_LOG_FILE_PATH,
+            "--"+START_DATE+"="+HOURLY_TEST_START_DATE,
+            "--"+DURATION+"="+HOURLY,
+            "--"+THRESHOLD+"="+THRESHOLD_200
         };
-        Map<String, String> argsMap = Args.process(params);
+        Map<String, String> argsMap = Args.getMap(params);
         assertTrue(params.length == argsMap.size());
     }
 
     @Test
-    public void testProcess_args_map_all_args_present_in_different_order() {
+    public void testProcess_args_map_all_args_present_in_different_order() throws ArgsException {
         String[] params = {
-            "--"+THRESHOLD.toString()+"="+THRESHOLD_200,
-            "--"+DURATION.toString()+"="+HOURLY.toString().toLowerCase(),
-            "--"+START_DATE.toString()+"="+HOURLY_TEST_START_DATE,
-            "--"+ACCESS_LOG.toString()+"="+BOGUS_TEST_LOG_FILE_PATH
+            "--"+THRESHOLD+"="+THRESHOLD_200,
+            "--"+DURATION+"="+HOURLY,
+            "--"+START_DATE+"="+HOURLY_TEST_START_DATE,
+            "--"+ACCESS_LOG+"="+BOGUS_TEST_LOG_FILE_PATH
         };
-        Map<String, String> argsMap = Args.process(params);
+        Map<String, String> argsMap = Args.getMap(params);
         assertTrue(params.length == argsMap.size());
     }
 
-    @Test
-    public void testProcess_args_map_empty_if_missing_required_arg() {
-        String[] params = {
-            "--"+ACCESS_LOG.toString()+"="+BOGUS_TEST_LOG_FILE_PATH,
-            "--"+START_DATE.toString()+"="+HOURLY_TEST_START_DATE,
-            "--"+THRESHOLD.toString()+"="+THRESHOLD_200
-        };
-        Map<String, String> argsMap = Args.process(params);
-        assertTrue(argsMap.size() == 0);
-    }
-
-    @Test
-    public void testProcess_args_when_access_log_file_path_absent() {
-        String[] params = {
-            "--"+START_DATE.toString()+"="+HOURLY_TEST_START_DATE,
-            "--"+DURATION.toString()+"="+HOURLY.toString().toLowerCase(),
-            "--"+THRESHOLD.toString()+"="+THRESHOLD_200
-        };
-        Map<String, String> argsMap = Args.process(params);
+    @Test(expected = ArgsException.class)
+    public void testProcess_args_map_all_args_absent() throws ArgsException {
+        String[] params = {};
+        Map<String, String> argsMap = Args.getMap(params);
         assertTrue(params.length == argsMap.size());
     }
 
-    @Test
-    public void testProcess_args_when_required_and_non_required_arg_absent() {
+    @Test(expected = ArgsException.class)
+    public void testProcess_missing_required_arg() throws ArgsException {
         String[] params = {
-            "--"+START_DATE.toString()+"="+HOURLY_TEST_START_DATE,
-            "--"+DURATION.toString()+"="+HOURLY.toString().toLowerCase()
+            "--"+ACCESS_LOG+"="+BOGUS_TEST_LOG_FILE_PATH,
+            "--"+START_DATE+"="+HOURLY_TEST_START_DATE,
+            "--"+THRESHOLD+"="+THRESHOLD_200
         };
-        Map<String, String> argsMap = Args.process(params);
-        assertTrue(argsMap.size() == 0);
+        Args.getMap(params);
     }
 
     @Test
-    public void testProcess_invalid_access_log_arg_format() throws ArgsException {
+    public void testProcess_args_when_access_log_file_path_absent() throws ArgsException {
         String[] params = {
-            "--"+ACCESS_LOG.toString()+BOGUS_TEST_LOG_FILE_PATH,
-            "--"+START_DATE.toString()+"="+HOURLY_TEST_START_DATE,
-            "--"+DURATION.toString()+"="+HOURLY.toString().toLowerCase(),
-            "--"+THRESHOLD.toString()+"="+THRESHOLD_200
+            "--"+START_DATE+"="+HOURLY_TEST_START_DATE,
+            "--"+DURATION+"="+HOURLY,
+            "--"+THRESHOLD+"="+THRESHOLD_200
         };
-        Map<String, String> argsMap = Args.process(params);
-        String filePath = ARG_PROCESSING_MAP.get(ACCESS_LOG.toString())
-                .getValue(argsMap.get(ACCESS_LOG.toString()), String.class);
-        assertTrue(argsMap.size() == 3);
-        assertTrue(filePath.isEmpty());
+        Map<String, String> argsMap = Args.getMap(params);
+        assertTrue(params.length == argsMap.size());
+    }
+
+    @Test(expected = ArgsException.class)
+    public void testProcess_args_when_required_and_non_required_arg_absent() throws ArgsException {
+        String[] params = {
+            "--"+START_DATE+"="+HOURLY_TEST_START_DATE,
+            "--"+DURATION+"="+HOURLY
+        };
+        Args.getMap(params);
     }
 
     @Test
     public void testProcess_valid_access_log_path() throws ArgsException {
         String[] params = {
-            "--"+ACCESS_LOG.toString()+"="+VALID_TEST_LOG_FILE_PATH,
-            "--"+START_DATE.toString()+"="+HOURLY_TEST_START_DATE,
-            "--"+DURATION.toString()+"="+HOURLY.toString().toLowerCase(),
-            "--"+THRESHOLD.toString()+"="+THRESHOLD_200
+                "--"+ACCESS_LOG+"="+VALID_TEST_LOG_FILE_PATH,
+                "--"+START_DATE+"="+HOURLY_TEST_START_DATE,
+                "--"+DURATION+"="+HOURLY,
+                "--"+THRESHOLD+"="+THRESHOLD_200
         };
-        Map<String, String> argsMap = Args.process(params);
-        String filePath = ARG_PROCESSING_MAP.get(ACCESS_LOG.toString())
+        Map<String, String> argsMap = Args.getMap(params);
+        String filePath = ARG_HANDLER_MAP.get(ACCESS_LOG)
                 .getValue(argsMap.get(ACCESS_LOG.toString()), String.class);
         assertTrue(argsMap.size() == 4);
         assertEquals(VALID_TEST_LOG_FILE_PATH, filePath);
     }
 
     @Test(expected = ArgsException.class)
-    public void testProcess_invalid_access_log_path() throws ArgsException {
+    public void testProcess_only_valid_access_log_path_present() throws ArgsException {
         String[] params = {
-            "--"+ACCESS_LOG.toString()+"="+BOGUS_TEST_LOG_FILE_PATH,
-            "--"+START_DATE.toString()+"="+HOURLY_TEST_START_DATE,
-            "--"+DURATION.toString()+"="+HOURLY.toString().toLowerCase(),
-            "--"+THRESHOLD.toString()+"="+THRESHOLD_200
+                "--"+ACCESS_LOG+"="+VALID_TEST_LOG_FILE_PATH
         };
-        Map<String, String> argsMap = Args.process(params);
-        ARG_PROCESSING_MAP.get(ACCESS_LOG.toString())
+        Args.getMap(params);
+    }
+
+    @Test(expected = ArgsException.class)
+    public void testProcess_only_invalid_access_log_path_present() throws ArgsException {
+        String[] params = {
+                "--"+ACCESS_LOG+"="+BOGUS_TEST_LOG_FILE_PATH
+        };
+        Args.getMap(params);
+    }
+
+    @Test
+    public void testProcess_invalid_access_log_arg_format_no_equals() throws ArgsException {
+        String[] params = {
+            "--"+ACCESS_LOG+BOGUS_TEST_LOG_FILE_PATH,
+            "--"+START_DATE+"="+HOURLY_TEST_START_DATE,
+            "--"+DURATION+"="+HOURLY,
+            "--"+THRESHOLD+"="+THRESHOLD_200
+        };
+        Map<String, String> argsMap = Args.getMap(params);
+        ARG_HANDLER_MAP.get(ACCESS_LOG)
+                .getValue(argsMap.get(ACCESS_LOG.toString()), String.class);
+        assertTrue(argsMap.size() == 3);
+    }
+
+    @Test(expected = ArgsException.class)
+    public void testProcess_invalid_access_log_path_with_equals() throws ArgsException {
+        String[] params = {
+            "--"+ACCESS_LOG+"="+BOGUS_TEST_LOG_FILE_PATH,
+            "--"+START_DATE+"="+HOURLY_TEST_START_DATE,
+            "--"+DURATION+"="+HOURLY,
+            "--"+THRESHOLD+"="+THRESHOLD_200
+        };
+        Map<String, String> argsMap = Args.getMap(params);
+        ARG_HANDLER_MAP.get(ACCESS_LOG)
                 .getValue(argsMap.get(ACCESS_LOG.toString()), String.class);
     }
 
     @Test
     public void testProcess_valid_start_date_value() throws ArgsException {
         String[] params = {
-            "--"+START_DATE.toString()+"="+HOURLY_TEST_START_DATE,
-            "--"+DURATION.toString()+"="+HOURLY.toString().toLowerCase(),
-            "--"+THRESHOLD.toString()+"="+THRESHOLD_200
+            "--"+START_DATE+"="+HOURLY_TEST_START_DATE,
+            "--"+DURATION+"="+HOURLY,
+            "--"+THRESHOLD+"="+THRESHOLD_200
         };
-        Map<String, String> argsMap = Args.process(params);
-        LocalDateTime startDate = ARG_PROCESSING_MAP.get(START_DATE.toString())
+        Map<String, String> argsMap = Args.getMap(params);
+        LocalDateTime startDate = ARG_HANDLER_MAP.get(START_DATE)
                 .getValue(argsMap.get(START_DATE.toString()), LocalDateTime.class);
         String expected = new String(HOURLY_TEST_START_DATE).replace(".", "T")
                 .subSequence(0,HOURLY_TEST_START_DATE.length()-3).toString();
@@ -144,24 +164,24 @@ public class ArgsTest {
     @Test(expected = ArgsException.class)
     public void testProcess_invalid_start_date_value() throws ArgsException {
         String[] params = {
-            "--"+START_DATE.toString()+"=2017-01-01~~~20:00:00",
-            "--"+DURATION.toString()+"="+HOURLY.toString().toLowerCase(),
-            "--"+THRESHOLD.toString()+"="+THRESHOLD_200
+            "--"+START_DATE+"=2017-01-01~~~20:00:00",
+            "--"+DURATION+"="+HOURLY,
+            "--"+THRESHOLD+"="+THRESHOLD_200
         };
-        Map<String, String> argsMap = Args.process(params);
-        ARG_PROCESSING_MAP.get(START_DATE.toString())
+        Map<String, String> argsMap = Args.getMap(params);
+        ARG_HANDLER_MAP.get(START_DATE)
                 .getValue(argsMap.get(START_DATE.toString()), LocalDateTime.class);
     }
 
     @Test
     public void testProcess_valid_duration_value_hourly() throws ArgsException {
         String[] params = {
-            "--"+START_DATE.toString()+"="+HOURLY_TEST_START_DATE,
-            "--"+DURATION.toString()+"="+HOURLY.toString().toLowerCase(),
-            "--"+THRESHOLD.toString()+"="+THRESHOLD_200
+            "--"+START_DATE+"="+HOURLY_TEST_START_DATE,
+            "--"+DURATION+"="+HOURLY,
+            "--"+THRESHOLD+"="+THRESHOLD_200
         };
-        Map<String, String> argsMap = Args.process(params);
-        Duration duration = ARG_PROCESSING_MAP.get(DURATION.toString())
+        Map<String, String> argsMap = Args.getMap(params);
+        Duration duration = ARG_HANDLER_MAP.get(DURATION)
                 .getValue(argsMap.get(DURATION.toString()), Duration.class);
         assertTrue(argsMap.size() == 3);
         assertEquals(HOURLY, duration);
@@ -170,62 +190,58 @@ public class ArgsTest {
     @Test
     public void testProcess_valid_duration_value_daily() throws ArgsException {
         String[] params = {
-            "--"+START_DATE.toString()+"="+HOURLY_TEST_START_DATE,
-            "--"+DURATION.toString()+"="+DAILY.toString().toLowerCase(),
-            "--"+THRESHOLD.toString()+"="+THRESHOLD_200
+            "--"+START_DATE+"="+HOURLY_TEST_START_DATE,
+            "--"+DURATION+"="+DAILY,
+            "--"+THRESHOLD+"="+THRESHOLD_200
         };
-        Map<String, String> argsMap = Args.process(params);
-        Duration duration = ARG_PROCESSING_MAP.get(DURATION.toString())
+        Map<String, String> argsMap = Args.getMap(params);
+        Duration duration = ARG_HANDLER_MAP.get(DURATION)
                 .getValue(argsMap.get(DURATION.toString()), Duration.class);
         assertTrue(argsMap.size() == 3);
         assertEquals(DAILY, duration);
     }
 
     @Test(expected = ArgsException.class)
-    public void testProcess_invalid_duration_value() throws ArgsException {
+    public void testProcess_invalid_required_arg_value() throws ArgsException {
         String[] params = {
-            "--"+START_DATE.toString()+"="+HOURLY_TEST_START_DATE,
-            "--"+DURATION.toString()+"=boguz_value",
-            "--"+THRESHOLD.toString()+"="+THRESHOLD_200
+            "--"+START_DATE+"="+HOURLY_TEST_START_DATE,
+            "--"+DURATION+"=boguz_value",
+            "--"+THRESHOLD+"="+THRESHOLD_200
         };
-        Map<String, String> argsMap = Args.process(params);
-        ARG_PROCESSING_MAP.get(DURATION.toString())
+        Map<String, String> argsMap = Args.getMap(params);
+        ARG_HANDLER_MAP.get(DURATION)
                 .getValue(argsMap.get(DURATION.toString()), Duration.class);
     }
 
     @Test(expected = ArgsException.class)
-    public void testProcess_missing_duration_value_with_equals_char() throws ArgsException {
+    public void testProcess_missing_required_value_with_equals_char() throws ArgsException {
         String[] params = {
-            "--"+START_DATE.toString()+"="+HOURLY_TEST_START_DATE,
-            "--"+DURATION.toString()+"=",
-            "--"+THRESHOLD.toString()+"="+THRESHOLD_200
+            "--"+START_DATE+"="+HOURLY_TEST_START_DATE,
+            "--"+DURATION+"=",
+            "--"+THRESHOLD+"="+THRESHOLD_200
         };
-        Map<String, String> argsMap = Args.process(params);
-        ARG_PROCESSING_MAP.get(DURATION.toString())
-                .getValue(argsMap.get(DURATION.toString()), Duration.class);
+        Args.getMap(params);
     }
 
     @Test(expected = ArgsException.class)
-    public void testProcess_missing_duration_value_without_equals_char() throws ArgsException {
+    public void testProcess_missing_required_arg_value_without_equals_char() throws ArgsException {
         String[] params = {
-            "--"+START_DATE.toString()+"="+HOURLY_TEST_START_DATE,
-            "--"+DURATION.toString()+"",
-            "--"+THRESHOLD.toString()+"="+THRESHOLD_200
+            "--"+START_DATE+"="+HOURLY_TEST_START_DATE,
+            "--"+DURATION+"",
+            "--"+THRESHOLD+"="+THRESHOLD_200
         };
-        Map<String, String> argsMap = Args.process(params);
-        ARG_PROCESSING_MAP.get(DURATION.toString())
-                .getValue(argsMap.get(DURATION.toString()), Duration.class);
+        Args.getMap(params);
     }
 
     @Test
     public void testProcess_valid_threshold_value() throws ArgsException {
         String[] params = {
-            "--"+START_DATE.toString()+"="+HOURLY_TEST_START_DATE,
-            "--"+DURATION.toString()+"="+DAILY.toString().toLowerCase(),
-            "--"+THRESHOLD.toString()+"="+THRESHOLD_200
+            "--"+START_DATE+"="+HOURLY_TEST_START_DATE,
+            "--"+DURATION+"="+DAILY,
+            "--"+THRESHOLD+"="+THRESHOLD_200
         };
-        Map<String, String> argsMap = Args.process(params);
-        Integer threshold = ARG_PROCESSING_MAP.get(THRESHOLD.toString())
+        Map<String, String> argsMap = Args.getMap(params);
+        Integer threshold = ARG_HANDLER_MAP.get(THRESHOLD)
                 .getValue(argsMap.get(THRESHOLD.toString()), Integer.class);
         assertTrue(argsMap.size() == 3);
         assertEquals(THRESHOLD_200, threshold.intValue());
@@ -234,49 +250,46 @@ public class ArgsTest {
     @Test(expected = ArgsException.class)
     public void testProcess_invalid_threshold_value_below_range() throws ArgsException {
         String[] params = {
-            "--"+START_DATE.toString()+"="+HOURLY_TEST_START_DATE,
-            "--"+DURATION.toString()+"="+DAILY.toString().toLowerCase(),
-            "--"+THRESHOLD.toString()+"=50"
+            "--"+START_DATE+"="+HOURLY_TEST_START_DATE,
+            "--"+DURATION+"="+DAILY,
+            "--"+THRESHOLD+"=50"
         };
-        Map<String, String> argsMap = Args.process(params);
-        ARG_PROCESSING_MAP.get(THRESHOLD.toString())
+        Map<String, String> argsMap = Args.getMap(params);
+        ARG_HANDLER_MAP.get(THRESHOLD)
                 .getValue(argsMap.get(THRESHOLD.toString()), Integer.class);
     }
 
     @Test(expected = ArgsException.class)
     public void testProcess_invalid_threshold_value_above_range() throws ArgsException {
         String[] params = {
-            "--"+START_DATE.toString()+"="+HOURLY_TEST_START_DATE,
-            "--"+DURATION.toString()+"="+DAILY.toString().toLowerCase(),
-            "--"+THRESHOLD.toString()+"=550"
+            "--"+START_DATE+"="+HOURLY_TEST_START_DATE,
+            "--"+DURATION+"="+DAILY,
+            "--"+THRESHOLD+"=550"
         };
-        Map<String, String> argsMap = Args.process(params);
-        ARG_PROCESSING_MAP.get(THRESHOLD.toString())
+        Map<String, String> argsMap = Args.getMap(params);
+        ARG_HANDLER_MAP.get(THRESHOLD)
                 .getValue(argsMap.get(THRESHOLD.toString()), Integer.class);
     }
 
     @Test(expected = ArgsException.class)
     public void testProcess_invalid_threshold_character_val() throws ArgsException {
         String[] params = {
-            "--"+START_DATE.toString()+"="+HOURLY_TEST_START_DATE,
-            "--"+DURATION.toString()+"="+DAILY.toString().toLowerCase(),
-            "--"+THRESHOLD.toString()+"=XYZ"
+            "--"+START_DATE+"="+HOURLY_TEST_START_DATE,
+            "--"+DURATION+"="+DAILY,
+            "--"+THRESHOLD+"=XYZ"
         };
-        Map<String, String> argsMap = Args.process(params);
-        ARG_PROCESSING_MAP.get(THRESHOLD.toString())
+        Map<String, String> argsMap = Args.getMap(params);
+        ARG_HANDLER_MAP.get(THRESHOLD)
                 .getValue(argsMap.get(THRESHOLD.toString()), Integer.class);
     }
 
     @Test(expected = ArgsException.class)
     public void testProcess_invalid_threshold_missing_value() throws ArgsException {
         String[] params = {
-            "--"+START_DATE.toString()+"="+HOURLY_TEST_START_DATE,
-            "--"+DURATION.toString()+"="+DAILY.toString().toLowerCase(),
-            "--"+THRESHOLD.toString()+"="
+            "--"+START_DATE+"="+HOURLY_TEST_START_DATE,
+            "--"+DURATION+"="+DAILY,
+            "--"+THRESHOLD+"="
         };
-        Map<String, String> argsMap = Args.process(params);
-        ARG_PROCESSING_MAP.get(THRESHOLD.toString())
-                .getValue(argsMap.get(THRESHOLD.toString()), Integer.class);
-
+        Args.getMap(params);
     }
 }

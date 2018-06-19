@@ -1,20 +1,23 @@
 package com.ef.arguments;
 
+import com.google.common.base.Strings;
+
 public class IntArgHandler implements ArgHandler {
 
     @Override
-    public <T> T getValue(String strArgVal, Class<T> clazz) throws ArgsException {
+    public <T> T getValue(String strVal, Class<T> clazz) throws ArgsException {
         Integer threshold;
         try {
-            threshold = Integer.parseInt(strArgVal);
+            if (Strings.isNullOrEmpty(strVal)) {
+                throw new ArgsException("Error: Threshold value is null or empty!");
+            }
+            threshold = Integer.parseInt(strVal);
         } catch (NumberFormatException e) {
             System.out.println("Error: Threshold value must be an integer!");
-            System.out.println(Args.getUsage());
             throw new ArgsException("Invalid threshold argument... non-integer value encountered.", e);
         }
         if (threshold < 100 || threshold > 500) { // set arbitrary lower and upper bounds on threshold
             System.out.println("Error: Threshold value must be between 100 and 500!");
-            System.out.println(Args.getUsage());
             throw new ArgsException("Invalid threshold argument... outside allowed threshold range.");
         }
         return (T)threshold;

@@ -1,5 +1,16 @@
 package com.ef.enums;
 
 public enum Duration {
-    HOURLY, DAILY
+    HOURLY {
+        @Override
+        public String toString() {
+            return "hourly";
+        }
+    },
+    DAILY {
+        @Override
+        public String toString() {
+            return "daily";
+        }
+    },
 }

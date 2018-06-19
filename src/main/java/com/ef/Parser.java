@@ -1,6 +1,6 @@
 package com.ef;
 
-import static com.ef.arguments.Args.ARG_PROCESSING_MAP;
+import static com.ef.arguments.Args.ARG_HANDLER_MAP;
 import static com.ef.arguments.Args.ArgName.ACCESS_LOG;
 import static com.ef.arguments.Args.ArgName.DURATION;
 import static com.ef.arguments.Args.ArgName.START_DATE;
@@ -26,58 +26,51 @@ import com.google.common.base.Strings;
 public class Parser {
 
     public static void main(String... params) {
-        Map<String, String> argsMap = Args.process(params);
-        if (argsMap == null || argsMap.isEmpty() || argsMap.size() != params.length) {
-            System.err.println("Error entering required application arguments. Please re-enter.");
-            return;
-        }
 
-        // set defaults
-        String filePath = "";
-        LocalDateTime startDate = LocalDateTime.now();
-        Duration duration = Duration.DAILY;
-        int threshold = ParserUtils.THRESHOLD_100;
         try {
-            filePath = ARG_PROCESSING_MAP
-                    .get(ACCESS_LOG.toString())
-                    .getValue(argsMap.get(ACCESS_LOG.toString()), String.class);
 
-            startDate = ARG_PROCESSING_MAP
-                    .get(START_DATE.toString())
+            Map<String, String> argsMap = Args.getMap(params);
+            if (argsMap == null || argsMap.isEmpty() || argsMap.size() != params.length) {
+                System.err.println("Error entering required application arguments. Please re-enter.");
+                throw new ArgsException("Incomplete argument entry.");
+            }
+
+            String filePath = "";
+            if (argsMap.containsKey(ACCESS_LOG.toString())) {
+                filePath = ARG_HANDLER_MAP.get(ACCESS_LOG)
+                        .getValue(argsMap.get(ACCESS_LOG.toString()), String.class);
+            }
+
+            LocalDateTime startDate = ARG_HANDLER_MAP.get(START_DATE)
                     .getValue(argsMap.get(START_DATE.toString()), LocalDateTime.class);
 
-            duration = ARG_PROCESSING_MAP
-                    .get(DURATION.toString())
+            Duration duration = ARG_HANDLER_MAP.get(DURATION)
                     .getValue(argsMap.get(DURATION.toString()), Duration.class);
 
-            threshold = ARG_PROCESSING_MAP
-                    .get(THRESHOLD.toString())
+            int threshold = ARG_HANDLER_MAP.get(THRESHOLD)
                     .getValue(argsMap.get(THRESHOLD.toString()), Integer.class);
 
+            LogHandler logHandler = initDbHandler();
+            if (!Strings.isNullOrEmpty(filePath)) {
+                logHandler.read(filePath);
+            }
+
+            Map<Long, Long> blockedIps = logHandler.getBlockedIps(startDate, duration, threshold);
+            logHandler.saveBlockedIps(blockedIps, startDate, duration, threshold);
+            System.out.println(logHandler.getBlockedIpsMessage(blockedIps));
+
+            System.exit(0);
+
         } catch (ArgsException e) {
-            System.err.println("Error processing command line arguments. Please re-enter.");
-            System.err.println(e.errorMessage());
-            System.out.println();
+            System.err.println("Error processing command line arguments. Please re-enter.\n");
             System.out.println(Args.getUsage());
+            System.err.println(e.errorMessage());
         }
-
-        LogHandler logHandler = initDbHandler();
-        if (!Strings.isNullOrEmpty(filePath)) {
-            logHandler.read(filePath);
-        }
-
-        Map<Long, Long> blockedIps = logHandler.getBlockedIps(startDate, duration, threshold);
-        String saveStatus = logHandler.saveBlockedIps(blockedIps, startDate, duration, threshold);
-        System.out.println(saveStatus);
-        System.out.println(logHandler.getBlockedIpsMessage(blockedIps));
-
-        System.exit(0);
     }
 
     private static LogHandler initDbHandler() {
-        ParserApplication db = new ParserApplicationBuilder()
-                .withPassword(DB_PWD)
-                .build();
+        ParserApplication db =
+                new ParserApplicationBuilder().withPassword(DB_PWD).build();
 
         AccessLogEntryManager logEntryManager = db.getOrThrow(AccessLogEntryManager.class);
         BlockedIpManager blockedIpManager = db.getOrThrow(BlockedIpManager.class);

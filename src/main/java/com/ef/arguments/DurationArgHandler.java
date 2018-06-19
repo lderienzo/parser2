@@ -9,26 +9,24 @@ import com.google.common.base.Strings;
 public class DurationArgHandler implements ArgHandler {
 
     @Override
-    public <T> T getValue(String strArgVal, Class<T> clazz) throws ArgsException {
+    public <T> T getValue(String strVal, Class<T> clazz) throws ArgsException {
 
-        if (Strings.isNullOrEmpty(strArgVal) || (!strArgVal.equals(HOURLY.toString().toLowerCase())
-                && !strArgVal.equals(DAILY.toString().toLowerCase()))) {
+        if (Strings.isNullOrEmpty(strVal) || (!strVal.equals(HOURLY.toString())
+                && !strVal.equals(DAILY.toString()))) {
             System.out.println("Error: Invalid value entered for 'duration'!");
-            System.out.println(Args.getUsage());
             throw new ArgsException("Invalid duration value.");
         }
 
-        T defaultDuration;
         T[] durationEnums = clazz.getEnumConstants();
-        if (durationEnums.length == 2) {
-            defaultDuration = durationEnums[0];    // default value set to HOURLY
-        }
-        else {
+        if (durationEnums.length != 2) {
             throw new ArgsException("Error - internal error processing 'Duration' enums");
         }
-        if (durationEnums[1].toString().toLowerCase().equals(strArgVal)) {
+
+        T defaultDuration = durationEnums[0];    // default value set to HOURLY
+        if (durationEnums[1].toString().equals(strVal)) {   // strVal equals DAILY
             return durationEnums[1];
         }
+
         return defaultDuration;
     }
 }

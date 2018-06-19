@@ -8,17 +8,19 @@ import com.google.common.base.Strings;
 public class FilePathArgHandler implements ArgHandler {
 
     @Override
-    public <T> T getValue(String strArgVal, Class<T> clazz) throws ArgsException {
-        if (!Strings.isNullOrEmpty(strArgVal)) {
-            File file = new File(strArgVal);
-            if (!file.exists() || !file.isFile()) {
-                System.out.println("Error: File not found! Please re-enter.\n");
-                throw new ArgsException("Invalid file path.");
-            }
+    public <T> T getValue(String strVal, Class<T> clazz) throws ArgsException {
+
+        if (Strings.isNullOrEmpty(strVal)) {
+            strVal = "";
+            return (T)strVal;
         }
-        else {
-            strArgVal = "";
+
+        File file = new File(strVal);
+        if (!file.exists() || !file.isFile()) {
+            System.out.println("Error: File not found! Please re-enter.");
+            throw new ArgsException("Invalid file path.");
         }
-        return (T)strArgVal;
+
+        return (T)strVal;
     }
 }
