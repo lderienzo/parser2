@@ -44,7 +44,7 @@ public class Parser {
 
             startDate = ARG_PROCESSING_MAP
                     .get(START_DATE.toString())
-                    .getValue(argsMap.get(ACCESS_LOG.toString()), LocalDateTime.class);
+                    .getValue(argsMap.get(START_DATE.toString()), LocalDateTime.class);
 
             duration = ARG_PROCESSING_MAP
                     .get(DURATION.toString())

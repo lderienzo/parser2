@@ -1,4 +1,4 @@
-package com.ef.arguments;
+package com.ef.loghandler;
 
 
 import static com.ef.utils.ParserTestUtils.DAILY_TEST_ACCESS_LOG;
@@ -27,10 +27,8 @@ import org.junit.After;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import com.ef.loghandler.AccessLogHandler;
 import com.ef.enums.Duration;
 import com.ef.utils.IpAddressConverter;
-import com.ef.loghandler.LogHandler;
 import com.ef.db.ParserApplication;
 import com.ef.db.ParserApplicationBuilder;
 import com.ef.db.parser.parser.access_log_entry.AccessLogEntryManager;
