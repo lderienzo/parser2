@@ -3,10 +3,11 @@ package com.ef.parser;
 import com.ef.ParserUtils;
 
 public class ParserTestUtils extends ParserUtils {
-    public static final int THRESHOLD_100 = 100;
     public static final int THRESHOLD_200 = 200;
     public static final int THRESHOLD_500 = 500;
     public static final String SHORT_TEST_ACCESS_LOG_FILE = "short_test_access.log";
+    public static final String BOGUS_TEST_LOG_FILE_PATH = "/bogus/path/to/hourly_test_access.log";
+    public static final String VALID_TEST_LOG_FILE_PATH = "/Users/lderienzo/IdeaProjects/parser2/src/test/resources/hourly_test_access.log";
 
     public static final String HOURLY_TEST_START_DATE = "2017-01-01.15:00:00";
     public static final String HOURLY_TEST_ACCESS_LOG = "hourly_test_access.log";

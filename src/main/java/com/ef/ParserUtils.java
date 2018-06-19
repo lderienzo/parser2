@@ -15,6 +15,7 @@ public class ParserUtils {
     public static final String STATUS_MESSAGE_FAILURE = "Operation Unsuccessful";
     public static final DateTimeFormatter LOG_FILE_DATE_FORMATTER = DateTimeFormatter.ofPattern(LOG_FILE_DATE_FORMAT);
     public static final DateTimeFormatter ARGUMENT_DATE_FORMATTER = DateTimeFormatter.ofPattern(ARGUMENT_DATE_FORMAT);
+    public static final int THRESHOLD_100 = 100;
 
 
     public static LocalDateTime stringToLocalDateTime(String date) {

@@ -51,6 +51,7 @@ public class Args {
         Map<String, String> enteredArgs = Arrays.stream(params)
                 .map(str -> str.replace("--", ""))
                 .map(str -> str.split("="))
+                .filter(strArr -> strArr.length == 2)
                 .collect(
                         Collectors.toMap(
                             str -> str[0], str -> str[1]
@@ -58,7 +59,7 @@ public class Args {
 
         for (Map.Entry<String, ArgHandler> argName : ARG_PROCESSING_MAP.entrySet()) {
             if (!enteredArgs.containsKey(argName.getKey()) && !argName.getKey().equals(ACCESS_LOG.toString())) {
-                System.out.println("Missing argument: --"+argName.getKey());
+                System.out.println("Missing argument: --" + argName.getKey());
                 System.out.println(getUsage());
                 enteredArgs.clear();
                 break;

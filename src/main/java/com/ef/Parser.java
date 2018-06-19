@@ -22,16 +22,34 @@ public class Parser {
     public static void main(String... params) {
         Map<String, String> argsMap = Args.process(params);
         if (argsMap == null || argsMap.isEmpty() || argsMap.size() != params.length) {
-            System.err.println("Error entering required application arguments. Please try again.");
+            System.err.println("Error entering required application arguments. Please re-enter.");
             return;
         }
 
-        ArgHandler<String> pathArgHandler = ARG_PROCESSING_MAP.get(ACCESS_LOG.toString());
+        // set defaults
         String filePath = "";
+        LocalDateTime startDate = LocalDateTime.now();
+        Duration duration = Duration.DAILY;
+        int threshold = ParserUtils.THRESHOLD_100;
         try {
-            filePath = pathArgHandler.getValue(argsMap.get(ACCESS_LOG.toString()));
+            filePath = ARG_PROCESSING_MAP
+                    .get(ACCESS_LOG.toString())
+                    .getValue(argsMap.get(ACCESS_LOG.toString()), String.class);
+
+            startDate = ARG_PROCESSING_MAP
+                    .get(START_DATE.toString())
+                    .getValue(argsMap.get(ACCESS_LOG.toString()), LocalDateTime.class);
+
+            duration = ARG_PROCESSING_MAP
+                    .get(DURATION.toString())
+                    .getValue(argsMap.get(DURATION.toString()), Duration.class);
+
+            threshold = ARG_PROCESSING_MAP
+                    .get(THRESHOLD.toString())
+                    .getValue(argsMap.get(THRESHOLD.toString()), Integer.class);
+
         } catch (ArgsException e) {
-            System.err.println("Error processing log file path. Please try again.");
+            System.err.println("Error processing command line arguments. Please re-enter.");
             System.err.println(e.errorMessage());
             System.out.println();
             System.out.println(Args.getUsage());
@@ -42,32 +60,9 @@ public class Parser {
             logHandler.read(filePath);
         }
 
-        ArgHandler<LocalDateTime> dateArgHandler = ARG_PROCESSING_MAP.get(START_DATE.toString());
-        ArgHandler<Duration> durationArgHandler = ARG_PROCESSING_MAP.get(DURATION.toString());
-        ArgHandler<Integer> intArgHandler = ARG_PROCESSING_MAP.get(THRESHOLD.toString());
-        Map<Long, Long> blockedIps = null;
-        String saveStatus = "";
-        try {
-            blockedIps = logHandler.getBlockedIps(
-                    dateArgHandler.getValue(argsMap.get(START_DATE.toString())),
-                    durationArgHandler.getValue(DURATION.toString()),
-                    intArgHandler.getValue(argsMap.get(THRESHOLD.toString()))
-            );
-
-            saveStatus = logHandler.saveBlockedIps(
-                    blockedIps,
-                    dateArgHandler.getValue(argsMap.get(START_DATE.toString())),
-                    durationArgHandler.getValue(DURATION.toString()),
-                    intArgHandler.getValue(argsMap.get(THRESHOLD.toString()))
-            );
-        } catch (ArgsException e) {
-            System.err.println("Error processing application arguments. Please try again.");
-            System.err.println(e.errorMessage());
-        }
-        finally {
-            System.out.println(saveStatus);
-        }
-
+        Map<Long, Long> blockedIps = logHandler.getBlockedIps(startDate, duration, threshold);
+        String saveStatus = logHandler.saveBlockedIps(blockedIps, startDate, duration, threshold);
+        System.out.println(saveStatus);
         System.out.println(logHandler.getBlockedIpsMessage(blockedIps));
 
         System.exit(0);

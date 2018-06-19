@@ -5,19 +5,20 @@ import java.io.File;
 import com.google.common.base.Strings;
 
 
-public class FilePathArgHandler implements ArgHandler<String> {
+public class FilePathArgHandler implements ArgHandler {
 
     @Override
-    public String getValue(String pathStr) throws ArgsException {
-        if (!Strings.isNullOrEmpty(pathStr)) {
-            File file = new File(pathStr);
+    public <T> T getValue(String strArgVal, Class<T> clazz) throws ArgsException {
+        if (!Strings.isNullOrEmpty(strArgVal)) {
+            File file = new File(strArgVal);
             if (!file.exists() || !file.isFile()) {
-                throw new ArgsException("File not found!");
+                System.out.println("Error: File not found! Please re-enter.\n");
+                throw new ArgsException("Invalid file path.");
             }
         }
         else {
-            pathStr = "";
+            strArgVal = "";
         }
-        return pathStr;
+        return (T)strArgVal;
     }
 }
