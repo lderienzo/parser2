@@ -1,4 +1,4 @@
-package com.ef;
+package com.ef.arguments;
 
 public class ArgsException extends Exception {
 

@@ -1,19 +1,25 @@
 package com.ef;
 
-import static com.ef.Args.ARG_PROCESSING_MAP;
-import static com.ef.Args.ArgName.ACCESS_LOG;
-import static com.ef.Args.ArgName.DURATION;
-import static com.ef.Args.ArgName.START_DATE;
-import static com.ef.Args.ArgName.THRESHOLD;
-import static com.ef.ParserUtils.DB_PWD;
+import static com.ef.arguments.Args.ARG_PROCESSING_MAP;
+import static com.ef.arguments.Args.ArgName.ACCESS_LOG;
+import static com.ef.arguments.Args.ArgName.DURATION;
+import static com.ef.arguments.Args.ArgName.START_DATE;
+import static com.ef.arguments.Args.ArgName.THRESHOLD;
+import static com.ef.utils.ParserUtils.DB_PWD;
 
 import java.time.LocalDateTime;
 import java.util.Map;
 
+import com.ef.arguments.Args;
+import com.ef.arguments.ArgsException;
 import com.ef.db.ParserApplication;
 import com.ef.db.ParserApplicationBuilder;
 import com.ef.db.parser.parser.access_log_entry.AccessLogEntryManager;
 import com.ef.db.parser.parser.blocked_ip.BlockedIpManager;
+import com.ef.enums.Duration;
+import com.ef.loghandler.AccessLogHandler;
+import com.ef.loghandler.LogHandler;
+import com.ef.utils.ParserUtils;
 import com.google.common.base.Strings;
 
 

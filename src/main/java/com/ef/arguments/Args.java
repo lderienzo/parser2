@@ -1,9 +1,9 @@
-package com.ef;
+package com.ef.arguments;
 
-import static com.ef.Args.ArgName.ACCESS_LOG;
-import static com.ef.Args.ArgName.DURATION;
-import static com.ef.Args.ArgName.START_DATE;
-import static com.ef.Args.ArgName.THRESHOLD;
+import static com.ef.arguments.Args.ArgName.ACCESS_LOG;
+import static com.ef.arguments.Args.ArgName.DURATION;
+import static com.ef.arguments.Args.ArgName.START_DATE;
+import static com.ef.arguments.Args.ArgName.THRESHOLD;
 
 import java.util.Arrays;
 import java.util.Map;

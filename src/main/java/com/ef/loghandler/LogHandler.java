@@ -1,8 +1,10 @@
-package com.ef;
+package com.ef.loghandler;
 
 
 import java.time.LocalDateTime;
 import java.util.Map;
+
+import com.ef.enums.Duration;
 
 /**
  * API used to handle all log-processing related functions.

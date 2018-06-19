@@ -1,11 +1,11 @@
-package com.ef;
+package com.ef.loghandler;
 
-import static com.ef.Duration.DAILY;
-import static com.ef.ParserUtils.BLOCKED_IPS_MESSAGE_HEADER;
-import static com.ef.ParserUtils.NO_BLOCKED_IPS_TO_REPORT;
-import static com.ef.ParserUtils.NO_BLOCKED_IPS_TO_SAVE;
-import static com.ef.ParserUtils.STATUS_MESSAGE_FAILURE;
-import static com.ef.ParserUtils.STATUS_MESSAGE_SUCCESS;
+import static com.ef.enums.Duration.DAILY;
+import static com.ef.utils.ParserUtils.BLOCKED_IPS_MESSAGE_HEADER;
+import static com.ef.utils.ParserUtils.NO_BLOCKED_IPS_TO_REPORT;
+import static com.ef.utils.ParserUtils.NO_BLOCKED_IPS_TO_SAVE;
+import static com.ef.utils.ParserUtils.STATUS_MESSAGE_FAILURE;
+import static com.ef.utils.ParserUtils.STATUS_MESSAGE_SUCCESS;
 import static com.speedment.runtime.field.predicate.Inclusion.START_INCLUSIVE_END_INCLUSIVE;
 
 import java.io.IOException;
@@ -23,6 +23,9 @@ import com.ef.db.parser.parser.access_log_entry.AccessLogEntryImpl;
 import com.ef.db.parser.parser.access_log_entry.AccessLogEntryManager;
 import com.ef.db.parser.parser.blocked_ip.BlockedIpImpl;
 import com.ef.db.parser.parser.blocked_ip.BlockedIpManager;
+import com.ef.enums.Duration;
+import com.ef.utils.IpAddressConverter;
+import com.ef.utils.ParserUtils;
 import com.speedment.runtime.core.exception.SpeedmentException;
 
 public class AccessLogHandler implements LogHandler {

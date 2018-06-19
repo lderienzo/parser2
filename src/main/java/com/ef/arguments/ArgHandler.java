@@ -1,4 +1,4 @@
-package com.ef;
+package com.ef.arguments;
 
 @FunctionalInterface
 public interface ArgHandler {

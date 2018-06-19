@@ -1,11 +1,7 @@
-package com.ef;
+package com.ef.arguments;
 
-import static com.ef.Duration.DAILY;
-import static com.ef.Duration.HOURLY;
-import static com.ef.ParserUtils.ARGUMENT_DATE_FORMATTER;
-
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
+import static com.ef.enums.Duration.DAILY;
+import static com.ef.enums.Duration.HOURLY;
 
 
 import com.google.common.base.Strings;

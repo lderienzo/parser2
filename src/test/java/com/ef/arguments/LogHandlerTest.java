@@ -1,18 +1,18 @@
-package com.ef.parser;
+package com.ef.arguments;
 
 
-import static com.ef.parser.ParserTestUtils.DAILY_TEST_ACCESS_LOG;
-import static com.ef.parser.ParserTestUtils.DAILY_TEST_IP;
-import static com.ef.parser.ParserTestUtils.DAILY_TEST_IP_LONG;
-import static com.ef.parser.ParserTestUtils.DAILY_TEST_START_DATE;
-import static com.ef.parser.ParserTestUtils.HOURLY_TEST_ACCESS_LOG;
-import static com.ef.parser.ParserTestUtils.HOURLY_TEST_IP;
-import static com.ef.parser.ParserTestUtils.HOURLY_TEST_IP_LONG;
-import static com.ef.parser.ParserTestUtils.HOURLY_TEST_START_DATE;
-import static com.ef.parser.ParserTestUtils.SHORT_TEST_ACCESS_LOG_FILE;
-import static com.ef.ParserUtils.BLOCKED_IPS_MESSAGE_HEADER;
-import static com.ef.ParserUtils.DB_PWD;
-import static com.ef.ParserUtils.NO_BLOCKED_IPS_TO_REPORT;
+import static com.ef.utils.ParserTestUtils.DAILY_TEST_ACCESS_LOG;
+import static com.ef.utils.ParserTestUtils.DAILY_TEST_IP;
+import static com.ef.utils.ParserTestUtils.DAILY_TEST_IP_LONG;
+import static com.ef.utils.ParserTestUtils.DAILY_TEST_START_DATE;
+import static com.ef.utils.ParserTestUtils.HOURLY_TEST_ACCESS_LOG;
+import static com.ef.utils.ParserTestUtils.HOURLY_TEST_IP;
+import static com.ef.utils.ParserTestUtils.HOURLY_TEST_IP_LONG;
+import static com.ef.utils.ParserTestUtils.HOURLY_TEST_START_DATE;
+import static com.ef.utils.ParserTestUtils.SHORT_TEST_ACCESS_LOG_FILE;
+import static com.ef.utils.ParserUtils.BLOCKED_IPS_MESSAGE_HEADER;
+import static com.ef.utils.ParserUtils.DB_PWD;
+import static com.ef.utils.ParserUtils.NO_BLOCKED_IPS_TO_REPORT;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
@@ -25,18 +25,18 @@ import java.util.stream.Collectors;
 
 import org.junit.After;
 import org.junit.BeforeClass;
-import org.junit.Ignore;
 import org.junit.Test;
 
-import com.ef.AccessLogHandler;
-import com.ef.Duration;
-import com.ef.IpAddressConverter;
-import com.ef.LogHandler;
+import com.ef.loghandler.AccessLogHandler;
+import com.ef.enums.Duration;
+import com.ef.utils.IpAddressConverter;
+import com.ef.loghandler.LogHandler;
 import com.ef.db.ParserApplication;
 import com.ef.db.ParserApplicationBuilder;
 import com.ef.db.parser.parser.access_log_entry.AccessLogEntryManager;
 import com.ef.db.parser.parser.blocked_ip.BlockedIpImpl;
 import com.ef.db.parser.parser.blocked_ip.BlockedIpManager;
+import com.ef.utils.ParserTestUtils;
 import com.speedment.runtime.core.ApplicationBuilder;
 
 public final class LogHandlerTest {

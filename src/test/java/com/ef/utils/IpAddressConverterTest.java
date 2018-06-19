@@ -1,13 +1,11 @@
-package com.ef.parser;
+package com.ef.utils;
 
-import static com.ef.parser.ParserTestUtils.HOURLY_TEST_IP;
-import static com.ef.parser.ParserTestUtils.HOURLY_TEST_IP_LONG;
+import static com.ef.utils.ParserTestUtils.HOURLY_TEST_IP;
+import static com.ef.utils.ParserTestUtils.HOURLY_TEST_IP_LONG;
 import static org.junit.Assert.assertEquals;
 
 import org.junit.Before;
 import org.junit.Test;
-
-import com.ef.IpAddressConverter;
 
 public class IpAddressConverterTest {
     private IpAddressConverter converter;

@@ -1,16 +1,16 @@
-package com.ef.parser;
+package com.ef.arguments;
 
-import static com.ef.Args.ARG_PROCESSING_MAP;
-import static com.ef.Args.ArgName.ACCESS_LOG;
-import static com.ef.Args.ArgName.DURATION;
-import static com.ef.Args.ArgName.START_DATE;
-import static com.ef.Args.ArgName.THRESHOLD;
-import static com.ef.Duration.DAILY;
-import static com.ef.Duration.HOURLY;
-import static com.ef.parser.ParserTestUtils.HOURLY_TEST_START_DATE;
-import static com.ef.parser.ParserTestUtils.BOGUS_TEST_LOG_FILE_PATH;
-import static com.ef.parser.ParserTestUtils.THRESHOLD_200;
-import static com.ef.parser.ParserTestUtils.VALID_TEST_LOG_FILE_PATH;
+import static com.ef.arguments.Args.ARG_PROCESSING_MAP;
+import static com.ef.arguments.Args.ArgName.ACCESS_LOG;
+import static com.ef.arguments.Args.ArgName.DURATION;
+import static com.ef.arguments.Args.ArgName.START_DATE;
+import static com.ef.arguments.Args.ArgName.THRESHOLD;
+import static com.ef.enums.Duration.DAILY;
+import static com.ef.enums.Duration.HOURLY;
+import static com.ef.utils.ParserTestUtils.HOURLY_TEST_START_DATE;
+import static com.ef.utils.ParserTestUtils.BOGUS_TEST_LOG_FILE_PATH;
+import static com.ef.utils.ParserTestUtils.THRESHOLD_200;
+import static com.ef.utils.ParserTestUtils.VALID_TEST_LOG_FILE_PATH;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
@@ -19,9 +19,7 @@ import java.time.LocalDateTime;
 import java.util.Map;
 import org.junit.Test;
 
-import com.ef.Args;
-import com.ef.ArgsException;
-import com.ef.Duration;
+import com.ef.enums.Duration;
 
 
 public class ArgsTest {
