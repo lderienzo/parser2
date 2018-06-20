@@ -15,12 +15,12 @@ public class IntArgHandler implements ArgHandler {
             threshold = Integer.parseInt(strVal);
 
         } catch (NumberFormatException e) {
-            System.out.println("Error: Threshold value must be an integer!");
+            System.out.println("Error: Threshold value must be an integer.");
             throw new ArgsException("Invalid threshold argument... non-integer value encountered.", e);
         }
 
         if (outsideBounds(threshold)) {
-            System.out.println("Error: Threshold value must be between 100 and 500!");
+            System.out.println("Error: Threshold value must be between 100 and 500.");
             throw new ArgsException("Invalid threshold argument... outside allowed threshold range.");
         }
 

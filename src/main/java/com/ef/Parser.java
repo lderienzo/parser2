@@ -29,28 +29,29 @@ public class Parser {
         try {
 
             Map<String, String> argsMap = Args.getMap(params);
-            if (missingRequiredArgument(argsMap, params)) {
-                System.err.println("Error entering required application arguments. Please re-enter.");
+            if (allRequiredArgsPresent(argsMap, params)) {
+
+                LogHandler logHandler = initDbHandler();
+                readFileIfPathPresent(argsMap, logHandler);
+
+                LocalDateTime startDate = ARG_HANDLER_MAP.get(START_DATE)
+                        .getValue(argsMap.get(START_DATE.toString()), LocalDateTime.class);
+
+                Duration duration = ARG_HANDLER_MAP.get(DURATION)
+                        .getValue(argsMap.get(DURATION.toString()), Duration.class);
+
+                int threshold = ARG_HANDLER_MAP.get(THRESHOLD)
+                        .getValue(argsMap.get(THRESHOLD.toString()), Integer.class);
+
+                Map<Long, Long> blockedIps = logHandler.getBlockedIps(startDate, duration, threshold);
+                logHandler.saveBlockedIps(blockedIps, startDate, duration, threshold);
+                System.out.println(logHandler.getBlockedIpsMessage(blockedIps));
+
+                System.exit(0);
+            }
+            else {System.err.println("Error entering required application arguments. Please re-enter.");
                 throw new ArgsException("Incomplete argument entry.");
             }
-
-            LogHandler logHandler = initDbHandler();
-            readFileIfPathPresent(argsMap, logHandler);
-
-            LocalDateTime startDate = ARG_HANDLER_MAP.get(START_DATE)
-                    .getValue(argsMap.get(START_DATE.toString()), LocalDateTime.class);
-
-            Duration duration = ARG_HANDLER_MAP.get(DURATION)
-                    .getValue(argsMap.get(DURATION.toString()), Duration.class);
-
-            int threshold = ARG_HANDLER_MAP.get(THRESHOLD)
-                    .getValue(argsMap.get(THRESHOLD.toString()), Integer.class);
-
-            Map<Long, Long> blockedIps = logHandler.getBlockedIps(startDate, duration, threshold);
-            logHandler.saveBlockedIps(blockedIps, startDate, duration, threshold);
-            System.out.println(logHandler.getBlockedIpsMessage(blockedIps));
-
-            System.exit(0);
 
         } catch (ArgsException e) {
             System.err.println("Error processing command line arguments. Please re-enter.\n");
@@ -59,8 +60,8 @@ public class Parser {
         }
     }
 
-    private static boolean missingRequiredArgument(Map<String, String> argsMap, String... params) {
-        return (argsMap == null || argsMap.isEmpty() || argsMap.size() != params.length);
+    private static boolean allRequiredArgsPresent(Map<String, String> argsMap, String... params) {
+        return (argsMap != null && argsMap.size() == params.length);
     }
 
     private static void readFileIfPathPresent(Map<String, String> argsMap, LogHandler logHandler) throws ArgsException {

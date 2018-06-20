@@ -25,7 +25,7 @@ public class DateArgHandler implements ArgHandler {
             returnType = (T) lclDateTimeParse.invoke(null, strVal, ARGUMENT_DATE_FORMATTER);
 
         } catch (NoSuchMethodException|IllegalAccessException|InvocationTargetException e) {
-            System.out.println("Error: Invalid format for 'startDate'!");
+            System.out.println("Error: Invalid format for startDate.");
             throw new ArgsException("Error processing date argument", e);
         }
 

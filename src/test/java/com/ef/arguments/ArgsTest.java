@@ -25,7 +25,7 @@ import com.ef.enums.Duration;
 public class ArgsTest {
 
     @Test
-    public void testProcess_args_map_all_args_present() throws ArgsException {
+    public void testGetMap_all_args_present() throws ArgsException {
         String[] params = {
             "--"+ACCESS_LOG+"="+BOGUS_TEST_LOG_FILE_PATH,
             "--"+START_DATE+"="+HOURLY_TEST_START_DATE,
@@ -37,7 +37,7 @@ public class ArgsTest {
     }
 
     @Test
-    public void testProcess_args_map_all_args_present_in_different_order() throws ArgsException {
+    public void testGetMap_all_args_present_in_different_order() throws ArgsException {
         String[] params = {
             "--"+THRESHOLD+"="+THRESHOLD_200,
             "--"+DURATION+"="+HOURLY,
@@ -49,14 +49,14 @@ public class ArgsTest {
     }
 
     @Test(expected = ArgsException.class)
-    public void testProcess_args_map_all_args_absent() throws ArgsException {
+    public void testGetMap_all_args_absent() throws ArgsException {
         String[] params = {};
         Map<String, String> argsMap = Args.getMap(params);
         assertTrue(params.length == argsMap.size());
     }
 
     @Test(expected = ArgsException.class)
-    public void testProcess_missing_required_arg() throws ArgsException {
+    public void testGetMap_missing_required_arg() throws ArgsException {
         String[] params = {
             "--"+ACCESS_LOG+"="+BOGUS_TEST_LOG_FILE_PATH,
             "--"+START_DATE+"="+HOURLY_TEST_START_DATE,
@@ -66,7 +66,7 @@ public class ArgsTest {
     }
 
     @Test
-    public void testProcess_args_when_access_log_file_path_absent() throws ArgsException {
+    public void testGetMap_non_required_access_log_absent() throws ArgsException {
         String[] params = {
             "--"+START_DATE+"="+HOURLY_TEST_START_DATE,
             "--"+DURATION+"="+HOURLY,
@@ -77,7 +77,7 @@ public class ArgsTest {
     }
 
     @Test(expected = ArgsException.class)
-    public void testProcess_args_when_required_and_non_required_arg_absent() throws ArgsException {
+    public void testGetMap_required_and_non_required_arg_absent() throws ArgsException {
         String[] params = {
             "--"+START_DATE+"="+HOURLY_TEST_START_DATE,
             "--"+DURATION+"="+HOURLY
@@ -86,7 +86,7 @@ public class ArgsTest {
     }
 
     @Test
-    public void testProcess_valid_access_log_path() throws ArgsException {
+    public void testGetMap_valid_access_log_path() throws ArgsException {
         String[] params = {
                 "--"+ACCESS_LOG+"="+VALID_TEST_LOG_FILE_PATH,
                 "--"+START_DATE+"="+HOURLY_TEST_START_DATE,
@@ -101,7 +101,7 @@ public class ArgsTest {
     }
 
     @Test(expected = ArgsException.class)
-    public void testProcess_only_valid_access_log_path_present() throws ArgsException {
+    public void testGetMap_only_valid_access_log_path() throws ArgsException {
         String[] params = {
                 "--"+ACCESS_LOG+"="+VALID_TEST_LOG_FILE_PATH
         };
@@ -109,7 +109,7 @@ public class ArgsTest {
     }
 
     @Test(expected = ArgsException.class)
-    public void testProcess_only_invalid_access_log_path_present() throws ArgsException {
+    public void testGetMap_only_invalid_access_log_path() throws ArgsException {
         String[] params = {
                 "--"+ACCESS_LOG+"="+BOGUS_TEST_LOG_FILE_PATH
         };
@@ -117,9 +117,9 @@ public class ArgsTest {
     }
 
     @Test
-    public void testProcess_invalid_access_log_arg_format_no_equals() throws ArgsException {
+    public void testGetMap_valid_log_path_no_equals() throws ArgsException {
         String[] params = {
-            "--"+ACCESS_LOG+BOGUS_TEST_LOG_FILE_PATH,
+            "--"+ACCESS_LOG+VALID_TEST_LOG_FILE_PATH,
             "--"+START_DATE+"="+HOURLY_TEST_START_DATE,
             "--"+DURATION+"="+HOURLY,
             "--"+THRESHOLD+"="+THRESHOLD_200
@@ -130,8 +130,22 @@ public class ArgsTest {
         assertTrue(argsMap.size() == 3);
     }
 
+    @Test
+    public void testGetMap_invalid_log_path_no_equals() throws ArgsException {
+        String[] params = {
+                "--"+ACCESS_LOG+BOGUS_TEST_LOG_FILE_PATH,
+                "--"+START_DATE+"="+HOURLY_TEST_START_DATE,
+                "--"+DURATION+"="+HOURLY,
+                "--"+THRESHOLD+"="+THRESHOLD_200
+        };
+        Map<String, String> argsMap = Args.getMap(params);
+        ARG_HANDLER_MAP.get(ACCESS_LOG)
+                .getValue(argsMap.get(ACCESS_LOG.toString()), String.class);
+        assertTrue(argsMap.size() == 3);
+    }
+
     @Test(expected = ArgsException.class)
-    public void testProcess_invalid_access_log_path_with_equals() throws ArgsException {
+    public void testGetMap_invalid_log_path_with_equals() throws ArgsException {
         String[] params = {
             "--"+ACCESS_LOG+"="+BOGUS_TEST_LOG_FILE_PATH,
             "--"+START_DATE+"="+HOURLY_TEST_START_DATE,
@@ -144,7 +158,7 @@ public class ArgsTest {
     }
 
     @Test
-    public void testProcess_valid_start_date_value() throws ArgsException {
+    public void testGetMap_valid_start_date() throws ArgsException {
         String[] params = {
             "--"+START_DATE+"="+HOURLY_TEST_START_DATE,
             "--"+DURATION+"="+HOURLY,
@@ -162,7 +176,7 @@ public class ArgsTest {
 
 
     @Test(expected = ArgsException.class)
-    public void testProcess_invalid_start_date_value() throws ArgsException {
+    public void testGetMap_invalid_start_date() throws ArgsException {
         String[] params = {
             "--"+START_DATE+"=2017-01-01~~~20:00:00",
             "--"+DURATION+"="+HOURLY,
@@ -174,7 +188,7 @@ public class ArgsTest {
     }
 
     @Test
-    public void testProcess_valid_duration_value_hourly() throws ArgsException {
+    public void testGetMap_valid_duration_hourly() throws ArgsException {
         String[] params = {
             "--"+START_DATE+"="+HOURLY_TEST_START_DATE,
             "--"+DURATION+"="+HOURLY,
@@ -188,7 +202,7 @@ public class ArgsTest {
     }
 
     @Test
-    public void testProcess_valid_duration_value_daily() throws ArgsException {
+    public void testGetMap_valid_duration_daily() throws ArgsException {
         String[] params = {
             "--"+START_DATE+"="+HOURLY_TEST_START_DATE,
             "--"+DURATION+"="+DAILY,
@@ -202,11 +216,11 @@ public class ArgsTest {
     }
 
     @Test(expected = ArgsException.class)
-    public void testProcess_invalid_required_arg_value() throws ArgsException {
+    public void testGetMap_invalid_duration() throws ArgsException {
         String[] params = {
-            "--"+START_DATE+"="+HOURLY_TEST_START_DATE,
-            "--"+DURATION+"=boguz_value",
-            "--"+THRESHOLD+"="+THRESHOLD_200
+                "--"+START_DATE+"="+HOURLY_TEST_START_DATE,
+                "--"+DURATION+"=boguz_value",
+                "--"+THRESHOLD+"="+THRESHOLD_200
         };
         Map<String, String> argsMap = Args.getMap(params);
         ARG_HANDLER_MAP.get(DURATION)
@@ -214,7 +228,7 @@ public class ArgsTest {
     }
 
     @Test(expected = ArgsException.class)
-    public void testProcess_missing_required_value_with_equals_char() throws ArgsException {
+    public void testGetMap_missing_required_with_equals() throws ArgsException {
         String[] params = {
             "--"+START_DATE+"="+HOURLY_TEST_START_DATE,
             "--"+DURATION+"=",
@@ -224,7 +238,7 @@ public class ArgsTest {
     }
 
     @Test(expected = ArgsException.class)
-    public void testProcess_missing_required_arg_value_without_equals_char() throws ArgsException {
+    public void testGetMap_missing_required_without_equals() throws ArgsException {
         String[] params = {
             "--"+START_DATE+"="+HOURLY_TEST_START_DATE,
             "--"+DURATION+"",
@@ -234,7 +248,7 @@ public class ArgsTest {
     }
 
     @Test
-    public void testProcess_valid_threshold_value() throws ArgsException {
+    public void testGetMap_valid_threshold() throws ArgsException {
         String[] params = {
             "--"+START_DATE+"="+HOURLY_TEST_START_DATE,
             "--"+DURATION+"="+DAILY,
@@ -248,7 +262,7 @@ public class ArgsTest {
     }
 
     @Test(expected = ArgsException.class)
-    public void testProcess_invalid_threshold_value_below_range() throws ArgsException {
+    public void testGetMap_below_range_threshold() throws ArgsException {
         String[] params = {
             "--"+START_DATE+"="+HOURLY_TEST_START_DATE,
             "--"+DURATION+"="+DAILY,
@@ -260,7 +274,7 @@ public class ArgsTest {
     }
 
     @Test(expected = ArgsException.class)
-    public void testProcess_invalid_threshold_value_above_range() throws ArgsException {
+    public void testGetMap_above_range_threshold() throws ArgsException {
         String[] params = {
             "--"+START_DATE+"="+HOURLY_TEST_START_DATE,
             "--"+DURATION+"="+DAILY,
@@ -272,7 +286,7 @@ public class ArgsTest {
     }
 
     @Test(expected = ArgsException.class)
-    public void testProcess_invalid_threshold_character_val() throws ArgsException {
+    public void testGetMap_non_int_threshold() throws ArgsException {
         String[] params = {
             "--"+START_DATE+"="+HOURLY_TEST_START_DATE,
             "--"+DURATION+"="+DAILY,
@@ -283,13 +297,16 @@ public class ArgsTest {
                 .getValue(argsMap.get(THRESHOLD.toString()), Integer.class);
     }
 
-    @Test(expected = ArgsException.class)
-    public void testProcess_invalid_threshold_missing_value() throws ArgsException {
+    @Test
+    public void testGetMap_extra_argument() throws ArgsException {
         String[] params = {
+            "--"+ACCESS_LOG+"="+VALID_TEST_LOG_FILE_PATH,
             "--"+START_DATE+"="+HOURLY_TEST_START_DATE,
-            "--"+DURATION+"="+DAILY,
-            "--"+THRESHOLD+"="
+            "--"+DURATION+"="+HOURLY,
+            "--"+THRESHOLD+"="+THRESHOLD_200,
+            "--some_strange_string=some_strange_value"
         };
-        Args.getMap(params);
+        Map<String, String> argsMap = Args.getMap(params);
+        assertTrue(params.length == argsMap.size());
     }
 }
