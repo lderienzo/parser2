@@ -11,8 +11,7 @@ public class DurationArgHandler implements ArgHandler {
     @Override
     public <T> T getValue(String strVal, Class<T> clazz) throws ArgsException {
 
-        if (Strings.isNullOrEmpty(strVal) || (!strVal.equals(HOURLY.toString())
-                && !strVal.equals(DAILY.toString()))) {
+        if (Strings.isNullOrEmpty(strVal) || notEqualToAnyEnum(strVal)) {
             System.out.println("Error: Invalid value entered for 'duration'!");
             throw new ArgsException("Invalid duration value.");
         }
@@ -22,11 +21,16 @@ public class DurationArgHandler implements ArgHandler {
             throw new ArgsException("Error - internal error processing 'Duration' enums");
         }
 
-        T defaultDuration = durationEnums[0];    // default value set to HOURLY
-        if (durationEnums[1].toString().equals(strVal)) {   // strVal equals DAILY
-            return durationEnums[1];
+        T defaultHourlyDuration = durationEnums[0];
+        T dailyDuration = durationEnums[1];
+        if (dailyDuration.toString().equals(strVal)) {
+            return dailyDuration;
         }
 
-        return defaultDuration;
+        return defaultHourlyDuration;
+    }
+
+    private boolean notEqualToAnyEnum(String strVal) {
+        return !(strVal.equals(HOURLY.toString()) || strVal.equals(DAILY.toString()));
     }
 }

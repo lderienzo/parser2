@@ -41,6 +41,7 @@ public class AccessLogHandler implements LogHandler {
 
     @Override
     public void read(String path) {
+
         try (Stream<String> lines = Files.lines(Paths.get(path))) {
             lines.map(mapToAccessLogEntry).forEach(logEntryManager.persister());
         }
@@ -50,6 +51,7 @@ public class AccessLogHandler implements LogHandler {
     }
 
     private Function<String, AccessLogEntry> mapToAccessLogEntry = (line) -> {
+
         String[] entry = line.split(DELIMITER);
         return new AccessLogEntryImpl()
                 .setDate(LocalDateTime.parse(entry[0], ParserUtils.LOG_FILE_DATE_FORMATTER))
@@ -61,8 +63,9 @@ public class AccessLogHandler implements LogHandler {
 
     @Override
     public Map<Long, Long> getBlockedIps(LocalDateTime startDate, Duration duration, int threshold) {
+
         LocalDateTime endDate = startDate.plusHours(1);  // default to hourly duration
-        if (DAILY == duration) {
+        if (duration == DAILY) {
             endDate = startDate.plusDays(1);
         }
 
@@ -78,6 +81,7 @@ public class AccessLogHandler implements LogHandler {
                 .entrySet().stream()
                 .filter(entry -> entry.getValue() >= threshold)
                 .collect(Collectors.toMap(entry -> entry.getKey(), entry -> entry.getValue()));
+
         } catch (SpeedmentException ex) {
             System.err.println(ex.getMessage());
         }
@@ -87,6 +91,7 @@ public class AccessLogHandler implements LogHandler {
 
     @Override
     public String getBlockedIpsMessage(Map<Long, Long> blockedIps) {
+
         StringBuilder blockedIpsMessage = new StringBuilder();
         if (blockedIps!= null && blockedIps.size() > 0) {
             blockedIpsMessage.append(BLOCKED_IPS_MESSAGE_HEADER).append("\n");
@@ -96,11 +101,13 @@ public class AccessLogHandler implements LogHandler {
         else {
             blockedIpsMessage.append(NO_BLOCKED_IPS_TO_REPORT);
         }
+
         return blockedIpsMessage.toString();
     }
 
     @Override
     public String saveBlockedIps(Map<Long, Long> blockedIps, LocalDateTime startDate, Duration duration, int threshold) {
+
         String statusMessage = STATUS_MESSAGE_SUCCESS;
         if (blockedIps.size() > 0) {
             try {
@@ -110,6 +117,7 @@ public class AccessLogHandler implements LogHandler {
                             .setComment("Request threshold of ["+threshold+"] exceeded by ["+ (entry.getValue()-threshold) +"] " +
                                     "within ["+duration.toString().toLowerCase()+"] duration starting on ["+startDate.toString()+"]'."))
                     .forEach(blockedIpManager.persister());
+
             } catch (SpeedmentException ex) {
                 statusMessage = STATUS_MESSAGE_FAILURE;
                 System.err.println(ex.getMessage());
@@ -118,6 +126,7 @@ public class AccessLogHandler implements LogHandler {
         else {
             statusMessage = NO_BLOCKED_IPS_TO_SAVE;
         }
+
         return statusMessage;
     }
 }

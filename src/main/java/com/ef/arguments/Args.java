@@ -58,13 +58,17 @@ public class Args {
                         ));
 
         for (Map.Entry<ArgName, ArgHandler> argName : ARG_HANDLER_MAP.entrySet()) {
-            if (!enteredArgs.containsKey(argName.getKey().toString()) && !argName.getKey().equals(ACCESS_LOG)) {
+            if (missingRequiredArg(argName, enteredArgs)) {
                 System.out.println("Missing required argument: --" + argName.getKey());
                 enteredArgs.clear();
                 throw new ArgsException("Missing required argument.");
             }
         }
         return enteredArgs;
+    }
+
+    private static boolean missingRequiredArg(Map.Entry<ArgName, ArgHandler> argName, Map<String, String> enteredArgs) {
+        return (!enteredArgs.containsKey(argName.getKey().toString()) && !argName.getKey().equals(ACCESS_LOG));
     }
 
     public static String getUsage() {

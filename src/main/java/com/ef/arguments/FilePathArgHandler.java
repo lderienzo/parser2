@@ -15,12 +15,15 @@ public class FilePathArgHandler implements ArgHandler {
             return (T)strVal;
         }
 
-        File file = new File(strVal);
-        if (!file.exists() || !file.isFile()) {
+        if (fileDoesNotExist(new File(strVal))) {
             System.out.println("Error: File not found! Please re-enter.");
-            throw new ArgsException("Invalid file path.");
+            throw new ArgsException("File not found.");
         }
 
         return (T)strVal;
+    }
+
+    private boolean fileDoesNotExist(File file) {
+        return (!file.exists() || !file.isFile());
     }
 }

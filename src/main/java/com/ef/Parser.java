@@ -19,7 +19,6 @@ import com.ef.db.parser.parser.blocked_ip.BlockedIpManager;
 import com.ef.enums.Duration;
 import com.ef.loghandler.AccessLogHandler;
 import com.ef.loghandler.LogHandler;
-import com.ef.utils.ParserUtils;
 import com.google.common.base.Strings;
 
 
@@ -30,16 +29,13 @@ public class Parser {
         try {
 
             Map<String, String> argsMap = Args.getMap(params);
-            if (argsMap == null || argsMap.isEmpty() || argsMap.size() != params.length) {
+            if (missingRequiredArgument(argsMap, params)) {
                 System.err.println("Error entering required application arguments. Please re-enter.");
                 throw new ArgsException("Incomplete argument entry.");
             }
 
-            String filePath = "";
-            if (argsMap.containsKey(ACCESS_LOG.toString())) {
-                filePath = ARG_HANDLER_MAP.get(ACCESS_LOG)
-                        .getValue(argsMap.get(ACCESS_LOG.toString()), String.class);
-            }
+            LogHandler logHandler = initDbHandler();
+            readFileIfPathPresent(argsMap, logHandler);
 
             LocalDateTime startDate = ARG_HANDLER_MAP.get(START_DATE)
                     .getValue(argsMap.get(START_DATE.toString()), LocalDateTime.class);
@@ -49,11 +45,6 @@ public class Parser {
 
             int threshold = ARG_HANDLER_MAP.get(THRESHOLD)
                     .getValue(argsMap.get(THRESHOLD.toString()), Integer.class);
-
-            LogHandler logHandler = initDbHandler();
-            if (!Strings.isNullOrEmpty(filePath)) {
-                logHandler.read(filePath);
-            }
 
             Map<Long, Long> blockedIps = logHandler.getBlockedIps(startDate, duration, threshold);
             logHandler.saveBlockedIps(blockedIps, startDate, duration, threshold);
@@ -65,6 +56,21 @@ public class Parser {
             System.err.println("Error processing command line arguments. Please re-enter.\n");
             System.out.println(Args.getUsage());
             System.err.println(e.errorMessage());
+        }
+    }
+
+    private static boolean missingRequiredArgument(Map<String, String> argsMap, String... params) {
+        return (argsMap == null || argsMap.isEmpty() || argsMap.size() != params.length);
+    }
+
+    private static void readFileIfPathPresent(Map<String, String> argsMap, LogHandler logHandler) throws ArgsException {
+        String filePath = "";
+        if (argsMap.containsKey(ACCESS_LOG.toString())) {
+            filePath = ARG_HANDLER_MAP.get(ACCESS_LOG)
+                    .getValue(argsMap.get(ACCESS_LOG.toString()), String.class);
+        }
+        if (!Strings.isNullOrEmpty(filePath)) {
+            logHandler.read(filePath);
         }
     }
 
