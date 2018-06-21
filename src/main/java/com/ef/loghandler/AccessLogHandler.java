@@ -48,7 +48,7 @@ public class AccessLogHandler implements LogHandler {
         }
     }
 
-    private Function<String, AccessLogEntry> mapToAccessLogEntry = (line) -> {
+    private Function<String,AccessLogEntry> mapToAccessLogEntry = (line) -> {
         String[] entry = line.split(DELIMITER);
         return new AccessLogEntryImpl()
                 .setDate(LocalDateTime.parse(entry[0], ParserUtils.LOG_FILE_DATE_FORMATTER))
@@ -59,12 +59,12 @@ public class AccessLogHandler implements LogHandler {
     };
 
     @Override
-    public Map<Long, Long> getBlockedIps(LocalDateTime startDate, Duration duration, int threshold) {
+    public Map<Long,Long> getBlockedIps(LocalDateTime startDate, Duration duration, int threshold) {
         LocalDateTime endDate = startDate.plusHours(1);  // default to hourly duration
         if (duration == DAILY) {
             endDate = startDate.plusDays(1);
         }
-        Map<Long, Long> blockedIps = new HashMap<>();
+        Map<Long,Long> blockedIps = new HashMap<>();
         try {
             blockedIps = logEntryManager.stream()
                 .filter(AccessLogEntry.DATE.between(startDate, endDate, START_INCLUSIVE_END_INCLUSIVE))
@@ -83,7 +83,7 @@ public class AccessLogHandler implements LogHandler {
     }
 
     @Override
-    public String getBlockedIpsMessage(Map<Long, Long> blockedIps) {
+    public String getBlockedIpsMessage(Map<Long,Long> blockedIps) {
         StringBuilder blockedIpsMessage = new StringBuilder();
         if (blockedIps!= null && blockedIps.size() > 0) {
             blockedIpsMessage.append(BLOCKED_IPS_MESSAGE_HEADER).append("\n");
@@ -97,7 +97,7 @@ public class AccessLogHandler implements LogHandler {
     }
 
     @Override
-    public String saveBlockedIps(Map<Long, Long> blockedIps, LocalDateTime startDate, Duration duration, int threshold) {
+    public String saveBlockedIps(Map<Long,Long> blockedIps, LocalDateTime startDate, Duration duration, int threshold) {
         String statusMessage = STATUS_MESSAGE_SUCCESS;
         if (blockedIps.size() > 0) {
             try {

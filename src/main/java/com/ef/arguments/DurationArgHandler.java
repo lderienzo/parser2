@@ -19,7 +19,7 @@ public class DurationArgHandler implements ArgHandler {
             dailyDuration = durationEnums[1];
         }
         else {
-            throw new ArgsException("Error - error processing 'Duration' enums");
+            throw new ArgsException("Error processing Duration enums");
         }
         if (isNonEmpty(strVal) && strVal.equals(dailyDuration.toString())) {
             return dailyDuration;
@@ -28,8 +28,7 @@ public class DurationArgHandler implements ArgHandler {
             return hourlyDuration;
         }
         else {
-            System.out.println("Error: Invalid value entered for duration.");
-            throw new ArgsException("Invalid duration value.");
+            throw new ArgsException("Invalid duration argument.");
         }
     }
 

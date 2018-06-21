@@ -20,15 +20,16 @@ import com.ef.enums.Duration;
 import com.ef.loghandler.AccessLogHandler;
 import com.ef.loghandler.LogHandler;
 import com.google.common.base.Strings;
+import com.speedment.runtime.core.exception.SpeedmentException;
 
 
 public class Parser {
 
     public static void main(String... params) {
+        ParserApplication db = null;
         try {
-            Map<String, String> argsMap = Args.getMap(params);
-            if (allRequiredArgsPresent(argsMap, params)) {
-
+            Map<String,String> argsMap = Args.getMap(params);
+            if (requiredArgsPresent(argsMap, params)) {
                 LocalDateTime startDate = ARG_HANDLER_MAP.get(START_DATE)
                         .getValue(argsMap.get(START_DATE.toString()), LocalDateTime.class);
 
@@ -38,46 +39,48 @@ public class Parser {
                 int threshold = ARG_HANDLER_MAP.get(THRESHOLD)
                         .getValue(argsMap.get(THRESHOLD.toString()), Integer.class);
 
-                LogHandler logHandler = initDbHandler();
-                readFileIfPathPresent(argsMap, logHandler);
-                Map<Long, Long> blockedIps =
+                String filePath = ARG_HANDLER_MAP.get(ACCESS_LOG)
+                        .getValue(argsMap.get(ACCESS_LOG.toString()), String.class);
+
+                db = initDb();
+                LogHandler logHandler = initLogHandler(db);
+                if (isValid(filePath)) {
+                    logHandler.read(filePath);
+                }
+                Map<Long,Long> blockedIps =
                         logHandler.getBlockedIps(startDate, duration, threshold);
                 logHandler.saveBlockedIps(blockedIps, startDate, duration, threshold);
                 System.out.println(logHandler.getBlockedIpsMessage(blockedIps));
-
-                System.exit(0);
             }
             else {
                 throw new ArgsException("Missing required argument(s).");
             }
-        } catch (ArgsException e) {
-            System.out.println("Error processing command line arguments. Please re-enter.");
-            System.out.println(Args.getUsage());
-            System.err.println(e.errorMessage());
+        } catch (SpeedmentException|ArgsException e) {
+            e.printStackTrace(System.out);
+            System.out.println("\n"+Args.getUsage());
+        }
+        finally {
+            if (db != null) {
+                db.close();
+            }
         }
     }
 
-    private static boolean allRequiredArgsPresent(Map<String, String> argsMap, String... params) {
+    private static boolean requiredArgsPresent(Map<String,String> argsMap, String... params) {
         return (argsMap != null && argsMap.size() == params.length);
     }
 
-    private static void readFileIfPathPresent(Map<String, String> argsMap, LogHandler logHandler) throws ArgsException {
-        String filePath = "";
-        if (argsMap.containsKey(ACCESS_LOG.toString())) {
-            filePath = ARG_HANDLER_MAP.get(ACCESS_LOG)
-                    .getValue(argsMap.get(ACCESS_LOG.toString()), String.class);
-        }
-        if (!Strings.isNullOrEmpty(filePath)) {
-            logHandler.read(filePath);
-        }
+    private static ParserApplication initDb() {
+        return new ParserApplicationBuilder().withPassword(DB_PWD).build();
     }
 
-    private static LogHandler initDbHandler() {
-        ParserApplication db =
-                new ParserApplicationBuilder().withPassword(DB_PWD).build();
-
+    private static LogHandler initLogHandler(ParserApplication db) {
         AccessLogEntryManager logEntryManager = db.getOrThrow(AccessLogEntryManager.class);
         BlockedIpManager blockedIpManager = db.getOrThrow(BlockedIpManager.class);
         return new AccessLogHandler(logEntryManager, blockedIpManager);
+    }
+
+    private static boolean isValid(String path) {
+        return !Strings.isNullOrEmpty(path);
     }
 }

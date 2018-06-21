@@ -17,7 +17,6 @@ public class FilePathArgHandler implements ArgHandler {
             return (T)strVal;
         }
         else {
-            System.out.println("Error: File not found! Please re-enter.");
             throw new ArgsException("File not found.");
         }
     }

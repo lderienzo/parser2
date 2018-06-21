@@ -22,8 +22,7 @@ public class DateArgHandler implements ArgHandler {
                     = clazz.getDeclaredMethod("parse", CharSequence.class, DateTimeFormatter.class);
             returnType = (T) lclDateTimeParse.invoke(null, strVal, ARGUMENT_DATE_FORMATTER);
         } catch (NoSuchMethodException|IllegalAccessException|InvocationTargetException e) {
-            System.out.println("Error: Invalid format for startDate.");
-            throw new ArgsException("Error processing date argument", e);
+            throw new ArgsException("Error processing startDate. Invalid format.", e);
         }
         return returnType;
     }

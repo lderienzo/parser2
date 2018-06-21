@@ -40,8 +40,8 @@ public class Args {
         }
     }
 
-    public static final ImmutableMap<ArgName, ArgHandler> ARG_HANDLER_MAP =
-            new ImmutableMap.Builder<ArgName, ArgHandler>()
+    public static final ImmutableMap<ArgName,ArgHandler> ARG_HANDLER_MAP =
+            new ImmutableMap.Builder<ArgName,ArgHandler>()
                     .put(ACCESS_LOG, new FilePathArgHandler())
                     .put(START_DATE, new DateArgHandler())
                     .put(DURATION, new DurationArgHandler())
@@ -50,7 +50,7 @@ public class Args {
 
 
     public static Map<String, String> getMap(String... params) throws ArgsException {
-        Map<String, String> args = toMap(params);
+        Map<String,String> args = toMap(params);
         String missing = findMissingRequired(args);
         if (missing.isEmpty()) {
             return args;
@@ -62,7 +62,7 @@ public class Args {
         }
     }
 
-    private static Map<String, String> toMap(String... params) {
+    private static Map<String,String> toMap(String... params) {
         return Arrays.stream(params)
                 .map(str -> str.replace("--", ""))
                 .map(str -> str.split("="))
@@ -73,9 +73,9 @@ public class Args {
                         ));
     }
 
-    private static String findMissingRequired(Map<String, String> enteredArgs) {
+    private static String findMissingRequired(Map<String,String> enteredArgs) {
         String missingArg = "";
-        for (Map.Entry<ArgName, ArgHandler> argName : ARG_HANDLER_MAP.entrySet()) {
+        for (Map.Entry<ArgName,ArgHandler> argName : ARG_HANDLER_MAP.entrySet()) {
             if (isPresent(enteredArgs, argName)) {
                 // continue...
             }
@@ -87,13 +87,13 @@ public class Args {
         return missingArg;
     }
 
-    private static boolean isRequired(Map.Entry<ArgName, ArgHandler> argName) {
+    private static boolean isRequired(Map.Entry<ArgName,ArgHandler> argName) {
         return (argName.getKey().equals(THRESHOLD) ||
                 argName.getKey().equals(START_DATE) || argName.getKey().equals(DURATION));
     }
 
-    private static boolean isPresent(Map<String, String> enteredArgs,
-                                        Map.Entry<ArgName, ArgHandler> argName) {
+    private static boolean isPresent(Map<String,String> enteredArgs,
+                                        Map.Entry<ArgName,ArgHandler> argName) {
        return enteredArgs.containsKey(argName.getKey().toString());
     }
 
