@@ -13,9 +13,7 @@ public class DateArgHandler implements ArgHandler {
 
     @Override
     public <T> T getValue(String strVal, Class<T> clazz) throws ArgsException {
-
         T returnType;
-
         try {
             if (Strings.isNullOrEmpty(strVal)) {
                 throw new ArgsException("Error: startDate value is null or empty!");
@@ -23,12 +21,10 @@ public class DateArgHandler implements ArgHandler {
             Method lclDateTimeParse
                     = clazz.getDeclaredMethod("parse", CharSequence.class, DateTimeFormatter.class);
             returnType = (T) lclDateTimeParse.invoke(null, strVal, ARGUMENT_DATE_FORMATTER);
-
         } catch (NoSuchMethodException|IllegalAccessException|InvocationTargetException e) {
             System.out.println("Error: Invalid format for startDate.");
             throw new ArgsException("Error processing date argument", e);
         }
-
         return returnType;
     }
 }

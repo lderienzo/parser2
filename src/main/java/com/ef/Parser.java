@@ -25,14 +25,9 @@ import com.google.common.base.Strings;
 public class Parser {
 
     public static void main(String... params) {
-
         try {
-
             Map<String, String> argsMap = Args.getMap(params);
             if (allRequiredArgsPresent(argsMap, params)) {
-
-                LogHandler logHandler = initDbHandler();
-                readFileIfPathPresent(argsMap, logHandler);
 
                 LocalDateTime startDate = ARG_HANDLER_MAP.get(START_DATE)
                         .getValue(argsMap.get(START_DATE.toString()), LocalDateTime.class);
@@ -43,18 +38,20 @@ public class Parser {
                 int threshold = ARG_HANDLER_MAP.get(THRESHOLD)
                         .getValue(argsMap.get(THRESHOLD.toString()), Integer.class);
 
-                Map<Long, Long> blockedIps = logHandler.getBlockedIps(startDate, duration, threshold);
+                LogHandler logHandler = initDbHandler();
+                readFileIfPathPresent(argsMap, logHandler);
+                Map<Long, Long> blockedIps =
+                        logHandler.getBlockedIps(startDate, duration, threshold);
                 logHandler.saveBlockedIps(blockedIps, startDate, duration, threshold);
                 System.out.println(logHandler.getBlockedIpsMessage(blockedIps));
 
                 System.exit(0);
             }
-            else {System.err.println("Error entering required application arguments. Please re-enter.");
-                throw new ArgsException("Incomplete argument entry.");
+            else {
+                throw new ArgsException("Missing required argument(s).");
             }
-
         } catch (ArgsException e) {
-            System.err.println("Error processing command line arguments. Please re-enter.\n");
+            System.out.println("Error processing command line arguments. Please re-enter.");
             System.out.println(Args.getUsage());
             System.err.println(e.errorMessage());
         }

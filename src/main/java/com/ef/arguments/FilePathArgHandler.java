@@ -9,12 +9,10 @@ public class FilePathArgHandler implements ArgHandler {
 
     @Override
     public <T> T getValue(String strVal, Class<T> clazz) throws ArgsException {
-
         if (Strings.isNullOrEmpty(strVal)) {
             strVal = "";
             return (T)strVal;
         }
-
         if (fileExists(new File(strVal))) {
             return (T)strVal;
         }
