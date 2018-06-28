@@ -30,22 +30,15 @@ public class Parser {
         try {
             Map<String,String> argsMap = Args.getMap(params);
             if (requiredArgsPresent(argsMap, params)) {
-                LocalDateTime startDate = ARG_HANDLER_MAP.get(START_DATE)
-                        .getValue(argsMap.get(START_DATE.toString()), LocalDateTime.class);
-
-                Duration duration = ARG_HANDLER_MAP.get(DURATION)
-                        .getValue(argsMap.get(DURATION.toString()), Duration.class);
-
-                int threshold = ARG_HANDLER_MAP.get(THRESHOLD)
-                        .getValue(argsMap.get(THRESHOLD.toString()), Integer.class);
-
-                String filePath = ARG_HANDLER_MAP.get(ACCESS_LOG)
-                        .getValue(argsMap.get(ACCESS_LOG.toString()), String.class);
+                LocalDateTime startDate = getValidValue(argsMap, START_DATE, LocalDateTime.class);
+                Duration duration = getValidValue(argsMap, DURATION, Duration.class);
+                int threshold = getValidValue(argsMap, THRESHOLD, Integer.class);
+                String file = getValidValue(argsMap, ACCESS_LOG, String.class);
 
                 db = initDb();
                 LogHandler logHandler = initLogHandler(db);
-                if (isValid(filePath)) {
-                    logHandler.read(filePath);
+                if (isValid(file)) {
+                    logHandler.save(file);
                 }
                 Map<Long,Long> blockedIps =
                         logHandler.getBlockedIps(startDate, duration, threshold);
@@ -53,11 +46,11 @@ public class Parser {
                 System.out.println(logHandler.getBlockedIpsMessage(blockedIps));
             }
             else {
-                throw new ArgsException("Missing required argument(s).");
+                throw new ArgsException("Failure in Parser main method: missing required argument.");
             }
         } catch (SpeedmentException|ArgsException e) {
             e.printStackTrace(System.out);
-            System.out.println("\n"+Args.getUsage());
+            System.out.println(getUsage());
         }
         finally {
             if (db != null) {
@@ -68,6 +61,10 @@ public class Parser {
 
     private static boolean requiredArgsPresent(Map<String,String> argsMap, String... params) {
         return (argsMap != null && argsMap.size() == params.length);
+    }
+
+    private static <T> T getValidValue(Map<String,String> argsMap, Args.ArgName arg, Class<T> returnValueClass) {
+        return ARG_HANDLER_MAP.get(arg).getValue(argsMap.get(arg.toString()), returnValueClass);
     }
 
     private static ParserApplication initDb() {
@@ -82,5 +79,12 @@ public class Parser {
 
     private static boolean isValid(String path) {
         return !Strings.isNullOrEmpty(path);
+    }
+
+    public static String getUsage() {
+        return "\nUsage:\n" +
+                " \tcom.ef.Parser [--"+ACCESS_LOG+"=<path_to_log_file>] " +
+                "--"+START_DATE+"=<begin_looking_from_this_date_and_time> " +
+                "(--"+DURATION+"=<hourly>|<daily>) --"+THRESHOLD+"=<100-500>\n";
     }
 }

@@ -8,7 +8,7 @@ import com.google.common.base.Strings;
 public class FilePathArgHandler implements ArgHandler {
 
     @Override
-    public <T> T getValue(String strVal, Class<T> clazz) throws ArgsException {
+    public <T> T getValue(String strVal, Class<T> clazz) {
         if (Strings.isNullOrEmpty(strVal)) {
             strVal = "";
             return (T)strVal;
@@ -17,7 +17,7 @@ public class FilePathArgHandler implements ArgHandler {
             return (T)strVal;
         }
         else {
-            throw new ArgsException("File not found.");
+            throw new ArgsException("Failure in FilePathArgHandler::getValue. File not found.");
         }
     }
 

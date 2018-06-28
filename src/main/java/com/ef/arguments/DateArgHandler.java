@@ -12,17 +12,17 @@ import com.google.common.base.Strings;
 public class DateArgHandler implements ArgHandler {
 
     @Override
-    public <T> T getValue(String strVal, Class<T> clazz) throws ArgsException {
+    public <T> T getValue(String strVal, Class<T> clazz) {
         T returnType;
         try {
             if (Strings.isNullOrEmpty(strVal)) {
-                throw new ArgsException("Error: startDate value is null or empty!");
+                throw new ArgsException("Failure in DateArgHandler::getValue. Value for startDate is null or empty.");
             }
-            Method lclDateTimeParse
+            Method localDateTimeParse
                     = clazz.getDeclaredMethod("parse", CharSequence.class, DateTimeFormatter.class);
-            returnType = (T) lclDateTimeParse.invoke(null, strVal, ARGUMENT_DATE_FORMATTER);
+            returnType = (T) localDateTimeParse.invoke(null, strVal, ARGUMENT_DATE_FORMATTER);
         } catch (NoSuchMethodException|IllegalAccessException|InvocationTargetException e) {
-            throw new ArgsException("Error processing startDate. Invalid format.", e);
+            throw new ArgsException("Failure in DateArgHandler::getValue. Internal processing error.", e);
         }
         return returnType;
     }

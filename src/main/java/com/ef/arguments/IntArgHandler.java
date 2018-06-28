@@ -5,18 +5,18 @@ import com.google.common.base.Strings;
 public class IntArgHandler implements ArgHandler {
 
     @Override
-    public <T> T getValue(String strVal, Class<T> clazz) throws ArgsException {
+    public <T> T getValue(String strVal, Class<T> clazz) {
         Integer threshold;
         try {
             if (Strings.isNullOrEmpty(strVal)) {
-                throw new ArgsException("Error: Threshold value is null or empty!");
+                throw new ArgsException("Failure in IntArgHandler::getValue. Value for threshold is null or empty.");
             }
             threshold = Integer.parseInt(strVal);
         } catch (NumberFormatException e) {
-            throw new ArgsException("Invalid threshold argument. Must be an integer.", e);
+            throw new ArgsException("Failure in IntArgHandler::getValue. Value for threshold is not an integer.", e);
         }
         if (outsideBounds(threshold)) {
-            throw new ArgsException("Invalid threshold argument. Must be between 100 and 500.");
+            throw new ArgsException("Failure in IntArgHandler::getValue. Value for threshold is outside allowable bounds of 100 to 500.");
         }
         return (T)threshold;
     }

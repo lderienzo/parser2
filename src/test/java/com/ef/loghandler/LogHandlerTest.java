@@ -1,6 +1,7 @@
 package com.ef.loghandler;
 
 
+import static com.ef.utils.ParserTestUtils.BOGUS_TEST_LOG_FILE_PATH;
 import static com.ef.utils.ParserTestUtils.DAILY_TEST_ACCESS_LOG;
 import static com.ef.utils.ParserTestUtils.DAILY_TEST_IP;
 import static com.ef.utils.ParserTestUtils.DAILY_TEST_IP_LONG;
@@ -9,21 +10,25 @@ import static com.ef.utils.ParserTestUtils.HOURLY_TEST_ACCESS_LOG;
 import static com.ef.utils.ParserTestUtils.HOURLY_TEST_IP;
 import static com.ef.utils.ParserTestUtils.HOURLY_TEST_IP_LONG;
 import static com.ef.utils.ParserTestUtils.HOURLY_TEST_START_DATE;
+import static com.ef.utils.ParserTestUtils.INVALID_LINE_FORMAT_LOG_FILE;
 import static com.ef.utils.ParserTestUtils.SHORT_TEST_ACCESS_LOG_FILE;
 import static com.ef.utils.ParserUtils.BLOCKED_IPS_MESSAGE_HEADER;
 import static com.ef.utils.ParserUtils.DB_PWD;
 import static com.ef.utils.ParserUtils.NO_BLOCKED_IPS_TO_REPORT;
+import static java.time.format.DateTimeFormatter.RFC_1123_DATE_TIME;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 import java.io.File;
 import java.time.LocalDateTime;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.junit.After;
+import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
@@ -38,13 +43,14 @@ import com.ef.utils.ParserTestUtils;
 import com.speedment.runtime.core.ApplicationBuilder;
 
 public final class LogHandlerTest {
+    private static ParserApplication db;
     private static AccessLogEntryManager logEntryManager;
     private static BlockedIpManager blockedIpManager;
     private static LogHandler logHandler;
 
     @BeforeClass
     public static void setUp() {
-        ParserApplication db = new ParserApplicationBuilder() // initialize db connection...
+        db = new ParserApplicationBuilder() // initialize db connection...
                 .withPassword(DB_PWD)
                 .withLogging(ApplicationBuilder.LogType.PERSIST)
                 .withLogging(ApplicationBuilder.LogType.STREAM)
@@ -56,13 +62,18 @@ public final class LogHandlerTest {
         logHandler = new AccessLogHandler(logEntryManager, blockedIpManager);
     }
 
+    @AfterClass
+    public static void tearDown() {
+        db.close();
+    }
+
     @After
     public void clearDB() {
         clearDbTables();
     }
 
     @Test
-    public void testReadOfLogIntoDatabase() {
+    public void testSave_success() {
         readLogFileIntoDb(SHORT_TEST_ACCESS_LOG_FILE);
         long count = countLogEntryRows().longValue();
         assertTrue(count == 377);
@@ -70,25 +81,29 @@ public final class LogHandlerTest {
         clearDbTables();
     }
 
-    @Test
-    public void testGetBlockedIps_hourly() {
-        readLogFileIntoDb(HOURLY_TEST_ACCESS_LOG);
+    @Test(expected = LogHandlerException.class)
+    public void testSave_failure_reading_file() {
+        logHandler.save(BOGUS_TEST_LOG_FILE_PATH);
+    }
 
-        LocalDateTime startDate = ParserTestUtils.stringToLocalDateTime(HOURLY_TEST_START_DATE);
+    @Test(expected = LogHandlerException.class)
+    public void testSave_failure_db_error_invalid_log_file_format() {
+        readLogFileIntoDb(INVALID_LINE_FORMAT_LOG_FILE);
+    }
+
+    @Test(expected = LogHandlerException.class)
+    public void testGetBlockedIp_failure() {
+     //   readLogFileIntoDb(HOURLY_TEST_ACCESS_LOG);
+
+        LocalDateTime startDate = LocalDateTime.parse("Tue, 3 Jun 2008 11:05:30 GMT", RFC_1123_DATE_TIME);
         Duration duration = Duration.HOURLY;
         int threshold = ParserTestUtils.THRESHOLD_200;
         Map<Long,Long> blockedIps = getBlockedIps(startDate, duration, threshold);
 
-        assertNotNull(blockedIps);
-        assertEquals(2, blockedIps.size());
-        assertTrue(blockedIps.containsKey(HOURLY_TEST_IP_LONG));
-
-        String strIp = IpAddressConverter.toIp(HOURLY_TEST_IP_LONG);
-        assertEquals(HOURLY_TEST_IP, strIp);
     }
 
     @Test
-    public void testSaveBlockedIps_hourly() {
+    public void testSaveBlockedIps_hourly_success() {
         readLogFileIntoDb(HOURLY_TEST_ACCESS_LOG);
 
         LocalDateTime startDate = ParserTestUtils.stringToLocalDateTime(HOURLY_TEST_START_DATE);
@@ -103,7 +118,8 @@ public final class LogHandlerTest {
         String strIp = IpAddressConverter.toIp(HOURLY_TEST_IP_LONG);
         assertEquals(HOURLY_TEST_IP, strIp);
 
-        logHandler.saveBlockedIps(blockedIps, startDate, duration, threshold);
+        int status = logHandler.saveBlockedIps(blockedIps, startDate, duration, threshold);
+        assertEquals(1, status);
 
         Long count = countBlockedIpRows();
         assertTrue(count == 2);
@@ -137,7 +153,7 @@ public final class LogHandlerTest {
     }
 
     @Test
-    public void testSaveBlockedIps_daily() {           // this is the whole log file
+    public void testSaveBlockedIps_daily_success() {           // this is the whole log file
         readLogFileIntoDb(DAILY_TEST_ACCESS_LOG);
 
         LocalDateTime startDate = ParserTestUtils.stringToLocalDateTime(DAILY_TEST_START_DATE);
@@ -152,7 +168,8 @@ public final class LogHandlerTest {
         String strIp = IpAddressConverter.toIp(DAILY_TEST_IP_LONG);
         assertEquals(DAILY_TEST_IP, strIp);
 
-        logHandler.saveBlockedIps(blockedIps, startDate, duration, threshold);
+        int status = logHandler.saveBlockedIps(blockedIps, startDate, duration, threshold);
+        assertEquals(1, status);
 
         Long count = countBlockedIpRows();
         assertTrue(count == 15);
@@ -166,6 +183,30 @@ public final class LogHandlerTest {
 
         strIp = IpAddressConverter.toIp(DAILY_TEST_IP_LONG);
         assertEquals(DAILY_TEST_IP, strIp);
+    }
+
+    @Test
+    public void testSaveBlockedIps_no_blockedIps() {
+        LocalDateTime startDate = ParserTestUtils.stringToLocalDateTime(HOURLY_TEST_START_DATE);
+        Duration duration = Duration.HOURLY;
+        int threshold = ParserTestUtils.THRESHOLD_500;
+        Map<Long,Long> blockedIps = new HashMap<>();
+
+        assertNotNull(blockedIps);
+        assertEquals(0, blockedIps.size());
+
+        int status = logHandler.saveBlockedIps(blockedIps, startDate, duration, threshold);
+        assertEquals(0, status);
+    }
+
+    @Test(expected = LogHandlerException.class)
+    public void testSaveBlockedIps_failure() {
+        LocalDateTime startDate = ParserTestUtils.stringToLocalDateTime(HOURLY_TEST_START_DATE);
+        Duration duration = Duration.HOURLY;
+        int threshold = ParserTestUtils.THRESHOLD_500;
+        Map<Long,Long> blockedIps = new HashMap<>();
+        blockedIps.put(-2147483648L,-2147483648L);
+        logHandler.saveBlockedIps(blockedIps, startDate, duration, threshold);
     }
 
     @Test
@@ -197,7 +238,7 @@ public final class LogHandlerTest {
     private void readLogFileIntoDb(String filePath) {
         ClassLoader classLoader = getClass().getClassLoader();
         File file = new File(classLoader.getResource(filePath).getFile());
-        logHandler.read(file.getAbsolutePath());
+        logHandler.save(file.getAbsolutePath());
     }
 
     private Map<Long, Long> getBlockedIps(LocalDateTime startDate, Duration duration, int threshold) {

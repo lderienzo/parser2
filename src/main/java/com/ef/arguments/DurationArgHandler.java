@@ -9,7 +9,7 @@ import com.google.common.base.Strings;
 public class DurationArgHandler implements ArgHandler {
 
     @Override
-    public <T> T getValue(String strVal, Class<T> clazz) throws ArgsException {
+    public <T> T getValue(String strVal, Class<T> clazz) {
         T dailyDuration;
         T hourlyDuration;
         T[] durationEnums = clazz.getEnumConstants();
@@ -19,7 +19,7 @@ public class DurationArgHandler implements ArgHandler {
             dailyDuration = durationEnums[1];
         }
         else {
-            throw new ArgsException("Error processing Duration enums");
+            throw new ArgsException("Failure in DurationArgHandler::getValue. Unable to decipher enum values.");
         }
         if (isNonEmpty(strVal) && strVal.equals(dailyDuration.toString())) {
             return dailyDuration;
@@ -28,7 +28,7 @@ public class DurationArgHandler implements ArgHandler {
             return hourlyDuration;
         }
         else {
-            throw new ArgsException("Invalid duration argument.");
+            throw new ArgsException("Failure in DurationArgHandler::getValue. Invalid duration value ["+strVal+"].");
         }
     }
 

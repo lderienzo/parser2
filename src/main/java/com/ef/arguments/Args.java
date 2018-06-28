@@ -56,9 +56,8 @@ public class Args {
             return args;
         }
         else {
-            args.clear();
-            System.out.println("Missing required argument: "+missing+".");
-            throw new ArgsException("Missing required argument");
+            throw new ArgsException("Failure processing arguments in 'getMap' method. " +
+                    "Missing required argument ["+missing+"]");
         }
     }
 
@@ -76,7 +75,7 @@ public class Args {
     private static String findMissingRequired(Map<String,String> enteredArgs) {
         String missingArg = "";
         for (Map.Entry<ArgName,ArgHandler> argName : ARG_HANDLER_MAP.entrySet()) {
-            if (isPresent(enteredArgs, argName)) {
+            if (isPresent(argName, enteredArgs)) {
                 // continue...
             }
             else if (isRequired(argName)) {
@@ -92,15 +91,8 @@ public class Args {
                 argName.getKey().equals(START_DATE) || argName.getKey().equals(DURATION));
     }
 
-    private static boolean isPresent(Map<String,String> enteredArgs,
-                                        Map.Entry<ArgName,ArgHandler> argName) {
+    private static boolean isPresent(Map.Entry<ArgName,ArgHandler> argName,
+                                     Map<String,String> enteredArgs) {
        return enteredArgs.containsKey(argName.getKey().toString());
-    }
-
-    public static String getUsage() {
-        return "Usage:\n" +
-                " \tcom.ef.Parser [--"+ACCESS_LOG+"=<path_to_log_file>] " +
-                "--"+START_DATE+"=<begin_looking_from_this_date_and_time> " +
-                "(--"+DURATION+"=<hourly>|<daily>) --"+THRESHOLD+"=<100-500>\n";
     }
 }
