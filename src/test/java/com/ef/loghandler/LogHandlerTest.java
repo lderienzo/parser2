@@ -225,14 +225,14 @@ public final class LogHandlerTest {
         String strIp = IpAddressConverter.toIp(HOURLY_TEST_IP_LONG);
         assertEquals(HOURLY_TEST_IP, strIp);
 
-        String message = logHandler.getBlockedIpsMessage(blockedIps);
-        assertTrue(message.contains(BLOCKED_IPS_MESSAGE_HEADER));
+        String blockedIpsMessage = logHandler.getMessage(blockedIps);
+        assertTrue(blockedIpsMessage.contains(BLOCKED_IPS_MESSAGE_HEADER));
     }
 
     @Test
     public void testGetBlockedIpsMessage_failure() {
-        String message = logHandler.getBlockedIpsMessage(null);
-        assertTrue(message.contains(NO_BLOCKED_IPS_TO_REPORT));
+        String blockedIpsMessage = logHandler.getMessage(null);
+        assertTrue(blockedIpsMessage.contains(NO_BLOCKED_IPS_TO_REPORT));
     }
 
     private void readLogFileIntoDb(String filePath) {

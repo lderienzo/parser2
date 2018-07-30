@@ -43,7 +43,7 @@ public class Parser {
                 Map<Long,Long> blockedIps =
                         logHandler.getBlockedIps(startDate, duration, threshold);
                 logHandler.saveBlockedIps(blockedIps, startDate, duration, threshold);
-                System.out.println(logHandler.getBlockedIpsMessage(blockedIps));
+                System.out.println(logHandler.getMessage(blockedIps));
             }
             else {
                 throw new ArgsException("Failure in Parser main method: missing required argument.");

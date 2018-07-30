@@ -9,7 +9,7 @@ import com.ef.enums.Duration;
 /**
  * API used to handle all log-processing related functions.
  */
-public interface LogHandler {   // TODO: perhaps change name to include something to do with blocking ips?
+public interface LogHandler {
 
     /**
      * Reads entire log file into the database.
@@ -46,7 +46,7 @@ public interface LogHandler {   // TODO: perhaps change name to include somethin
      * @param blockedIps Map of blocked IP addresses with IP address as key and
      *                   number of requests resulting in the blocked status.
      * @return string containing either the list of blocked ips or a message indicating
-     * there are non.
+     * there are none.
      */
-    String getBlockedIpsMessage(Map<Long, Long> blockedIps);
+    String getMessage(Map<Long, Long> blockedIps);
 }

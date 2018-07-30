@@ -84,7 +84,7 @@ public class AccessLogHandler implements LogHandler {
     }
 
     @Override
-    public String getBlockedIpsMessage(Map<Long,Long> blockedIps) {
+    public String getMessage(Map<Long,Long> blockedIps) {
         StringBuilder blockedIpsMessage = new StringBuilder();
         if (arePresent(blockedIps)) {
             blockedIpsMessage.append(BLOCKED_IPS_MESSAGE_HEADER).append("\n");
