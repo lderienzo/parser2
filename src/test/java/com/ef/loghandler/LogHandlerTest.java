@@ -91,17 +91,6 @@ public final class LogHandlerTest {
         readLogFileIntoDb(INVALID_LINE_FORMAT_LOG_FILE);
     }
 
-    @Test(expected = LogHandlerException.class)
-    public void testGetBlockedIp_failure() {
-     //   readLogFileIntoDb(HOURLY_TEST_ACCESS_LOG);
-
-        LocalDateTime startDate = LocalDateTime.parse("Tue, 3 Jun 2008 11:05:30 GMT", RFC_1123_DATE_TIME);
-        Duration duration = Duration.HOURLY;
-        int threshold = ParserTestUtils.THRESHOLD_200;
-        Map<Long,Long> blockedIps = getBlockedIps(startDate, duration, threshold);
-
-    }
-
     @Test
     public void testSaveBlockedIps_hourly_success() {
         readLogFileIntoDb(HOURLY_TEST_ACCESS_LOG);

@@ -4,7 +4,6 @@ package com.ef.utils;
 public class ParserTestUtils extends ParserUtils {
     public static final int THRESHOLD_200 = 200;
     public static final int THRESHOLD_500 = 500;
-    public static final String INVALID_ARGUMENT_DATE_FORMAT = "yyyy-MM-dd=HH:mm:ss";
     public static final String INVALID_LINE_FORMAT_LOG_FILE = "invalid_line_format.log";
     public static final String SHORT_TEST_ACCESS_LOG_FILE = "short_test_access.log";
     public static final String BOGUS_TEST_LOG_FILE_PATH = "/bogus/path/to/hourly_test_access.log";
