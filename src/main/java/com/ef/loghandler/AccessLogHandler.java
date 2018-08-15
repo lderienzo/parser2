@@ -1,3 +1,10 @@
+/*
+ * Created by Luke DeRienzo on 8/15/18 12:29 PM
+ * Copyright (c) 2018. All rights reserved
+ *
+ * Last modified: 7/30/18 1:41 PM
+ */
+
 package com.ef.loghandler;
 
 import static com.ef.enums.Duration.DAILY;

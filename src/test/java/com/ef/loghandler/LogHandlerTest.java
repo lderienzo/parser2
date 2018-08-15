@@ -1,3 +1,10 @@
+/*
+ * Created by Luke DeRienzo on 8/15/18 12:29 PM
+ * Copyright (c) 2018. All rights reserved
+ *
+ * Last modified: 7/30/18 2:21 PM
+ */
+
 package com.ef.loghandler;
 
 

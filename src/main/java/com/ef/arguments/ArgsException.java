@@ -1,3 +1,10 @@
+/*
+ * Created by Luke DeRienzo on 8/15/18 12:29 PM
+ * Copyright (c) 2018. All rights reserved
+ *
+ * Last modified: 6/22/18 11:59 PM
+ */
+
 package com.ef.arguments;
 
 public class ArgsException extends RuntimeException {
