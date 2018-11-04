@@ -29,6 +29,6 @@ public class IntArgHandler implements ArgHandler {
     }
 
     private boolean outsideBounds(int threshold) {
-        return (threshold < 100 || threshold > 500);
+        return (threshold < 0 || threshold > 10000);
     }
 }

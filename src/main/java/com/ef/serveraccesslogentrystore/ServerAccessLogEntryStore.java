@@ -13,5 +13,5 @@ import java.util.List;
 interface ServerAccessLogEntryStore<E> {
     void loadFile(String path);
     List<E> findIpsToBlock(SearchCriteria blockingCriteria);
-    void saveIpsToBlock(List<E> ips, SearchCriteria blockingCriteriaForComment);
+    void saveIpsToBlock(SearchCriteria blockingCriteriaForComment, List<E> ips);
 }

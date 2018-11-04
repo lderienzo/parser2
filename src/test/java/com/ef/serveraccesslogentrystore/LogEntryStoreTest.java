@@ -15,6 +15,10 @@ import static com.ef.utils.ParserTestUtils.NUM_OF_TEST_ACCESS_LOG_FILE_ENTRIES;
 import static com.ef.utils.ParserTestUtils.TEST_ACCESS_LOG_FILE;
 import static com.ef.utils.ParserTestUtils.TEST_START_DATE;
 import static com.ef.utils.ParserTestUtils.THRESHOLD_200;
+import static com.ef.utils.ParserTestUtils.THRESHOLD_TO_FIND_MULTIPLE_IPS_FOR_DAY;
+import static com.ef.utils.ParserTestUtils.THRESHOLD_TO_FIND_MULTIPLE_IPS_FOR_HOUR;
+import static com.ef.utils.ParserTestUtils.THRESHOLD_TO_FIND_ONE_IP_FOR_DAY;
+import static com.ef.utils.ParserTestUtils.THRESHOLD_TO_FIND_ONE_IP_FOR_HOUR;
 import static com.ef.utils.ParserUtils.DB_PWD;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertNotNull;
@@ -47,30 +51,24 @@ import com.speedment.runtime.core.manager.Manager;
 
 
 public class LogEntryStoreTest {
-
     private static ParserApplication db;
     private static AccessLogEntryManager logEntryManager;
     private static BlockedIpManager blockedIpManager;
     private static LogEntryStore logEntryStore;
-    private SearchCriteria ipBlockingCriteria;
-
+    private SearchCriteria blockingCriteria;
+    private SearchCriteria blockingCriteriaForComment;
     private final List<Long> expectedSingleBlockedIpForDay = Collections.singletonList(3232278978L);
+    private final List<Long> expectedSingleBlockedIpForHour = Collections.singletonList(3232278978L);
     private final List<Long> expectedMultipleBlockedIpsForDay =
         Stream.of(3232243984L, 3232245325L, 3232246155L, 3232248781L, 3232261768L,
                   3232268735L, 3232269563L, 3232272305L, 3232277240L,
                   3232278978L, 3232281022L, 3232286673L, 3232287599L,
                   3232288397L, 3232291594L, 3232295506L).collect(
-                            Collectors.collectingAndThen(
-                                Collectors.toList(),
-                                Collections::<Long>unmodifiableList));
-
-    private final List<Long> expectedSingleBlockedIpForHour = Collections.singletonList(3232278978L);
+        Collectors.collectingAndThen(Collectors.toList(), Collections::unmodifiableList));
     private final List<Long> expectedMultipleBlockedIpsForHour =
         Stream.of(3232245325L, 3232248781L, 3232272305L,
                   3232278978L, 3232287599L, 3232295506L).collect(
-                            Collectors.collectingAndThen(
-                                Collectors.toList(),
-                                Collections::<Long>unmodifiableList));
+            Collectors.collectingAndThen(Collectors.toList(), Collections::unmodifiableList));
 
     @BeforeClass
     public static void setUp() {
@@ -82,7 +80,6 @@ public class LogEntryStoreTest {
                 .build();
         logEntryManager = db.getOrThrow(AccessLogEntryManager.class);
         blockedIpManager = db.getOrThrow(BlockedIpManager.class);
-
         logEntryStore = new LogEntryStore(logEntryManager, blockedIpManager);
     }
 
@@ -96,7 +93,6 @@ public class LogEntryStoreTest {
         testLoadFile(TEST_ACCESS_LOG_FILE);
     }
 
-//    @Test
     public void testLoadFile(String path) {
         ClassLoader classLoader = getClass().getClassLoader();
         File file = new File(classLoader.getResource(path).getFile());
@@ -143,11 +139,12 @@ public class LogEntryStoreTest {
     }
 
     private List<Long> testNotFindingAnyIpsToBlock() {
-        List<Long> foundIpsToBlock =
-            testFindingIpsToBlock(
-                    withParamsForFindingNothing(HOURLY, THRESHOLD_200),
-                    Collections.EMPTY_LIST);
-        return foundIpsToBlock;
+        blockingCriteria =
+            getSearchCriteriaForFindingIpsToBlock(
+                withParamsForFindingNothing(HOURLY, THRESHOLD_200));
+        List<Long> iPsToBlock =
+            testFindingIpsToBlock(blockingCriteria, Collections.EMPTY_LIST);
+        return iPsToBlock;
     }
 
     private String[] withParamsForFindingNothing(Duration duration, int threshold) {
@@ -166,9 +163,9 @@ public class LogEntryStoreTest {
         return params;
     }
 
-    private List<Long> testFindingIpsToBlock(String[] params, List<Long> expectedBlockedIps) {
-        ipBlockingCriteria = getSearchCriteriaForFindingIpsToBlock(params);
-        List<Long> iPsToBlock = logEntryStore.findIpsToBlock(ipBlockingCriteria);
+    private List<Long> testFindingIpsToBlock(SearchCriteria searchCriteria,
+                                             List<Long> expectedBlockedIps) {
+        List<Long> iPsToBlock = logEntryStore.findIpsToBlock(searchCriteria);
         checkIfFound(iPsToBlock, expectedBlockedIps);
         return iPsToBlock;
     }
@@ -188,7 +185,10 @@ public class LogEntryStoreTest {
 
     @Test
     public void testFindIpsToBlock_oneFound_dailyDuration() {
-        testFindingIpsToBlock(withParamsForFindingOneIpForDay(DAILY, 27), expectedSingleBlockedIpForDay);
+        blockingCriteria =
+            getSearchCriteriaForFindingIpsToBlock(
+                withParamsForFindingOneIpForDay(DAILY, THRESHOLD_TO_FIND_ONE_IP_FOR_DAY));
+        testFindingIpsToBlock(blockingCriteria, expectedSingleBlockedIpForDay);
     }
 
     private String[] withParamsForFindingOneIpForDay(Duration duration, int threshold) {
@@ -197,7 +197,10 @@ public class LogEntryStoreTest {
 
     @Test
     public void testFindIpsToBlock_multipleFound_dailyDuration() {
-        testFindingIpsToBlock(withParamsForFindingMultipleIpsForDay(DAILY, 9), expectedMultipleBlockedIpsForDay);
+        blockingCriteria =
+            getSearchCriteriaForFindingIpsToBlock(
+                withParamsForFindingMultipleIpsForDay(DAILY, THRESHOLD_TO_FIND_MULTIPLE_IPS_FOR_DAY));
+        testFindingIpsToBlock(blockingCriteria, expectedMultipleBlockedIpsForDay);
     }
 
     private String[] withParamsForFindingMultipleIpsForDay(Duration duration, int threshold) {
@@ -208,7 +211,10 @@ public class LogEntryStoreTest {
 
     @Test
     public void testFindIpsToBlock_oneFound_hourlyDuration() {
-        testFindingIpsToBlock(withParamsForFindingOneIpForHour(HOURLY, 29), expectedSingleBlockedIpForHour);
+        blockingCriteria =
+            getSearchCriteriaForFindingIpsToBlock(
+                withParamsForFindingOneIpForHour(HOURLY, THRESHOLD_TO_FIND_ONE_IP_FOR_HOUR));
+        testFindingIpsToBlock(blockingCriteria, expectedSingleBlockedIpForHour);
     }
 
     private String[] withParamsForFindingOneIpForHour(Duration duration, int threshold) {
@@ -217,7 +223,10 @@ public class LogEntryStoreTest {
 
     @Test
     public void testFindIpsToBlock_multipleFound_hourlyDuration() {
-        testFindingIpsToBlock(withParamsForFindingMultipleIpsForHour(HOURLY, 5), expectedMultipleBlockedIpsForHour);
+        blockingCriteria =
+            getSearchCriteriaForFindingIpsToBlock(
+                withParamsForFindingMultipleIpsForHour(HOURLY, THRESHOLD_TO_FIND_MULTIPLE_IPS_FOR_HOUR));
+        testFindingIpsToBlock(blockingCriteria, expectedMultipleBlockedIpsForHour);
     }
 
     private String[] withParamsForFindingMultipleIpsForHour(Duration duration, int threshold) {
@@ -228,8 +237,11 @@ public class LogEntryStoreTest {
 
     @Test
     public void testSaveIpsToBlock_saveEmptyList() {
+        blockingCriteriaForComment =
+            getSearchCriteriaForFindingIpsToBlock(
+                withParamsForFindingOneIpForHour(HOURLY, THRESHOLD_TO_FIND_ONE_IP_FOR_HOUR));
         List<Long> emptyListOfIps = testNotFindingAnyIpsToBlock();
-        logEntryStore.saveIpsToBlock(emptyListOfIps, ipBlockingCriteria);
+        logEntryStore.saveIpsToBlock(blockingCriteriaForComment, emptyListOfIps);
         verifyBlockedIpsWhereSaved(Collections.EMPTY_LIST);
     }
 
@@ -256,21 +268,31 @@ public class LogEntryStoreTest {
 
     @Test
     public void testSaveIpsToBlock_saveListWithOneIp() {
+        blockingCriteriaForComment =
+            getSearchCriteriaForFindingIpsToBlock(
+                withParamsForFindingOneIpForHour(HOURLY, THRESHOLD_TO_FIND_ONE_IP_FOR_HOUR));
         List<Long> listWithOneIp =
-                testFindingIpsToBlock(
-                    withParamsForFindingOneIpForHour(HOURLY, 29),
-                    expectedSingleBlockedIpForHour);
-        logEntryStore.saveIpsToBlock(listWithOneIp, ipBlockingCriteria);
+            testFindingIpsToBlock(blockingCriteriaForComment, expectedSingleBlockedIpForHour);
+        logEntryStore.saveIpsToBlock(blockingCriteriaForComment, listWithOneIp);
         verifyBlockedIpsWhereSaved(expectedSingleBlockedIpForHour);
     }
 
     @Test
     public void testSaveIpsToBlock_saveListWithMultipleIps() {
-        List<Long> foundIps =
-            testFindingIpsToBlock(
-                    withParamsForFindingMultipleIpsForHour(HOURLY, 5),
-                    expectedMultipleBlockedIpsForHour);
-        logEntryStore.saveIpsToBlock(foundIps, ipBlockingCriteria);
+        blockingCriteriaForComment =
+            getSearchCriteriaForFindingIpsToBlock(
+                withParamsForFindingMultipleIpsForHour(HOURLY, THRESHOLD_TO_FIND_MULTIPLE_IPS_FOR_HOUR));
+        List<Long> listOfMultipleIps =
+            testFindingIpsToBlock(blockingCriteriaForComment, expectedMultipleBlockedIpsForHour);
+        logEntryStore.saveIpsToBlock(blockingCriteriaForComment, listOfMultipleIps);
         verifyBlockedIpsWhereSaved(expectedMultipleBlockedIpsForHour);
+    }
+
+    @Test(expected = LogHandlerException.class)
+    public void testSaveIpsToBlock_saveFailure() {
+        blockingCriteriaForComment =
+            getSearchCriteriaForFindingIpsToBlock(withParamsForFindingNothing(HOURLY, THRESHOLD_200));
+        List<Long> listWithInvalidIp = Collections.singletonList(-2147483648L);
+        logEntryStore.saveIpsToBlock(blockingCriteriaForComment, listWithInvalidIp);
     }
 }

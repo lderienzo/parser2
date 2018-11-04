@@ -11,6 +11,10 @@ package com.ef.utils;
 public class ParserTestUtils extends ParserUtils {
     public static final int THRESHOLD_200 = 200;
     public static final int THRESHOLD_500 = 500;
+    public static final int THRESHOLD_TO_FIND_ONE_IP_FOR_DAY = 27;
+    public static final int THRESHOLD_TO_FIND_MULTIPLE_IPS_FOR_DAY = 9;
+    public static final int THRESHOLD_TO_FIND_ONE_IP_FOR_HOUR = 29;
+    public static final int THRESHOLD_TO_FIND_MULTIPLE_IPS_FOR_HOUR = 5;
     public static final int NUM_OF_TEST_ACCESS_LOG_FILE_ENTRIES = 1835;
     public static final String INVALID_LINE_FORMAT_LOG_FILE = "invalid_line_format.log";
     public static final String TEST_ACCESS_LOG_FILE = "test_access.log";

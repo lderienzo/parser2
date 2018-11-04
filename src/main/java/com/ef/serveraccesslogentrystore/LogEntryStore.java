@@ -57,11 +57,11 @@ final class LogEntryStore implements ServerAccessLogEntryStore<Long> {
     private final Function<String,AccessLogEntry> mapToAccessLogEntry = (line) -> {
         String[] entry = line.split(DELIMITER);
         return new AccessLogEntryImpl()
-                .setDate(LocalDateTime.parse(entry[0], ParserUtils.LOG_FILE_DATE_FORMATTER))
-                .setIpAddress(IpAddressConverter.toLong(entry[1]))
-                .setRequest(entry[2])
-                .setStatus(Integer.parseInt(entry[3]))
-                .setUserAgent(entry[4]);
+            .setDate(LocalDateTime.parse(entry[0], ParserUtils.LOG_FILE_DATE_FORMATTER))
+            .setIpAddress(IpAddressConverter.toLong(entry[1]))
+            .setRequest(entry[2])
+            .setStatus(Integer.parseInt(entry[3]))
+            .setUserAgent(entry[4]);
     };
 
     @Override
@@ -75,18 +75,18 @@ final class LogEntryStore implements ServerAccessLogEntryStore<Long> {
         List<Long> iPsToBlock;
         try {
             iPsToBlock = logEntryManager.stream()
-                .filter(AccessLogEntry.DATE.between(startDate, endDate, START_INCLUSIVE_END_INCLUSIVE))
-                .collect(
-                    Collectors.groupingBy(
-                        AccessLogEntry::getIpAddress,
-                        Collectors.counting()
+                    .filter(AccessLogEntry.DATE.between(startDate, endDate, START_INCLUSIVE_END_INCLUSIVE))
+                    .collect(
+                        Collectors.groupingBy(
+                            AccessLogEntry::getIpAddress,
+                            Collectors.counting()
+                        )
                     )
-                )
-                .entrySet()
-                .stream()
-                .filter(e -> e.getValue().intValue() >= blockingCriteria.threshold())
-                .map(Map.Entry::getKey)
-                .sorted()
+                    .entrySet()
+                    .stream()
+                    .filter(e -> e.getValue().intValue() >= blockingCriteria.threshold())
+                    .map(Map.Entry::getKey)
+                    .sorted()
                 .collect(Collectors.toList());
         } catch (SpeedmentException e) {
             throw new LogHandlerException("Failure in LogEntryStore::findIpsToBlock. Error finding blocked IPs in database table.", e);
@@ -95,19 +95,18 @@ final class LogEntryStore implements ServerAccessLogEntryStore<Long> {
     }
 
     @Override
-    public void saveIpsToBlock(List<Long> iPsToBlock, SearchCriteria blockingCriteria) {
+    public void saveIpsToBlock(SearchCriteria blockingCriteria, List<Long> iPsToBlock) {
         String comment = createCommentDescribingReasonForBlocking(blockingCriteria);
         try {
             iPsToBlock.stream()
-                    .map(ip ->
-                        new BlockedIpImpl()
-                            .setIpAddress(ip)
-                            .setComment(comment))
-                    .forEach(blockedIpManager.persister());
+                .map(ip ->
+                    new BlockedIpImpl()
+                        .setIpAddress(ip)
+                        .setComment(comment))
+                .forEach(blockedIpManager.persister());
         } catch (SpeedmentException e) {
             throw new LogHandlerException("Failure in LogEntryStore::saveIpsToBlock. Error writing blocked IPs to database.", e);
         }
-
     }
 
     private final String createCommentDescribingReasonForBlocking(SearchCriteria blockingCriteria) {
@@ -118,6 +117,6 @@ final class LogEntryStore implements ServerAccessLogEntryStore<Long> {
                 .append(blockingCriteria.duration().toString()).append("] ")
                 .append("period starting at [")
                 .append(blockingCriteria.startDate().toString()).append("].")
-                .toString();
+            .toString();
     }
 }
