@@ -172,7 +172,7 @@ public class LogEntryStoreTest {
 
     private SearchCriteria getSearchCriteriaForFindingIpsToBlock(String[] params) {
         Map<String,String> argsMap = Args.getMap(params);
-        return SearchCriteria.createInstance(argsMap);
+        return SearchCriteria.getInstance(argsMap);
     }
 
     private void checkIfFound(List<Long> iPsToBlock, List<Long> expectedIpsToBlock) {

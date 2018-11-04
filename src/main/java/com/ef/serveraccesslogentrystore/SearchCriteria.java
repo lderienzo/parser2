@@ -29,7 +29,7 @@ class SearchCriteria {
         this.threshold = getValidValue(argsMap, THRESHOLD, Integer.class);
     }
 
-    public static SearchCriteria createInstance(Map<String,String> argsMap) {
+    public static SearchCriteria getInstance(Map<String,String> argsMap) {
         return new SearchCriteria(argsMap);
     }
 
@@ -37,7 +37,6 @@ class SearchCriteria {
         return ARG_HANDLER_MAP.get(arg).getValue(argsMap.get(arg.toString()), returnValueClass);
     }
 
-    // TODO: check if each of these values are mutable when returned.
     public LocalDateTime startDate() {
         return startDate;
     }
