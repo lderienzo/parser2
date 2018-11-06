@@ -32,15 +32,15 @@ import com.speedment.runtime.core.exception.SpeedmentException;
 
 public class Parser {
 
-    public static void main(String... params) {
+    public static void main(String... commandLineArgs) {
         ParserApplication db = null;
         try {
-            Map<String,String> argsMap = Args.getMap(params);
-            if (requiredArgsPresent(argsMap, params)) {
-                LocalDateTime startDate = getValidValue(argsMap, START_DATE, LocalDateTime.class);
-                Duration duration = getValidValue(argsMap, DURATION, Duration.class);
-                int threshold = getValidValue(argsMap, THRESHOLD, Integer.class);
-                String file = getValidValue(argsMap, ACCESS_LOG, String.class);
+            Map<String,String> args = Args.getArgsMap(commandLineArgs);
+            if (requiredArgsPresent(args, commandLineArgs)) {
+                LocalDateTime startDate = getValidValue(args, START_DATE, LocalDateTime.class);
+                Duration duration = getValidValue(args, DURATION, Duration.class);
+                int threshold = getValidValue(args, THRESHOLD, Integer.class);
+                String file = getValidValue(args, ACCESS_LOG, String.class);
 
                 db = initDb();
                 LogHandler logHandler = initLogHandler(db);
@@ -66,12 +66,12 @@ public class Parser {
         }
     }
 
-    private static boolean requiredArgsPresent(Map<String,String> argsMap, String... params) {
-        return (argsMap != null && argsMap.size() == params.length);
+    private static boolean requiredArgsPresent(Map<String,String> args, String... commandLineArgs) {
+        return (args != null && args.size() == commandLineArgs.length);
     }
 
-    private static <T> T getValidValue(Map<String,String> argsMap, Args.ArgName arg, Class<T> returnValueClass) {
-        return ARG_HANDLER_MAP.get(arg).getValue(argsMap.get(arg.toString()), returnValueClass);
+    private static <T> T getValidValue(Map<String,String> args, Args.ArgName arg, Class<T> returnValueClass) {
+        return ARG_HANDLER_MAP.get(arg).getValue(args.get(arg.toString()), returnValueClass);
     }
 
     private static ParserApplication initDb() {

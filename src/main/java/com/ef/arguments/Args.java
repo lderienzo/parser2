@@ -56,27 +56,27 @@ public class Args {
                     .build();
 
 
-    public static Map<String, String> getMap(String... params) throws ArgsException {
-        Map<String,String> args = toMap(params);
+    public static Map<String, String> getArgsMap(String... commandLineArgs) throws ArgsException {
+        Map<String,String> args = toMap(commandLineArgs);
         String missing = findMissingRequired(args);
         if (missing.isEmpty()) {
             return args;
         }
         else {
-            throw new ArgsException("Failure processing arguments in 'getMap' method. " +
+            throw new ArgsException("Failure processing arguments in 'getArgsMap' method. " +
                     "Missing required argument ["+missing+"]");
         }
     }
 
-    private static Map<String,String> toMap(String... params) {
-        return Arrays.stream(params)
+    private static Map<String,String> toMap(String... commandLineArgs) {
+        return Arrays.stream(commandLineArgs)
                 .map(str -> str.replace("--", ""))
                 .map(str -> str.split("="))
                 .filter(strArr -> strArr.length == 2)
                 .collect(
-                        Collectors.toMap(
-                                str -> str[0], str -> str[1]
-                        ));
+                    Collectors.toMap(
+                            str -> str[0], str -> str[1]
+                    ));
     }
 
     private static String findMissingRequired(Map<String,String> enteredArgs) {
@@ -93,13 +93,13 @@ public class Args {
         return missingArg;
     }
 
+    private static boolean isPresent(Map.Entry<ArgName,ArgHandler> argName,
+                                     Map<String,String> enteredArgs) {
+        return enteredArgs.containsKey(argName.getKey().toString());
+    }
+
     private static boolean isRequired(Map.Entry<ArgName,ArgHandler> argName) {
         return (argName.getKey().equals(THRESHOLD) ||
                 argName.getKey().equals(START_DATE) || argName.getKey().equals(DURATION));
-    }
-
-    private static boolean isPresent(Map.Entry<ArgName,ArgHandler> argName,
-                                     Map<String,String> enteredArgs) {
-       return enteredArgs.containsKey(argName.getKey().toString());
     }
 }

@@ -141,18 +141,18 @@ public class LogEntryStoreTest {
     private List<Long> testNotFindingAnyIpsToBlock() {
         blockingCriteria =
             getSearchCriteriaForFindingIpsToBlock(
-                withParamsForFindingNothing(HOURLY, THRESHOLD_200));
+                withArgsForFindingNothing(HOURLY, THRESHOLD_200));
         List<Long> iPsToBlock =
             testFindingIpsToBlock(blockingCriteria, Collections.EMPTY_LIST);
         return iPsToBlock;
     }
 
-    private String[] withParamsForFindingNothing(Duration duration, int threshold) {
-        return getParams(duration, threshold);
+    private String[] withArgsForFindingNothing(Duration duration, int threshold) {
+        return getArgs(duration, threshold);
     }
 
-    private String[] getParams(Duration duration, int threshold) {
-        String[] params = {
+    private String[] getArgs(Duration duration, int threshold) {
+        String[] commandLineArgs = {
             new StringBuilder("--").append(Args.ArgName.START_DATE)
                     .append("=").append(TEST_START_DATE).toString(),
             new StringBuilder("--").append(Args.ArgName.DURATION)
@@ -160,7 +160,7 @@ public class LogEntryStoreTest {
             new StringBuilder("--").append(Args.ArgName.THRESHOLD)
                     .append("=").append(threshold).toString()
         };
-        return params;
+        return commandLineArgs;
     }
 
     private List<Long> testFindingIpsToBlock(SearchCriteria searchCriteria,
@@ -170,8 +170,8 @@ public class LogEntryStoreTest {
         return iPsToBlock;
     }
 
-    private SearchCriteria getSearchCriteriaForFindingIpsToBlock(String[] params) {
-        Map<String,String> argsMap = Args.getMap(params);
+    private SearchCriteria getSearchCriteriaForFindingIpsToBlock(String[] args) {
+        Map<String,String> argsMap = Args.getArgsMap(args);
         return SearchCriteria.getInstance(argsMap);
     }
 
@@ -187,24 +187,24 @@ public class LogEntryStoreTest {
     public void testFindIpsToBlock_oneFound_dailyDuration() {
         blockingCriteria =
             getSearchCriteriaForFindingIpsToBlock(
-                withParamsForFindingOneIpForDay(DAILY, THRESHOLD_TO_FIND_ONE_IP_FOR_DAY));
+                withArgsForFindingOneIpForDay(DAILY, THRESHOLD_TO_FIND_ONE_IP_FOR_DAY));
         testFindingIpsToBlock(blockingCriteria, expectedSingleBlockedIpForDay);
     }
 
-    private String[] withParamsForFindingOneIpForDay(Duration duration, int threshold) {
-        return getParams(duration, threshold);
+    private String[] withArgsForFindingOneIpForDay(Duration duration, int threshold) {
+        return getArgs(duration, threshold);
     }
 
     @Test
     public void testFindIpsToBlock_multipleFound_dailyDuration() {
         blockingCriteria =
             getSearchCriteriaForFindingIpsToBlock(
-                withParamsForFindingMultipleIpsForDay(DAILY, THRESHOLD_TO_FIND_MULTIPLE_IPS_FOR_DAY));
+                withArgsForFindingMultipleIpsForDay(DAILY, THRESHOLD_TO_FIND_MULTIPLE_IPS_FOR_DAY));
         testFindingIpsToBlock(blockingCriteria, expectedMultipleBlockedIpsForDay);
     }
 
-    private String[] withParamsForFindingMultipleIpsForDay(Duration duration, int threshold) {
-        return getParams(duration, threshold);
+    private String[] withArgsForFindingMultipleIpsForDay(Duration duration, int threshold) {
+        return getArgs(duration, threshold);
     }
 
     // ---- hourly duration tests ----
@@ -213,24 +213,24 @@ public class LogEntryStoreTest {
     public void testFindIpsToBlock_oneFound_hourlyDuration() {
         blockingCriteria =
             getSearchCriteriaForFindingIpsToBlock(
-                withParamsForFindingOneIpForHour(HOURLY, THRESHOLD_TO_FIND_ONE_IP_FOR_HOUR));
+                withArgsForFindingOneIpForHour(HOURLY, THRESHOLD_TO_FIND_ONE_IP_FOR_HOUR));
         testFindingIpsToBlock(blockingCriteria, expectedSingleBlockedIpForHour);
     }
 
-    private String[] withParamsForFindingOneIpForHour(Duration duration, int threshold) {
-        return getParams(duration, threshold);
+    private String[] withArgsForFindingOneIpForHour(Duration duration, int threshold) {
+        return getArgs(duration, threshold);
     }
 
     @Test
     public void testFindIpsToBlock_multipleFound_hourlyDuration() {
         blockingCriteria =
             getSearchCriteriaForFindingIpsToBlock(
-                withParamsForFindingMultipleIpsForHour(HOURLY, THRESHOLD_TO_FIND_MULTIPLE_IPS_FOR_HOUR));
+                withArgsForFindingMultipleIpsForHour(HOURLY, THRESHOLD_TO_FIND_MULTIPLE_IPS_FOR_HOUR));
         testFindingIpsToBlock(blockingCriteria, expectedMultipleBlockedIpsForHour);
     }
 
-    private String[] withParamsForFindingMultipleIpsForHour(Duration duration, int threshold) {
-        return getParams(duration, threshold);
+    private String[] withArgsForFindingMultipleIpsForHour(Duration duration, int threshold) {
+        return getArgs(duration, threshold);
     }
 
     // ------- save tests ------
@@ -239,7 +239,7 @@ public class LogEntryStoreTest {
     public void testSaveIpsToBlock_saveEmptyList() {
         blockingCriteriaForComment =
             getSearchCriteriaForFindingIpsToBlock(
-                withParamsForFindingOneIpForHour(HOURLY, THRESHOLD_TO_FIND_ONE_IP_FOR_HOUR));
+                withArgsForFindingOneIpForHour(HOURLY, THRESHOLD_TO_FIND_ONE_IP_FOR_HOUR));
         List<Long> emptyListOfIps = testNotFindingAnyIpsToBlock();
         logEntryStore.saveIpsToBlock(blockingCriteriaForComment, emptyListOfIps);
         verifyBlockedIpsWhereSaved(Collections.EMPTY_LIST);
@@ -270,7 +270,7 @@ public class LogEntryStoreTest {
     public void testSaveIpsToBlock_saveListWithOneIp() {
         blockingCriteriaForComment =
             getSearchCriteriaForFindingIpsToBlock(
-                withParamsForFindingOneIpForHour(HOURLY, THRESHOLD_TO_FIND_ONE_IP_FOR_HOUR));
+                withArgsForFindingOneIpForHour(HOURLY, THRESHOLD_TO_FIND_ONE_IP_FOR_HOUR));
         List<Long> listWithOneIp =
             testFindingIpsToBlock(blockingCriteriaForComment, expectedSingleBlockedIpForHour);
         logEntryStore.saveIpsToBlock(blockingCriteriaForComment, listWithOneIp);
@@ -281,7 +281,7 @@ public class LogEntryStoreTest {
     public void testSaveIpsToBlock_saveListWithMultipleIps() {
         blockingCriteriaForComment =
             getSearchCriteriaForFindingIpsToBlock(
-                withParamsForFindingMultipleIpsForHour(HOURLY, THRESHOLD_TO_FIND_MULTIPLE_IPS_FOR_HOUR));
+                withArgsForFindingMultipleIpsForHour(HOURLY, THRESHOLD_TO_FIND_MULTIPLE_IPS_FOR_HOUR));
         List<Long> listOfMultipleIps =
             testFindingIpsToBlock(blockingCriteriaForComment, expectedMultipleBlockedIpsForHour);
         logEntryStore.saveIpsToBlock(blockingCriteriaForComment, listOfMultipleIps);
@@ -291,7 +291,7 @@ public class LogEntryStoreTest {
     @Test(expected = LogHandlerException.class)
     public void testSaveIpsToBlock_saveFailure() {
         blockingCriteriaForComment =
-            getSearchCriteriaForFindingIpsToBlock(withParamsForFindingNothing(HOURLY, THRESHOLD_200));
+            getSearchCriteriaForFindingIpsToBlock(withArgsForFindingNothing(HOURLY, THRESHOLD_200));
         List<Long> listWithInvalidIp = Collections.singletonList(-2147483648L);
         logEntryStore.saveIpsToBlock(blockingCriteriaForComment, listWithInvalidIp);
     }

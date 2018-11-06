@@ -23,297 +23,213 @@ import static org.junit.Assert.assertTrue;
 
 
 import java.time.LocalDateTime;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
+
 import org.junit.Test;
 
 import com.ef.enums.Duration;
 
 
-public class ArgsTest {
+public final class ArgsTest {
+    private String[] emulatedCommandLineArgs;
+    private Map<String, String> args;
 
     @Test
-    public void testGetMap_all_args_present() throws ArgsException {
-        String[] params = {
-            "--"+ACCESS_LOG+"="+BOGUS_TEST_LOG_FILE_PATH,
-            "--"+START_DATE+"="+HOURLY_TEST_START_DATE,
-            "--"+DURATION+"="+HOURLY,
-            "--"+THRESHOLD+"="+THRESHOLD_200
-        };
-        Map<String, String> argsMap = Args.getMap(params);
-        assertTrue(params.length == argsMap.size());
+    public void testGetMap_allArgsPresent() throws ArgsException {
+        emulatedCommandLineArgs = new CommandLineArgsEmulator.Builder()
+                .pathToLogFile(BOGUS_TEST_LOG_FILE_PATH)
+                .startDate(HOURLY_TEST_START_DATE)
+                .duration(HOURLY.toString())
+                .threshold(Integer.toString(THRESHOLD_200))
+                .build().getEmulatedArgsArray();
+        args = Args.getArgsMap(emulatedCommandLineArgs);
+
+        assertTrue(argsMapContainsExpectedData());
+    }
+
+    private boolean argsMapContainsExpectedData() {
+        List<String[]> argPresenceVerificationList = Arrays.stream(emulatedCommandLineArgs)
+                .map(arg -> arg.split("="))
+                .filter(arg -> arg.length == 2)
+                .filter(arg -> args.containsKey(arg[0].replace("--", "")))
+                .filter(arg -> args.get(arg[0].replace("--", "")).equals(arg[1]))
+                .collect(Collectors.toList());
+        return argPresenceVerificationList.size() == args.size();
     }
 
     @Test
-    public void testGetMap_all_args_present_in_different_order() throws ArgsException {
-        String[] params = {
-            "--"+THRESHOLD+"="+THRESHOLD_200,
-            "--"+DURATION+"="+HOURLY,
-            "--"+START_DATE+"="+HOURLY_TEST_START_DATE,
-            "--"+ACCESS_LOG+"="+BOGUS_TEST_LOG_FILE_PATH
-        };
-        Map<String, String> argsMap = Args.getMap(params);
-        assertTrue(params.length == argsMap.size());
+    public void testGetMap_allArgsPresentInDifferentOrder() throws ArgsException {
+        emulatedCommandLineArgs = new CommandLineArgsEmulator.Builder()
+                .threshold(Integer.toString(THRESHOLD_200))
+                .duration(HOURLY.toString())
+                .startDate(HOURLY_TEST_START_DATE)
+                .pathToLogFile(BOGUS_TEST_LOG_FILE_PATH)
+                .build().getEmulatedArgsArray();
+        args = Args.getArgsMap(emulatedCommandLineArgs);
+
+        assertTrue(argsMapContainsExpectedData());
     }
 
     @Test(expected = ArgsException.class)
-    public void testGetMap_all_args_absent() throws ArgsException {
-        String[] params = {};
-        Map<String, String> argsMap = Args.getMap(params);
-        assertTrue(params.length == argsMap.size());
+    public void testGetMap_allArgsAbsent() throws ArgsException {
+        String[] commandLineArgs = {};
+        args = Args.getArgsMap(commandLineArgs);
+        assertTrue(commandLineArgs.length == args.size());
     }
 
     @Test(expected = ArgsException.class)
-    public void testGetMap_missing_required_arg() throws ArgsException {
-        String[] params = {
-            "--"+ACCESS_LOG+"="+BOGUS_TEST_LOG_FILE_PATH,
-            "--"+START_DATE+"="+HOURLY_TEST_START_DATE,
-            "--"+THRESHOLD+"="+THRESHOLD_200
-        };
-        Args.getMap(params);
+    public void testGetMap_missingRequiredArg() throws ArgsException {
+        emulatedCommandLineArgs = new CommandLineArgsEmulator.Builder()
+                .pathToLogFile(BOGUS_TEST_LOG_FILE_PATH)
+                .startDate(HOURLY_TEST_START_DATE)
+                .threshold(Integer.toString(THRESHOLD_200))
+                .build().getEmulatedArgsArray();
+        Args.getArgsMap(emulatedCommandLineArgs);
     }
 
     @Test
-    public void testGetMap_non_required_access_log_absent() throws ArgsException {
-        String[] params = {
-            "--"+START_DATE+"="+HOURLY_TEST_START_DATE,
-            "--"+DURATION+"="+HOURLY,
-            "--"+THRESHOLD+"="+THRESHOLD_200
-        };
-        Map<String, String> argsMap = Args.getMap(params);
-        assertTrue(params.length == argsMap.size());
+    public void testGetMap_nonRequiredAccessLogPathAbsent() throws ArgsException {
+        emulatedCommandLineArgs = new CommandLineArgsEmulator.Builder()
+                .startDate(HOURLY_TEST_START_DATE)
+                .duration(HOURLY.toString())
+                .threshold(Integer.toString(THRESHOLD_200))
+                .build().getEmulatedArgsArray();
+        args = Args.getArgsMap(emulatedCommandLineArgs);
+
+        assertTrue(argsMapContainsExpectedData());
     }
 
     @Test(expected = ArgsException.class)
-    public void testGetMap_required_and_non_required_arg_absent() throws ArgsException {
-        String[] params = {
-            "--"+START_DATE+"="+HOURLY_TEST_START_DATE,
-            "--"+DURATION+"="+HOURLY
-        };
-        Args.getMap(params);
+    public void testGetMap_requiredAndNonRequiredArgsAbsent() throws ArgsException {
+        emulatedCommandLineArgs = new CommandLineArgsEmulator.Builder()
+                .startDate(HOURLY_TEST_START_DATE)
+                .duration(HOURLY.toString())
+                .build().getEmulatedArgsArray();
+        Args.getArgsMap(emulatedCommandLineArgs);
     }
 
     @Test
-    public void testGetMap_valid_access_log_path() throws ArgsException {
-        String[] params = {
-                "--"+ACCESS_LOG+"="+VALID_TEST_LOG_FILE_PATH,
-                "--"+START_DATE+"="+HOURLY_TEST_START_DATE,
-                "--"+DURATION+"="+HOURLY,
-                "--"+THRESHOLD+"="+THRESHOLD_200
-        };
-        Map<String, String> argsMap = Args.getMap(params);
+    public void testGetMap_validAccessLogPath() throws ArgsException {
+        emulatedCommandLineArgs = new CommandLineArgsEmulator.Builder()
+                .pathToLogFile(VALID_TEST_LOG_FILE_PATH)
+                .startDate(HOURLY_TEST_START_DATE)
+                .duration(HOURLY.toString())
+                .threshold(Integer.toString(THRESHOLD_200))
+                .build().getEmulatedArgsArray();
+        args = Args.getArgsMap(emulatedCommandLineArgs);
         String filePath = ARG_HANDLER_MAP.get(ACCESS_LOG)
-                .getValue(argsMap.get(ACCESS_LOG.toString()), String.class);
-        assertTrue(argsMap.size() == 4);
+                .getValue(args.get(ACCESS_LOG.toString()), String.class);
+
         assertEquals(VALID_TEST_LOG_FILE_PATH, filePath);
-    }
-
-    @Test(expected = ArgsException.class)
-    public void testGetMap_only_valid_access_log_path() throws ArgsException {
-        String[] params = {
-                "--"+ACCESS_LOG+"="+VALID_TEST_LOG_FILE_PATH
-        };
-        Args.getMap(params);
-    }
-
-    @Test(expected = ArgsException.class)
-    public void testGetMap_only_invalid_access_log_path() throws ArgsException {
-        String[] params = {
-                "--"+ACCESS_LOG+"="+BOGUS_TEST_LOG_FILE_PATH
-        };
-        Args.getMap(params);
+        assertTrue(argsMapContainsExpectedData());
     }
 
     @Test
-    public void testGetMap_valid_log_path_no_equals() throws ArgsException {
-        String[] params = {
-            "--"+ACCESS_LOG+VALID_TEST_LOG_FILE_PATH,
-            "--"+START_DATE+"="+HOURLY_TEST_START_DATE,
-            "--"+DURATION+"="+HOURLY,
-            "--"+THRESHOLD+"="+THRESHOLD_200
-        };
-        Map<String, String> argsMap = Args.getMap(params);
+    public void testGetMap_validLogPathButNoEqualsInItsArgFormat() throws ArgsException {
+        emulatedCommandLineArgs = new CommandLineArgsEmulator.Builder()
+                .pathToLogFile(VALID_TEST_LOG_FILE_PATH)
+                .startDate(HOURLY_TEST_START_DATE)
+                .duration(HOURLY.toString())
+                .threshold(Integer.toString(THRESHOLD_200))
+                .leaveOutEqualsSign(true)
+                .build().getEmulatedArgsArray();
+        args = Args.getArgsMap(emulatedCommandLineArgs);
         ARG_HANDLER_MAP.get(ACCESS_LOG)
-                .getValue(argsMap.get(ACCESS_LOG.toString()), String.class);
-        assertTrue(argsMap.size() == 3);
-    }
+                .getValue(args.get(ACCESS_LOG.toString()), String.class);
 
-    @Test
-    public void testGetMap_invalid_log_path_no_equals() throws ArgsException {
-        String[] params = {
-                "--"+ACCESS_LOG+BOGUS_TEST_LOG_FILE_PATH,
-                "--"+START_DATE+"="+HOURLY_TEST_START_DATE,
-                "--"+DURATION+"="+HOURLY,
-                "--"+THRESHOLD+"="+THRESHOLD_200
-        };
-        Map<String, String> argsMap = Args.getMap(params);
-        ARG_HANDLER_MAP.get(ACCESS_LOG)
-                .getValue(argsMap.get(ACCESS_LOG.toString()), String.class);
-        assertTrue(argsMap.size() == 3);
+        assertTrue(argsMapContainsExpectedData());
     }
 
     @Test(expected = ArgsException.class)
-    public void testGetMap_invalid_log_path_with_equals() throws ArgsException {
-        String[] params = {
-            "--"+ACCESS_LOG+"="+BOGUS_TEST_LOG_FILE_PATH,
-            "--"+START_DATE+"="+HOURLY_TEST_START_DATE,
-            "--"+DURATION+"="+HOURLY,
-            "--"+THRESHOLD+"="+THRESHOLD_200
-        };
-        Map<String, String> argsMap = Args.getMap(params);
-        ARG_HANDLER_MAP.get(ACCESS_LOG)
-                .getValue(argsMap.get(ACCESS_LOG.toString()), String.class);
-    }
-
-    @Test
-    public void testGetMap_valid_start_date() throws ArgsException {
-        String[] params = {
-            "--"+START_DATE+"="+HOURLY_TEST_START_DATE,
-            "--"+DURATION+"="+HOURLY,
-            "--"+THRESHOLD+"="+THRESHOLD_200
-        };
-        Map<String, String> argsMap = Args.getMap(params);
-        LocalDateTime startDate = ARG_HANDLER_MAP.get(START_DATE)
-                .getValue(argsMap.get(START_DATE.toString()), LocalDateTime.class);
-        String expected = new String(HOURLY_TEST_START_DATE).replace(".", "T")
-                .subSequence(0,HOURLY_TEST_START_DATE.length()-3).toString();
-
-        assertTrue(argsMap.size() == 3);
-        assertEquals(expected, startDate.toString());
-    }
-
-
-    @Test(expected = ArgsException.class)
-    public void testGetMap_invalid_start_date() throws ArgsException {
-        String[] params = {
-            "--"+START_DATE+"=2017-01-01~~~20:00:00",
-            "--"+DURATION+"="+HOURLY,
-            "--"+THRESHOLD+"="+THRESHOLD_200
-        };
-        Map<String, String> argsMap = Args.getMap(params);
+    public void testGetMap_invalidStartDateFormatNoFilePath() throws ArgsException {
+        emulatedCommandLineArgs = new CommandLineArgsEmulator.Builder()
+                .startDate("2017-01-01~~~20:00:00")
+                .duration(HOURLY.toString())
+                .threshold(Integer.toString(THRESHOLD_200))
+                .build().getEmulatedArgsArray();
+        Map<String, String> argsMap = Args.getArgsMap(emulatedCommandLineArgs);
         ARG_HANDLER_MAP.get(START_DATE)
                 .getValue(argsMap.get(START_DATE.toString()), LocalDateTime.class);
     }
 
     @Test
-    public void testGetMap_valid_duration_hourly() throws ArgsException {
-        String[] params = {
-            "--"+START_DATE+"="+HOURLY_TEST_START_DATE,
-            "--"+DURATION+"="+HOURLY,
-            "--"+THRESHOLD+"="+THRESHOLD_200
-        };
-        Map<String, String> argsMap = Args.getMap(params);
+    public void testGetMap_validStartDateFormatAndDailyDurationNoFilePath() throws ArgsException {
+        emulatedCommandLineArgs = new CommandLineArgsEmulator.Builder()
+                .startDate(HOURLY_TEST_START_DATE)
+                .duration(DAILY.toString())
+                .threshold(Integer.toString(THRESHOLD_200))
+                .build().getEmulatedArgsArray();
+        args = Args.getArgsMap(emulatedCommandLineArgs);
         Duration duration = ARG_HANDLER_MAP.get(DURATION)
-                .getValue(argsMap.get(DURATION.toString()), Duration.class);
-        assertTrue(argsMap.size() == 3);
-        assertEquals(HOURLY, duration);
-    }
+                .getValue(args.get(DURATION.toString()), Duration.class);
 
-    @Test
-    public void testGetMap_valid_duration_daily() throws ArgsException {
-        String[] params = {
-            "--"+START_DATE+"="+HOURLY_TEST_START_DATE,
-            "--"+DURATION+"="+DAILY,
-            "--"+THRESHOLD+"="+THRESHOLD_200
-        };
-        Map<String, String> argsMap = Args.getMap(params);
-        Duration duration = ARG_HANDLER_MAP.get(DURATION)
-                .getValue(argsMap.get(DURATION.toString()), Duration.class);
-        assertTrue(argsMap.size() == 3);
         assertEquals(DAILY, duration);
+        assertTrue(argsMapContainsExpectedData());
     }
 
     @Test(expected = ArgsException.class)
-    public void testGetMap_invalid_duration() throws ArgsException {
-        String[] params = {
-                "--"+START_DATE+"="+HOURLY_TEST_START_DATE,
-                "--"+DURATION+"=boguz_value",
-                "--"+THRESHOLD+"="+THRESHOLD_200
-        };
-        Map<String, String> argsMap = Args.getMap(params);
+    public void testGetMap_invalidDurationValue() throws ArgsException {
+        emulatedCommandLineArgs = new CommandLineArgsEmulator.Builder()
+                .startDate(HOURLY_TEST_START_DATE)
+                .duration("boguz_value")
+                .threshold(Integer.toString(THRESHOLD_200))
+                .build().getEmulatedArgsArray();
+        Map<String, String> argsMap = Args.getArgsMap(emulatedCommandLineArgs);
         ARG_HANDLER_MAP.get(DURATION)
                 .getValue(argsMap.get(DURATION.toString()), Duration.class);
     }
 
     @Test(expected = ArgsException.class)
-    public void testGetMap_missing_required_with_equals() throws ArgsException {
-        String[] params = {
-            "--"+START_DATE+"="+HOURLY_TEST_START_DATE,
-            "--"+DURATION+"=",
-            "--"+THRESHOLD+"="+THRESHOLD_200
-        };
-        Args.getMap(params);
-    }
-
-    @Test(expected = ArgsException.class)
-    public void testGetMap_missing_required_without_equals() throws ArgsException {
-        String[] params = {
-            "--"+START_DATE+"="+HOURLY_TEST_START_DATE,
-            "--"+DURATION+"",
-            "--"+THRESHOLD+"="+THRESHOLD_200
-        };
-        Args.getMap(params);
-    }
-
-    @Test
-    public void testGetMap_valid_threshold() throws ArgsException {
-        String[] params = {
-            "--"+START_DATE+"="+HOURLY_TEST_START_DATE,
-            "--"+DURATION+"="+DAILY,
-            "--"+THRESHOLD+"="+THRESHOLD_200
-        };
-        Map<String, String> argsMap = Args.getMap(params);
-        Integer threshold = ARG_HANDLER_MAP.get(THRESHOLD)
-                .getValue(argsMap.get(THRESHOLD.toString()), Integer.class);
-        assertTrue(argsMap.size() == 3);
-        assertEquals(THRESHOLD_200, threshold.intValue());
-    }
-
-    @Test(expected = ArgsException.class)
-    public void testGetMap_below_range_threshold() throws ArgsException {
-        String[] params = {
-            "--"+START_DATE+"="+HOURLY_TEST_START_DATE,
-            "--"+DURATION+"="+DAILY,
-            "--"+THRESHOLD+"=50"
-        };
-        Map<String, String> argsMap = Args.getMap(params);
+    public void testGetMap_belowRangeThreshold() throws ArgsException {
+        emulatedCommandLineArgs = new CommandLineArgsEmulator.Builder()
+                .startDate(HOURLY_TEST_START_DATE)
+                .duration(DAILY.toString())
+                .threshold("-1")
+                .build().getEmulatedArgsArray();
+        Map<String, String> argsMap = Args.getArgsMap(emulatedCommandLineArgs);
         ARG_HANDLER_MAP.get(THRESHOLD)
                 .getValue(argsMap.get(THRESHOLD.toString()), Integer.class);
     }
 
     @Test(expected = ArgsException.class)
-    public void testGetMap_above_range_threshold() throws ArgsException {
-        String[] params = {
-            "--"+START_DATE+"="+HOURLY_TEST_START_DATE,
-            "--"+DURATION+"="+DAILY,
-            "--"+THRESHOLD+"=550"
-        };
-        Map<String, String> argsMap = Args.getMap(params);
+    public void testGetMap_aboveRangeThreshold() throws ArgsException {
+        emulatedCommandLineArgs = new CommandLineArgsEmulator.Builder()
+                .startDate(HOURLY_TEST_START_DATE)
+                .duration(HOURLY.toString())
+                .threshold("10001")
+                .build().getEmulatedArgsArray();
+        Map<String, String> argsMap = Args.getArgsMap(emulatedCommandLineArgs);
         ARG_HANDLER_MAP.get(THRESHOLD)
                 .getValue(argsMap.get(THRESHOLD.toString()), Integer.class);
     }
 
     @Test(expected = ArgsException.class)
-    public void testGetMap_non_int_threshold() throws ArgsException {
-        String[] params = {
-            "--"+START_DATE+"="+HOURLY_TEST_START_DATE,
-            "--"+DURATION+"="+DAILY,
-            "--"+THRESHOLD+"=XYZ"
-        };
-        Map<String, String> argsMap = Args.getMap(params);
+    public void
+    testGetMap_nonIntThreshold() throws ArgsException {
+        emulatedCommandLineArgs = new CommandLineArgsEmulator.Builder()
+                .startDate(HOURLY_TEST_START_DATE)
+                .duration(HOURLY.toString())
+                .threshold("XYZ")
+                .build().getEmulatedArgsArray();
+        Map<String, String> argsMap = Args.getArgsMap(emulatedCommandLineArgs);
         ARG_HANDLER_MAP.get(THRESHOLD)
                 .getValue(argsMap.get(THRESHOLD.toString()), Integer.class);
     }
 
     @Test
-    public void testGetMap_extra_argument() throws ArgsException {
-        String[] params = {
-            "--"+ACCESS_LOG+"="+VALID_TEST_LOG_FILE_PATH,
-            "--"+START_DATE+"="+HOURLY_TEST_START_DATE,
-            "--"+DURATION+"="+HOURLY,
-            "--"+THRESHOLD+"="+THRESHOLD_200,
-            "--some_strange_string=some_strange_value"
-        };
-        Map<String, String> argsMap = Args.getMap(params);
-        assertTrue(params.length == argsMap.size());
+    public void testGetMap_extraBogusArgument() throws ArgsException {
+        emulatedCommandLineArgs = new CommandLineArgsEmulator.Builder()
+                .pathToLogFile(VALID_TEST_LOG_FILE_PATH)
+                .startDate(HOURLY_TEST_START_DATE)
+                .duration(HOURLY.toString())
+                .threshold(Integer.toString(THRESHOLD_200))
+                .extraBogusArg("some_extra_bogus_arg")
+                .build().getEmulatedArgsArray();
+        args = Args.getArgsMap(emulatedCommandLineArgs);
+
+        assertTrue(argsMapContainsExpectedData());
     }
 }
