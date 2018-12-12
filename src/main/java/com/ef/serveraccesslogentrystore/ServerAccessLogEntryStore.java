@@ -9,9 +9,9 @@ package com.ef.serveraccesslogentrystore;
 
 import java.util.List;
 
-
-interface ServerAccessLogEntryStore<E> {
-    void loadFile(String path);
+// TODO: rename SeverAccessEntryLogStore to BlockedIpStore and LogEntryStore to LogStore?
+public interface ServerAccessLogEntryStore<E> { // BlockedIpStore
+    void loadFile(String path); // loadServerAccessLog(String filePath)
     List<E> findIpsToBlock(SearchCriteria blockingCriteria);
-    void saveIpsToBlock(SearchCriteria blockingCriteriaForComment, List<E> ips);
+    void saveIpsToBlock(SearchCriteria blockingCriteriaForComment, List<E> ips);    // saveIpsToBlock(String reason, List ips) - have search criteria provide reason string
 }

@@ -14,7 +14,7 @@ import static com.ef.arguments.Args.ArgName.START_DATE;
 import static com.ef.arguments.Args.ArgName.THRESHOLD;
 import static com.ef.utils.ParserUtils.DB_PWD;
 
-import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Map;
 
 import com.ef.arguments.Args;
@@ -23,34 +23,37 @@ import com.ef.db.ParserApplication;
 import com.ef.db.ParserApplicationBuilder;
 import com.ef.db.parser.parser.access_log_entry.AccessLogEntryManager;
 import com.ef.db.parser.parser.blocked_ip.BlockedIpManager;
-import com.ef.enums.Duration;
-import com.ef.loghandler.AccessLogHandler;
-import com.ef.loghandler.LogHandler;
+import com.ef.serveraccesslogentrystore.LogEntryStore;
+import com.ef.serveraccesslogentrystore.SearchCriteria;
+import com.ef.serveraccesslogentrystore.ServerAccessLogEntryStore;
+import com.ef.utils.IpAddressConverter;
 import com.google.common.base.Strings;
 import com.speedment.runtime.core.exception.SpeedmentException;
 
 
-public class Parser {
+public final class Parser {
+    private static final String USAGE_MESSAGE = "\nUsage:\n" +
+            " \tcom.ef.Parser [--"+ACCESS_LOG+"=<path_to_log_file>] " +
+            "--"+START_DATE+"=<begin_looking_from_this_date_and_time> " +
+            "(--"+DURATION+"=<hourly>|<daily>) --"+THRESHOLD+"=<100-500>\n";
 
     public static void main(String... commandLineArgs) {
         ParserApplication db = null;
-        try {
+        try { // args needs to be "processed" part of which is "vetting/validating" them before they're used.
+            // Then transforming their values from String to the appropriate data type so the app can  more efficiently work with them.
             Map<String,String> args = Args.getArgsMap(commandLineArgs);
-            if (requiredArgsPresent(args, commandLineArgs)) {
-                LocalDateTime startDate = getValidValue(args, START_DATE, LocalDateTime.class);
-                Duration duration = getValidValue(args, DURATION, Duration.class);
-                int threshold = getValidValue(args, THRESHOLD, Integer.class);
-                String file = getValidValue(args, ACCESS_LOG, String.class);
-
+            if (allRequiredArgsPresent(args, commandLineArgs)) {
                 db = initDb();
-                LogHandler logHandler = initLogHandler(db);
-                if (isValid(file)) {
-                    logHandler.save(file);
+                ServerAccessLogEntryStore<Long> logEntryStore = initServerAccessLogEntryStore(db);
+                String logPath = getValidValue(args, ACCESS_LOG, String.class);
+                if (isValid(logPath)) {
+                    logEntryStore.loadFile(logPath);
                 }
-                Map<Long,Long> blockedIps =
-                        logHandler.getBlockedIps(startDate, duration, threshold);
-                logHandler.saveBlockedIps(blockedIps, startDate, duration, threshold);
-                System.out.println(logHandler.getMessage(blockedIps));
+
+                SearchCriteria reason = SearchCriteria.createFromArgsMap(args);
+                List<Long> ips = logEntryStore.findIpsToBlock(reason);
+                logEntryStore.saveIpsToBlock(reason, ips);
+                printBlockedIps(ips);
             }
             else {
                 throw new ArgsException("Failure in Parser main method: missing required argument.");
@@ -66,7 +69,12 @@ public class Parser {
         }
     }
 
-    private static boolean requiredArgsPresent(Map<String,String> args, String... commandLineArgs) {
+    private static void printBlockedIps(List<Long> ips) {
+        System.out.println("Blocked Ips For Entered Criteria:");
+        ips.stream().map(IpAddressConverter::toIp).forEach(System.out::println);
+    }
+
+    private static boolean allRequiredArgsPresent(Map<String,String> args, String... commandLineArgs) {
         return (args != null && args.size() == commandLineArgs.length);
     }
 
@@ -78,10 +86,10 @@ public class Parser {
         return new ParserApplicationBuilder().withPassword(DB_PWD).build();
     }
 
-    private static LogHandler initLogHandler(ParserApplication db) {
+    private static ServerAccessLogEntryStore<Long> initServerAccessLogEntryStore(ParserApplication db) {
         AccessLogEntryManager logEntryManager = db.getOrThrow(AccessLogEntryManager.class);
         BlockedIpManager blockedIpManager = db.getOrThrow(BlockedIpManager.class);
-        return new AccessLogHandler(logEntryManager, blockedIpManager);
+        return new LogEntryStore(logEntryManager, blockedIpManager);
     }
 
     private static boolean isValid(String path) {
@@ -89,9 +97,9 @@ public class Parser {
     }
 
     public static String getUsage() {
-        return "\nUsage:\n" +
-                " \tcom.ef.Parser [--"+ACCESS_LOG+"=<path_to_log_file>] " +
-                "--"+START_DATE+"=<begin_looking_from_this_date_and_time> " +
-                "(--"+DURATION+"=<hourly>|<daily>) --"+THRESHOLD+"=<100-500>\n";
+        return USAGE_MESSAGE;
     }
+
+
+
 }

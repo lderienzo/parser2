@@ -31,12 +31,12 @@ import com.ef.utils.IpAddressConverter;
 import com.ef.utils.ParserUtils;
 import com.speedment.runtime.core.exception.SpeedmentException;
 
-final class LogEntryStore implements ServerAccessLogEntryStore<Long> {
+public final class LogEntryStore implements ServerAccessLogEntryStore<Long> {
     private static final String DELIMITER = "\\|";
     private final AccessLogEntryManager logEntryManager;
     private final BlockedIpManager blockedIpManager;
 
-    LogEntryStore(AccessLogEntryManager logEntryManager, BlockedIpManager blockedIpManager) {
+    public LogEntryStore(AccessLogEntryManager logEntryManager, BlockedIpManager blockedIpManager) {
         this.logEntryManager = logEntryManager;
         this.blockedIpManager = blockedIpManager;
     }
@@ -110,7 +110,7 @@ final class LogEntryStore implements ServerAccessLogEntryStore<Long> {
     }
 
     private final String createCommentDescribingReasonForBlocking(SearchCriteria blockingCriteria) {
-        return new StringBuilder("IP blocked for exceeding [")
+        return new StringBuilder("IP exceeded max of [")
                 .append(blockingCriteria.threshold()).append("] ")
                 .append("allowed requests in more than ")
                 .append(blockingCriteria.duration() == Duration.HOURLY ? "an" : "a").append(" [")

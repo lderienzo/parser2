@@ -72,14 +72,37 @@ public class LogEntryStoreTest {
 
     @BeforeClass
     public static void setUp() {
+        createLogEntryStore();
+
+        initializeDbConnection();
+        initializeEntityManagersFromDbConnection();
+        createLogEntryStoreFromEntityManagers();
+    }
+
+    private static void createLogEntryStore() {
+        // TO create logentrystore:
+        createLogEntryManagers();
+    }
+
+    private static void createLogEntryManagers() {
+
+    }
+
+    private static void initializeDbConnection() {
         db = new ParserApplicationBuilder() // initialize db connection...
                 .withPassword(DB_PWD)
                 .withLogging(ApplicationBuilder.LogType.PERSIST)
                 .withLogging(ApplicationBuilder.LogType.STREAM)
                 .withLogging(ApplicationBuilder.LogType.REMOVE)
                 .build();
+    }
+
+    private static void initializeEntityManagersFromDbConnection() {
         logEntryManager = db.getOrThrow(AccessLogEntryManager.class);
         blockedIpManager = db.getOrThrow(BlockedIpManager.class);
+    }
+
+    private static void createLogEntryStoreFromEntityManagers() {
         logEntryStore = new LogEntryStore(logEntryManager, blockedIpManager);
     }
 
@@ -147,6 +170,11 @@ public class LogEntryStoreTest {
         return iPsToBlock;
     }
 
+    private SearchCriteria getSearchCriteriaForFindingIpsToBlock(String[] args) {
+        Map<String,String> argsMap = Args.getArgsMap(args);
+        return SearchCriteria.createFromArgsMap(argsMap);
+    }
+
     private String[] withArgsForFindingNothing(Duration duration, int threshold) {
         return getArgs(duration, threshold);
     }
@@ -168,11 +196,6 @@ public class LogEntryStoreTest {
         List<Long> iPsToBlock = logEntryStore.findIpsToBlock(searchCriteria);
         checkIfFound(iPsToBlock, expectedBlockedIps);
         return iPsToBlock;
-    }
-
-    private SearchCriteria getSearchCriteriaForFindingIpsToBlock(String[] args) {
-        Map<String,String> argsMap = Args.getArgsMap(args);
-        return SearchCriteria.getInstance(argsMap);
     }
 
     private void checkIfFound(List<Long> iPsToBlock, List<Long> expectedIpsToBlock) {

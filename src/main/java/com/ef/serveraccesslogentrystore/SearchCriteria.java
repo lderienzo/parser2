@@ -18,7 +18,7 @@ import java.util.Map;
 import com.ef.arguments.Args;
 import com.ef.enums.Duration;
 
-class SearchCriteria {
+public final class SearchCriteria {
     private final LocalDateTime startDate;
     private final Duration duration;
     private final int threshold;
@@ -29,7 +29,7 @@ class SearchCriteria {
         this.threshold = getValidValue(argsMap, THRESHOLD, Integer.class);
     }
 
-    public static SearchCriteria getInstance(Map<String,String> argsMap) {
+    public static SearchCriteria createFromArgsMap(Map<String,String> argsMap) {
         return new SearchCriteria(argsMap);
     }
 

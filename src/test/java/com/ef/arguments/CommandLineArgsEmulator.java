@@ -20,7 +20,7 @@ import java.util.List;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableMap;
 
-final class CommandLineArgsEmulator {
+public final class CommandLineArgsEmulator {
     private String accesslog;
     private String startDate;
     private String duration;
@@ -46,7 +46,7 @@ final class CommandLineArgsEmulator {
         leaveOutEqualsSign = builder.leaveOutEqualsSign;
     }
 
-    static final class Builder {
+    public static final class Builder {
         private String accesslog = "";
         private String startDate = "";
         private String duration = "";
@@ -56,6 +56,7 @@ final class CommandLineArgsEmulator {
 
         public Builder() {}
 
+        // TODO: rename to "accesslog"
         public Builder pathToLogFile(String val) {
             accesslog = val;
             return this;
@@ -91,7 +92,7 @@ final class CommandLineArgsEmulator {
         }
     }
 
-    final String[] getEmulatedArgsArray() {
+    public final String[] getEmulatedArgsArray() {
         Arrays.stream(this.getClass().getDeclaredFields())
             .filter(this::fieldIsAnArgName)
             .filter(this::fieldContainsAnArgValue)

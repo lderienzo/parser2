@@ -19,6 +19,11 @@ import java.util.stream.Collectors;
 import com.google.common.collect.ImmutableMap;
 
 public class Args {
+    // purpose of class -- commandline ArgsNew processing.
+    // what does that mean? read in args, see if all required are present and valid
+    // if not, raise exception, else, go on to convert each string ArgsNew to its appropriate
+    // type to be used by main method
+
 
     public enum ArgName {
         ACCESS_LOG {
