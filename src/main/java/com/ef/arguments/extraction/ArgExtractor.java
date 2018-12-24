@@ -65,20 +65,7 @@ public final class ArgExtractor {
 
 
 
-    private boolean argValuePresent(String path) {
-        return ! Strings.isNullOrEmpty(path);
-    }
 
-    private void checkPathValidity() {
-        if (fileDoesNotExist())
-            throw new ArgsException("Failure in ArgExtractor::checkPathValidity. " +
-                    "Error extracting argument [accesslog]. File not found.");
-    }
-
-    private boolean fileDoesNotExist() {
-        File file = new File(extractedArgList.get(0));
-        return !(file.exists() && file.isFile());
-    }
 
 }
 

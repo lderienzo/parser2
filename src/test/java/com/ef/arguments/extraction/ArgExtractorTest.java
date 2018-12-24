@@ -52,15 +52,27 @@ public class ArgExtractorTest {
         emulatedCommandLineArgs = getEmulatedArgsNoArgsPresent();
         extractedArgs = argExtractor.extract(emulatedCommandLineArgs);
         assertNotNull(extractedArgs);
+        checkThatAllArgsAreBlank();
+    }
+
+    private String[] getEmulatedArgsNoArgsPresent() {
+        return new CommandLineArgsEmulator.Builder()
+                .build().getEmulatedArgsArray();
+    }
+
+    private void checkThatAllArgsAreBlank() {
         assertEquals(ASSERT_EQUALS_MSG, "", extractedArgs.getAccesslog());
         assertEquals(ASSERT_EQUALS_MSG, "", extractedArgs.getStartDate());
         assertEquals(ASSERT_EQUALS_MSG, "", extractedArgs.getDuration());
         assertEquals(ASSERT_EQUALS_MSG, "", extractedArgs.getThreshold());
     }
 
-    private String[] getEmulatedArgsNoArgsPresent() {
-        return new CommandLineArgsEmulator.Builder()
-                .build().getEmulatedArgsArray();
+    @Test
+    public void testArgExtractor_invalidFormatArgPresent() {
+        String[] invalidFormatArg = {"al;dkjfadfasdfa**!"};
+        extractedArgs = argExtractor.extract(invalidFormatArg);
+        assertNotNull(extractedArgs);
+        checkThatAllArgsAreBlank();
     }
 
     @Test
