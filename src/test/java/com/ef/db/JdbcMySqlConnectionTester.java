@@ -15,38 +15,32 @@ import org.junit.Before;
 import org.junit.Test;
 
 
-public class JdbcMySqlConnectionTester {
-
-    String url = "jdbc:mysql://localhost:3306/parser?useSSL=false";
-    String username = "parser";
-    String password = "password";
+public final class JdbcMySqlConnectionTester {
+    private static String CONNECTION_URL = "jdbc:mysql://localhost:3306/parser?useSSL=false";
+    private static String USERNAME = "parser";
+    private static String PASSWORD = "password";
 
     @Before
     public void setUp() {
         try {
-            // The newInstance() call is a work around for some
-            // broken Java implementations
-
-            Class.forName("com.mysql.jdbc.Driver").newInstance();
-        } catch (InstantiationException e) {
-            e.printStackTrace();
-        } catch (IllegalAccessException e) {
-            e.printStackTrace();
-        } catch (ClassNotFoundException e) {
+            workAroundForSomeBrokenJavaImplementations();
+        } catch (InstantiationException | IllegalAccessException | ClassNotFoundException e) {
             e.printStackTrace();
         }
+    }
 
+    private void workAroundForSomeBrokenJavaImplementations()
+            throws ClassNotFoundException, IllegalAccessException, InstantiationException {
+        Class.forName("com.mysql.jdbc.Driver").newInstance();
     }
 
     @Test
     public void testDatabaseConnection() {
         System.out.println("Connecting database...");
-
-        try (Connection connection = DriverManager.getConnection(url, username, password)) {
+        try (Connection connection = DriverManager.getConnection(CONNECTION_URL, USERNAME, PASSWORD)) {
             System.out.println("Database connected!");
         } catch (SQLException e) {
             throw new IllegalStateException("Cannot connect the database!", e);
         }
     }
-
 }

@@ -7,99 +7,140 @@
 
 package com.ef;
 
-import static com.ef.arguments.Args.ARG_HANDLER_MAP;
-import static com.ef.arguments.Args.ArgName.ACCESS_LOG;
-import static com.ef.arguments.Args.ArgName.DURATION;
-import static com.ef.arguments.Args.ArgName.START_DATE;
-import static com.ef.arguments.Args.ArgName.THRESHOLD;
-import static com.ef.utils.ParserUtils.DB_PWD;
+import static com.ef.arguments.enums.Args.ACCESS_LOG;
+import static com.ef.arguments.enums.Args.DURATION;
+import static com.ef.arguments.enums.Args.START_DATE;
+import static com.ef.arguments.enums.Args.THRESHOLD;
+import static com.ef.constants.Constants.PARSER_BLOCKED_IPS_FOUND_MSG;
+import static com.ef.constants.Constants.STORE_PASSWORD;
 
 import java.util.List;
-import java.util.Map;
 
-import com.ef.arguments.Args;
 import com.ef.arguments.ArgsException;
-import com.ef.db.ParserApplication;
-import com.ef.db.ParserApplicationBuilder;
-import com.ef.db.parser.parser.access_log_entry.AccessLogEntryManager;
-import com.ef.db.parser.parser.blocked_ip.BlockedIpManager;
-import com.ef.serveraccesslogentrystore.LogEntryStore;
-import com.ef.serveraccesslogentrystore.SearchCriteria;
-import com.ef.serveraccesslogentrystore.ServerAccessLogEntryStore;
+import com.ef.arguments.ArgsProcessor;
+import com.ef.arguments.validation.ValidatedArgs;
+import com.ef.blockedipstore.SpeedmentBlockedIpStore;
+import com.ef.blockedipstore.SearchCriteria;
+import com.ef.blockedipstore.BlockedIpStore;
 import com.ef.utils.IpAddressConverter;
 import com.google.common.base.Strings;
 import com.speedment.runtime.core.exception.SpeedmentException;
 
-
-public final class Parser {
+final class Parser {
+    private List<Long> ipsToBlock;
+    private String accesslog;
+    private SearchCriteria ipBlockingCriteria;
+    private final BlockedIpStore logEntryStore;
     private static final String USAGE_MESSAGE = "\nUsage:\n" +
             " \tcom.ef.Parser [--"+ACCESS_LOG+"=<path_to_log_file>] " +
             "--"+START_DATE+"=<begin_looking_from_this_date_and_time> " +
-            "(--"+DURATION+"=<hourly>|<daily>) --"+THRESHOLD+"=<100-500>\n";
+            "(--"+DURATION+"=<hourly>|<daily>) --"+THRESHOLD+"=<1-500>\n";
 
-    public static void main(String... commandLineArgs) {
-        ParserApplication db = null;
-        try { // args needs to be "processed" part of which is "vetting/validating" them before they're used.
-            // Then transforming their values from String to the appropriate data type so the app can  more efficiently work with them.
-            Map<String,String> args = Args.getArgsMap(commandLineArgs);
-            if (allRequiredArgsPresent(args, commandLineArgs)) {
-                db = initDb();
-                ServerAccessLogEntryStore<Long> logEntryStore = initServerAccessLogEntryStore(db);
-                String logPath = getValidValue(args, ACCESS_LOG, String.class);
-                if (isValid(logPath)) {
-                    logEntryStore.loadFile(logPath);
-                }
+    public Parser(BlockedIpStore logEntryStore) {
+        this.logEntryStore = logEntryStore;
+    }
 
-                SearchCriteria reason = SearchCriteria.createFromArgsMap(args);
-                List<Long> ips = logEntryStore.findIpsToBlock(reason);
-                logEntryStore.saveIpsToBlock(reason, ips);
-                printBlockedIps(ips);
-            }
-            else {
-                throw new ArgsException("Failure in Parser main method: missing required argument.");
-            }
-        } catch (SpeedmentException|ArgsException e) {
-            e.printStackTrace(System.out);
-            System.out.println(getUsage());
+    public static void main(String... withUserSuppliedArgs) {
+        new Parser(usingSpeedmentBlockedIpStore())
+                .run(withUserSuppliedArgs);
+    }
+
+    private static SpeedmentBlockedIpStore usingSpeedmentBlockedIpStore() {
+        return SpeedmentBlockedIpStore.getSingletonInstance(STORE_PASSWORD);
+    }
+
+    public final void run(String... args) {
+        runArgProcessing(args);
+        runBlockedIpProcessing();
+    }
+
+    private void runArgProcessing(String... args) {
+        try {
+            processArgs(args);
+        } catch (ArgsException e) {
+            printErrorAndUsageToConsoleAndReThrow(e);
+        }
+    }
+
+    private void processArgs(String... args) {
+        ValidatedArgs validatedArgs = new ArgsProcessor().process(args);
+        setAccessLogPathWithValidatedValue(validatedArgs);
+        setIpBlockingCriteriaWithValidatedValues(validatedArgs);
+    }
+
+    private void setAccessLogPathWithValidatedValue(ValidatedArgs validatedArgs) {
+        accesslog = validatedArgs.getAccessLog();
+    }
+
+    private void setIpBlockingCriteriaWithValidatedValues(ValidatedArgs validatedArgs) {
+        ipBlockingCriteria = validatedArgs.getIpBlockingSearchCriteria();
+    }
+
+    private void printErrorAndUsageToConsoleAndReThrow(Exception e) {
+        printOnlyFirstLineOfStackTraceAndErrorMessage(e);
+        System.out.println(USAGE_MESSAGE);
+        throw new ArgsException("Parser Error", e);
+    }
+
+    private void printOnlyFirstLineOfStackTraceAndErrorMessage(Exception e) {
+        StackTraceElement[] elements = e.getStackTrace();
+        System.err.println(elements[0] + " " + e.getMessage());
+    }
+
+    private void runBlockedIpProcessing() {
+        try {
+            processLogEntries();
+        } catch (SpeedmentException e) {
+            printErrorAndUsageToConsoleAndReThrow(e);
         }
         finally {
-            if (db != null) {
-                db.close();
-            }
+            closeDb();
         }
+        printBlockedIps();
     }
 
-    private static void printBlockedIps(List<Long> ips) {
-        System.out.println("Blocked Ips For Entered Criteria:");
-        ips.stream().map(IpAddressConverter::toIp).forEach(System.out::println);
+    private void processLogEntries() {
+        loadLogFileIntoStore();
+        searchStoreForIpsToBlock();
+        saveFoundIpsToBlock();
     }
 
-    private static boolean allRequiredArgsPresent(Map<String,String> args, String... commandLineArgs) {
-        return (args != null && args.size() == commandLineArgs.length);
+    private void loadLogFileIntoStore() {
+        if (logFilePathIsPresent())
+            logEntryStore.loadFile(accesslog);
     }
 
-    private static <T> T getValidValue(Map<String,String> args, Args.ArgName arg, Class<T> returnValueClass) {
-        return ARG_HANDLER_MAP.get(arg).getValue(args.get(arg.toString()), returnValueClass);
+    private boolean logFilePathIsPresent() {
+        return !Strings.isNullOrEmpty(accesslog);
     }
 
-    private static ParserApplication initDb() {
-        return new ParserApplicationBuilder().withPassword(DB_PWD).build();
+    private void searchStoreForIpsToBlock() {
+        ipsToBlock = logEntryStore.findIpsToBlock(ipBlockingCriteria);
     }
 
-    private static ServerAccessLogEntryStore<Long> initServerAccessLogEntryStore(ParserApplication db) {
-        AccessLogEntryManager logEntryManager = db.getOrThrow(AccessLogEntryManager.class);
-        BlockedIpManager blockedIpManager = db.getOrThrow(BlockedIpManager.class);
-        return new LogEntryStore(logEntryManager, blockedIpManager);
+    private void saveFoundIpsToBlock() {
+        if (ipsWhereFound())
+            logEntryStore.saveIpsToBlock(ipBlockingCriteria, ipsToBlock);
     }
 
-    private static boolean isValid(String path) {
-        return !Strings.isNullOrEmpty(path);
+    private boolean ipsWhereFound() {
+        return (ipsToBlock != null && !ipsToBlock.isEmpty());
     }
 
-    public static String getUsage() {
-        return USAGE_MESSAGE;
+    private void closeDb() {
+        if (logEntryStore != null)
+            logEntryStore.shutdownStore();
     }
 
+    private void printBlockedIps() {
+        System.out.println(PARSER_BLOCKED_IPS_FOUND_MSG);
+        if (ipsWhereFound())
+            printThem();
+        else
+            System.out.println("* NONE *");
+    }
 
-
+    private void printThem() {
+        ipsToBlock.stream().map(IpAddressConverter::fromLongToString).forEach(System.out::println);
+    }
 }

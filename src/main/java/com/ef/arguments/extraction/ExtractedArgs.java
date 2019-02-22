@@ -1,15 +1,15 @@
 /*
- * Created by Luke DeRienzo on 12/10/18 12:49 PM
+ * Created by Luke DeRienzo on 12/12/18 10:59 AM
  * Copyright (c) 2018. All rights reserved
  *
- * Last modified: 12/9/18 10:35 PM
+ * Last modified: 12/11/18 6:02 PM
  */
 
-package com.ef.arguments.extractor;
+package com.ef.arguments.extraction;
 
 
 public final class ExtractedArgs {
-    private String accesslog, startDate, duration, threshold;
+    private final String accesslog, startDate, duration, threshold;
 
     private ExtractedArgs(Builder builder) {
         this.accesslog = builder.accesslog;
@@ -35,9 +35,11 @@ public final class ExtractedArgs {
     }
 
     public static final class Builder {
-        private String accesslog, startDate, duration, threshold = "";
+        private String accesslog, startDate, duration, threshold;
 
-        public Builder() {}
+        public Builder() {
+            accesslog = startDate = duration = threshold = "";
+        }
 
         public Builder accesslog(String val) {
             accesslog = val;

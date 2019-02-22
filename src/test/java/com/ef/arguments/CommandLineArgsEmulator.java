@@ -7,43 +7,38 @@
 
 package com.ef.arguments;
 
-import static com.ef.arguments.Args.ArgName.ACCESS_LOG;
-import static com.ef.arguments.Args.ArgName.DURATION;
-import static com.ef.arguments.Args.ArgName.START_DATE;
-import static com.ef.arguments.Args.ArgName.THRESHOLD;
+import static com.ef.arguments.enums.Args.*;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import com.ef.arguments.enums.Args;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableMap;
 
 public final class CommandLineArgsEmulator {
-    private String accesslog;
-    private String startDate;
-    private String duration;
-    private String threshold;
-    private String extraBogusArg;
+
     private boolean leaveOutEqualsSign;
-    private List<String> emulatedArgs = new ArrayList<>(4);
+    private final String accesslog, startDate, duration, threshold;
+    private final List<String> emulatedArgs = new ArrayList<>(4);
     private static final String EXCEPTION_MESSAGE_PREFIX = "Error accessing class field: ";
-    private static final ImmutableMap<String, Args.ArgName> STRING_TO_ENUM_ARG_MAP =
-            new ImmutableMap.Builder<String, Args.ArgName>()
-                    .put("accesslog", ACCESS_LOG)
-                    .put("startDate", START_DATE)
-                    .put("duration", DURATION)
-                    .put("threshold", THRESHOLD)
+    private static final ImmutableMap<String, Args> STRING_TO_ENUM_ARG_MAP =
+            new ImmutableMap.Builder<String, Args>()
+                    .put(ACCESS_LOG.toString(), ACCESS_LOG)
+                    .put(START_DATE.toString(), START_DATE)
+                    .put(DURATION.toString(), DURATION)
+                    .put(THRESHOLD.toString(), THRESHOLD)
                     .build();
 
+
     private CommandLineArgsEmulator(Builder builder) {
-        accesslog = builder.accesslog;
-        startDate = builder.startDate;
-        duration = builder.duration;
-        threshold = builder.threshold;
-        extraBogusArg = builder.extraBogusArg;
-        leaveOutEqualsSign = builder.leaveOutEqualsSign;
+        this.accesslog = builder.accesslog;
+        this.startDate = builder.startDate;
+        this.duration = builder.duration;
+        this.threshold = builder.threshold;
+        this.leaveOutEqualsSign = builder.leaveOutEqualsSign;
     }
 
     public static final class Builder {
@@ -51,13 +46,11 @@ public final class CommandLineArgsEmulator {
         private String startDate = "";
         private String duration = "";
         private String threshold = "";
-        private String extraBogusArg = "";
         private boolean leaveOutEqualsSign = false;
 
         public Builder() {}
 
-        // TODO: rename to "accesslog"
-        public Builder pathToLogFile(String val) {
+        public Builder accesslog(String val) {
             accesslog = val;
             return this;
         }
@@ -82,25 +75,28 @@ public final class CommandLineArgsEmulator {
             return this;
         }
 
-        public Builder extraBogusArg(String val) {
-            extraBogusArg = val;
-            return this;
-        }
-
         public CommandLineArgsEmulator build() {
             return new CommandLineArgsEmulator(this);
         }
     }
 
     public final String[] getEmulatedArgsArray() {
-        Arrays.stream(this.getClass().getDeclaredFields())
-            .filter(this::fieldIsAnArgName)
-            .filter(this::fieldContainsAnArgValue)
-            .forEach(field -> addFieldValue(field));
-        return emulatedArgs.stream().toArray(String[]::new);
+        addArgumentMembersContainingValuesToEmulatedArgs();
+        return emulatedArgs.toArray(new String[0]);
     }
 
-    private boolean fieldIsAnArgName(Field field) {
+    private void addArgumentMembersContainingValuesToEmulatedArgs() {
+        Arrays.stream(this.getClass().getDeclaredFields())
+                .filter(this::fieldIsArgument)
+                .filter(this::argumentFieldContainsValue)
+                .forEach(this::addFieldValue);
+    }
+
+    private boolean fieldIsArgument(Field field) {
+        return fieldIsNotAnyOfThese(field);
+    }
+
+    private boolean fieldIsNotAnyOfThese(Field field) {
         return !(field.getName().equals("leaveOutEqualsSign") ||
                 field.getName().equals("extraBogusArg") ||
                 field.getName().equals("STRING_TO_ENUM_ARG_MAP") ||
@@ -108,7 +104,7 @@ public final class CommandLineArgsEmulator {
                 field.getName().equals("emulatedArgs"));
     }
 
-    private boolean fieldContainsAnArgValue(Field field) {
+    private boolean argumentFieldContainsValue(Field field) {
         boolean containsArgValue;
         try {
             containsArgValue = !Strings.isNullOrEmpty(field.get(this).toString());
@@ -120,19 +116,24 @@ public final class CommandLineArgsEmulator {
 
     private void addFieldValue(Field field) {
         try {
-            emulatedArgs.add(
-                new StringBuilder()
-                    .append("--")
-                    .append(STRING_TO_ENUM_ARG_MAP.get(field.getName()))
-                    .append((leaveOutEqualsSign ? "" : "="))
-                    .append(field.get(this))
-                    .toString());
+            emulatedArgs.add(commandArgStringForField(field));
         } catch (IllegalAccessException e) {
             throw new CommandLineArgsEmulatorException(EXCEPTION_MESSAGE_PREFIX + field.getName(), e);
         }
+        turnOffLeaveOutEqualsSignFlag();
+    }
+
+    private String commandArgStringForField(Field field) throws IllegalAccessException {
+        return new StringBuilder()
+            .append("--")
+            .append(STRING_TO_ENUM_ARG_MAP.get(field.getName()))
+            .append((leaveOutEqualsSign ? "" : "="))
+            .append(field.get(this)).toString();
+    }
+
+    private void turnOffLeaveOutEqualsSignFlag() {
         if (leaveOutEqualsSign) {
             leaveOutEqualsSign = false;
         }
     }
-
 }

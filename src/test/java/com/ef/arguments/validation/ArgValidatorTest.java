@@ -8,7 +8,7 @@
 package com.ef.arguments.validation;
 
 import static com.ef.constants.Constants.*;
-import static com.ef.enums.Duration.HOURLY;
+import static com.ef.arguments.enums.Duration.HOURLY;
 import static com.ef.utils.ParserTestUtils.ASSERT_EQUALS_MSG;
 import static com.ef.utils.ParserTestUtils.BOGUS_TEST_LOG_FILE_PATH;
 import static com.ef.utils.ParserTestUtils.HOURLY_TEST_START_DATE;
@@ -27,26 +27,23 @@ import org.junit.rules.ExpectedException;
 
 import com.ef.arguments.ArgsException;
 import com.ef.arguments.extraction.ExtractedArgs;
-import com.ef.enums.Duration;
-import com.ef.serveraccesslogentrystore.SearchCriteria;
+import com.ef.arguments.enums.Duration;
+import com.ef.blockedipstore.SearchCriteria;
 
 public final class ArgValidatorTest {
-    private String accessLog;
     private ExtractedArgs extractedArgs;
     private ValidatedArgs validatedArgs;
     private SearchCriteria expectedSearchCriteria;
     private static ArgValidator argValidator;
 
     @Rule
-    public ExpectedException thrown = ExpectedException.none();
+    public final ExpectedException thrown = ExpectedException.none();
 
     @BeforeClass
     public static void setUp() {
         argValidator = new ArgValidator();
     }
 
-    // what exactly do we want to verify?
-    // “Is it perfectly clear and obvious what this test is all about?
     @Test
     public void testValidate_allRequiredArgsForSearchCriteriaPresentAndValidHaveProperlyConvertedTypes() {
         extractedArgs = givenAllRequiredAndValidArgsForSearchCriteria();
@@ -73,9 +70,8 @@ public final class ArgValidatorTest {
 
         validatedArgs = argValidator.validate(extractedArgs);
 
-        accessLog = validatedArgs.getAccessLog();
         expectedSearchCriteria = validatedArgs.getIpBlockingSearchCriteria();
-        assertEquals(ASSERT_EQUALS_MSG, VALID_TEST_LOG_FILE_PATH, accessLog);
+        assertEquals(ASSERT_EQUALS_MSG, VALID_TEST_LOG_FILE_PATH, validatedArgs.getAccessLog());
         assertEquals(ASSERT_EQUALS_MSG, expectedSearchCriteria.duration(), HOURLY);
         assertEquals(ASSERT_EQUALS_MSG, expectedSearchCriteria.threshold(), THRESHOLD_200);
         assertEquals(ASSERT_EQUALS_MSG, expectedSearchCriteria.startDate().toString(),
@@ -220,7 +216,7 @@ public final class ArgValidatorTest {
     public void testValidate_throwArgExceptionWhenAccessLogValueIsInvalid() {
         extractedArgs = givenArgsWithInvalidAccessLogValue();
         thrown.expect(ArgsException.class);
-        thrown.expectMessage(INVALID_ACCESSLOG_PATH_ERR_MSG);
+        thrown.expectMessage(INVALID_ACCESS_LOG_PATH_ERR_MSG);
 
         validatedArgs = argValidator.validate(extractedArgs);
     }

@@ -7,19 +7,20 @@
 
 package com.ef.arguments.validation;
 
-import static com.ef.constants.Constants.INVALID_ACCESSLOG_PATH_ERR_MSG;
+import static com.ef.constants.Constants.INVALID_ACCESS_LOG_PATH_ERR_MSG;
 import static com.ef.constants.Constants.THRESHOLD_CONVERTER_OUTSIDE_ALLOWABLE_RANGE_ERR_MSG;
 
 import java.io.File;
 import java.time.LocalDateTime;
 
+import com.ef.arguments.enums.Args;
 import com.ef.arguments.ArgsException;
 import com.ef.arguments.conversion.DurationConverter;
 import com.ef.arguments.conversion.StartDateConverter;
 import com.ef.arguments.conversion.ThresholdConverter;
 import com.ef.arguments.extraction.ExtractedArgs;
-import com.ef.enums.Duration;
-import com.ef.serveraccesslogentrystore.SearchCriteria;
+import com.ef.arguments.enums.Duration;
+import com.ef.blockedipstore.SearchCriteria;
 import com.google.common.base.Strings;
 
 public final class ArgValidator {
@@ -50,43 +51,43 @@ public final class ArgValidator {
     }
 
     private void validateStartDate() {
-        startDateValidIfCanBeLocalDateTimeObject();
+        startDateValidIfCanBeConvertedToLocalDateTime();
     }
 
-    private void startDateValidIfCanBeLocalDateTimeObject() {
-        convertStartDateToLocalDateTime();
+    private void startDateValidIfCanBeConvertedToLocalDateTime() {
+        convertStartDateStringToLocalDateTime();
     }
 
-    private void convertStartDateToLocalDateTime() {
-        startDate = new StartDateConverter().convert(extractedArgs.getStartDate());
+    private void convertStartDateStringToLocalDateTime() {
+        startDate = new StartDateConverter().convert(Args.START_DATE.toString(), extractedArgs.getStartDate());
     }
 
     private void validateDuration() {
-        durationValidIfCanBeDurationEnum();
+        durationValidIfCanBeConvertedToEnum();
     }
 
-    private void durationValidIfCanBeDurationEnum() {
-        convertDurationToDurationEnum();
+    private void durationValidIfCanBeConvertedToEnum() {
+        convertDurationStringToEnum();
     }
 
-    private void convertDurationToDurationEnum() {
-        duration = new DurationConverter().convert(extractedArgs.getDuration());
+    private void convertDurationStringToEnum() {
+        duration = new DurationConverter().convert(Args.DURATION.toString(), extractedArgs.getDuration());
     }
 
     private void validateThreshold() {
-        thresholdIsValidIfItCanBeAnInteger();
-        thresholdIsValidIfInAllowableRange();
+        thresholdValidIfCanBeConvertedToInteger();
+        thresholdIntegerValidIfWithinRange();
     }
 
-    private void thresholdIsValidIfItCanBeAnInteger() {
-        convertThresholdToInteger();
+    private void thresholdValidIfCanBeConvertedToInteger() {
+        convertThresholdStringToInteger();
     }
 
-    private void convertThresholdToInteger() {
-        threshold = new ThresholdConverter().convert(extractedArgs.getThreshold());
+    private void convertThresholdStringToInteger() {
+        threshold = new ThresholdConverter().convert(Args.THRESHOLD.toString(), extractedArgs.getThreshold());
     }
 
-    private void thresholdIsValidIfInAllowableRange() {
+    private void thresholdIntegerValidIfWithinRange() {
         if (thresholdIsOutsideOfAllowableRange())
             throw new ArgsException(THRESHOLD_CONVERTER_OUTSIDE_ALLOWABLE_RANGE_ERR_MSG);
     }
@@ -118,7 +119,7 @@ public final class ArgValidator {
 
     private void checkPathValidity() {
         if (fileDoesNotExist())
-            throw new ArgsException(INVALID_ACCESSLOG_PATH_ERR_MSG);
+            throw new ArgsException(INVALID_ACCESS_LOG_PATH_ERR_MSG);
     }
 
     private boolean fileDoesNotExist() {

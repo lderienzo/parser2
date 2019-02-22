@@ -1,76 +1,60 @@
 /*
- * Created by Luke DeRienzo on 12/10/18 9:01 AM
+ * Created by Luke DeRienzo on 12/12/18 10:59 AM
  * Copyright (c) 2018. All rights reserved
  *
- * Last modified: 12/10/18 9:00 AM
+ * Last modified: 12/12/18 8:58 AM
  */
 
-package com.ef.arguments.extractor;
+package com.ef.arguments.extraction;
 
 
-import java.io.File;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import com.ef.arguments.Args;
+import com.ef.arguments.enums.Args;
 import com.ef.arguments.ArgsException;
-import com.google.common.base.Strings;
 
-import static com.ef.arguments.Args.ArgName.*;
+import static com.ef.arguments.enums.Args.*;
+import static com.ef.constants.Constants.ARG_EXTRACTOR_DUPLICATE_ARGS_ERR_MSG_PREFIX;
+import static com.ef.constants.Constants.ARG_EXTRACTOR_DUPLICATE_ARGS_ERR_MSG_SUFFIX;
 
 public final class ArgExtractor {
-    private static final String ERROR_MSG_PREFIX = "Failure in ArgExtractor::";
     private List<String> extractedArgList;
+    private Args argName;
 
-    public ExtractedArgs extract(String... args) {
+    public ExtractedArgs extractFromCommandLine(String... args) {
         return new ExtractedArgs.Builder()
-                .accesslog(extractFromStream(ACCESS_LOG, args))
-                .startDate(extractFromStream(START_DATE, args))
-                .duration(extractFromStream(DURATION, args))
-                .threshold(extractFromStream(THRESHOLD, args))
+                .accesslog(extractSingleArgFromStream(ACCESS_LOG, args))
+                .startDate(extractSingleArgFromStream(START_DATE, args))
+                .duration(extractSingleArgFromStream(DURATION, args))
+                .threshold(extractSingleArgFromStream(THRESHOLD, args))
                 .build();
     }
 
-    private String extractFromStream(Args.ArgName argName, String... args) {
-        extractedArgList = getListFromStream(argName, args);
-        if (argValueAbsent())
+    private String extractSingleArgFromStream(Args argName, String... args) {
+        this.argName = argName;
+        extractedArgList = getSingleElementArgListFromArrayStream(args);
+        if (argListIsNullOrEmpty())
             return "";
-        checkArgListOfSizeOneOrThrowException(argName);
+        throwExceptionIfArgListContainsMoreThanOneValue();
         return extractedArgList.get(0);
     }
 
-    private List<String> getListFromStream(Args.ArgName argName, String... args) {
+    private List<String> getSingleElementArgListFromArrayStream(String... args) {
         return Arrays.stream(args)
                 .filter(arg -> arg.contains(argName.toString()))
                 .map(arg -> arg.substring(arg.indexOf('=') + 1))
                 .collect(Collectors.toList());
     }
 
-    private boolean argValueAbsent() {
+    private boolean argListIsNullOrEmpty() {
         return extractedArgList == null || extractedArgList.isEmpty();
     }
 
-    private void checkArgListOfSizeOneOrThrowException(Args.ArgName argName) {
+    private void throwExceptionIfArgListContainsMoreThanOneValue() {
         if (extractedArgList != null && extractedArgList.size() != 1)
-            throw new ArgsException(ERROR_MSG_PREFIX + "checkArgListOfSizeOneOrThrowException. " +
-                    "Error extracting argument ["+argName+"]. Single value required. Please see application 'Usage'.");
+            throw new ArgsException(ARG_EXTRACTOR_DUPLICATE_ARGS_ERR_MSG_PREFIX + argName.toString()
+                    + ARG_EXTRACTOR_DUPLICATE_ARGS_ERR_MSG_SUFFIX);
     }
-
-
-
-
-
-
-
-
-
-
-
 }
-
-/*
---accesslog=/path/to/file --startDate=2017-01-01.13:00:00 --duration=hourly --threshold=100
-
-need to determine which args are present
- */
