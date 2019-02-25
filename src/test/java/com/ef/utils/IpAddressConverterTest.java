@@ -8,8 +8,8 @@
 package com.ef.utils;
 
 import static com.ef.utils.IpAddressConverter.*;
-import static com.ef.utils.ParserTestUtils.HOURLY_TEST_IP;
-import static com.ef.utils.ParserTestUtils.HOURLY_TEST_IP_LONG;
+import static com.ef.constants.TestConstants.HOURLY_TEST_IP;
+import static com.ef.constants.TestConstants.HOURLY_TEST_IP_LONG;
 import static org.junit.Assert.assertEquals;
 
 

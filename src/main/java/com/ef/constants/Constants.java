@@ -10,12 +10,14 @@ package com.ef.constants;
 import static com.ef.arguments.enums.Args.START_DATE;
 import static com.ef.arguments.enums.Args.THRESHOLD;
 
-// TODO: clean up
+import java.time.format.DateTimeFormatter;
+
 public final class Constants {
+    private static final String CONVERTER_ERR_MSG_PREFIX_PREFIX = "Unable to convert ";
+    private static final String CONVERTER_ERR_MSG_PREFIX_SUFFIX = "value";
+    private static final String OPEN_BRACKET = " [";
+
     public static final String STORE_PASSWORD = "password";
-    public static final String CONVERTER_ERR_MSG_PREFIX_PREFIX = "Unable to convert ";
-    public static final String CONVERTER_ERR_MSG_PREFIX_SUFFIX = "value";
-    public static final String OPEN_BRACKET = " [";
     public static final String STRING_TYPE_CONVERTER_VALUE_ABSENT_ERR_MSG =
             CONVERTER_ERR_MSG_PREFIX_PREFIX + CONVERTER_ERR_MSG_PREFIX_SUFFIX + ". Value is null or empty.";
     public static final String START_DATE_CONVERTER_ERR_MSG_PREFIX =
@@ -32,5 +34,6 @@ public final class Constants {
     public static final String ARG_EXTRACTOR_DUPLICATE_ARGS_ERR_MSG_SUFFIX = "]. Single value required. Please see application 'Usage'.";
     public static final String LOG_ENTRY_STORE_ERR_LOADING_LOG_FILE = "Failure in SpeedmentBlockedIpStore::loadFile. Error loading log file into database.";
     public static final String PARSER_BLOCKED_IPS_FOUND_MSG = "Blocked Ips Found With Entered Criteria:";
-    public static final String IP_MATCHING_REGEX= "^\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}";
+    public static final DateTimeFormatter LOG_FILE_DATE_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.SSS");
+    public static final DateTimeFormatter ARGUMENT_DATE_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd.HH:mm:ss");
 }

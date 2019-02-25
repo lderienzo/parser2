@@ -11,7 +11,6 @@ import static com.ef.arguments.enums.Args.ACCESS_LOG;
 import static com.ef.constants.Constants.ARG_EXTRACTOR_DUPLICATE_ARGS_ERR_MSG_PREFIX;
 import static com.ef.constants.Constants.ARG_EXTRACTOR_DUPLICATE_ARGS_ERR_MSG_SUFFIX;
 import static com.ef.arguments.enums.Duration.HOURLY;
-import static com.ef.utils.ParserTestUtils.*;
 import static org.junit.Assert.assertEquals;
 
 
@@ -23,6 +22,7 @@ import org.junit.rules.ExpectedException;
 
 import com.ef.arguments.ArgsException;
 import com.ef.arguments.CommandLineArgsEmulator;
+import com.ef.constants.TestConstants;
 
 public final class ArgExtractorTest {
     private String[] emulatedArgs;
@@ -43,18 +43,18 @@ public final class ArgExtractorTest {
 
     private String[] getEmulatedArgsWithAllPresent() {
         return new CommandLineArgsEmulator.Builder()
-                .accesslog(TEST_ACCESS_LOG_FILE)
-                .startDate(HOURLY_TEST_START_DATE)
+                .accesslog(TestConstants.TEST_ACCESS_LOG_FILE)
+                .startDate(TestConstants.HOURLY_TEST_START_DATE)
                 .duration(HOURLY.toString())
-                .threshold(Integer.toString(THRESHOLD_200))
+                .threshold(Integer.toString(TestConstants.THRESHOLD_200))
                 .build().getEmulatedArgsArray();
     }
 
     private void checkThatAllExtractedArgsArePresent() {
-        assertEquals(ASSERT_EQUALS_MSG, TEST_ACCESS_LOG_FILE, extractedArgs.getAccesslog());
-        assertEquals(ASSERT_EQUALS_MSG, HOURLY_TEST_START_DATE, extractedArgs.getStartDate());
-        assertEquals(ASSERT_EQUALS_MSG, HOURLY.toString(), extractedArgs.getDuration());
-        assertEquals(ASSERT_EQUALS_MSG, Integer.toString(THRESHOLD_200), extractedArgs.getThreshold());
+        assertEquals(TestConstants.ASSERT_EQUALS_MSG, TestConstants.TEST_ACCESS_LOG_FILE, extractedArgs.getAccesslog());
+        assertEquals(TestConstants.ASSERT_EQUALS_MSG, TestConstants.HOURLY_TEST_START_DATE, extractedArgs.getStartDate());
+        assertEquals(TestConstants.ASSERT_EQUALS_MSG, HOURLY.toString(), extractedArgs.getDuration());
+        assertEquals(TestConstants.ASSERT_EQUALS_MSG, Integer.toString(TestConstants.THRESHOLD_200), extractedArgs.getThreshold());
     }
 
     @Test
@@ -71,10 +71,10 @@ public final class ArgExtractorTest {
     }
 
     private void checkThatAllExtractedArgsAreBlank() {
-        assertEquals(ASSERT_EQUALS_MSG, "", extractedArgs.getAccesslog());
-        assertEquals(ASSERT_EQUALS_MSG, "", extractedArgs.getStartDate());
-        assertEquals(ASSERT_EQUALS_MSG, "", extractedArgs.getDuration());
-        assertEquals(ASSERT_EQUALS_MSG, "", extractedArgs.getThreshold());
+        assertEquals(TestConstants.ASSERT_EQUALS_MSG, "", extractedArgs.getAccesslog());
+        assertEquals(TestConstants.ASSERT_EQUALS_MSG, "", extractedArgs.getStartDate());
+        assertEquals(TestConstants.ASSERT_EQUALS_MSG, "", extractedArgs.getDuration());
+        assertEquals(TestConstants.ASSERT_EQUALS_MSG, "", extractedArgs.getThreshold());
     }
 
     @Test
@@ -92,15 +92,15 @@ public final class ArgExtractorTest {
 
         extractedArgs = argExtractor.extractFromCommandLine(emulatedArgs);
 
-        assertEquals(ASSERT_EQUALS_MSG, TEST_ACCESS_LOG_FILE, extractedArgs.getAccesslog());
-        assertEquals(ASSERT_EQUALS_MSG, "", extractedArgs.getStartDate());
-        assertEquals(ASSERT_EQUALS_MSG, "", extractedArgs.getDuration());
-        assertEquals(ASSERT_EQUALS_MSG, "", extractedArgs.getThreshold());
+        assertEquals(TestConstants.ASSERT_EQUALS_MSG, TestConstants.TEST_ACCESS_LOG_FILE, extractedArgs.getAccesslog());
+        assertEquals(TestConstants.ASSERT_EQUALS_MSG, "", extractedArgs.getStartDate());
+        assertEquals(TestConstants.ASSERT_EQUALS_MSG, "", extractedArgs.getDuration());
+        assertEquals(TestConstants.ASSERT_EQUALS_MSG, "", extractedArgs.getThreshold());
     }
 
     private String[] getEmulateArgsWithOnlySingleArgPresent() {
         return new CommandLineArgsEmulator.Builder()
-                .accesslog(TEST_ACCESS_LOG_FILE)
+                .accesslog(TestConstants.TEST_ACCESS_LOG_FILE)
                 .build().getEmulatedArgsArray();
     }
 

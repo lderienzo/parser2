@@ -7,13 +7,13 @@
 
 package com.ef.arguments;
 
-import static com.ef.utils.ParserTestUtils.TEST_ACCESS_LOG_FILE;
-import static com.ef.utils.ParserTestUtils.TEST_START_DATE;
+import static com.ef.constants.TestConstants.TEST_ACCESS_LOG_FILE;
+import static com.ef.constants.TestConstants.TEST_START_DATE;
 
 import org.junit.Test;
 
 import static com.ef.arguments.enums.Duration.HOURLY;
-import static com.ef.utils.ParserTestUtils.THRESHOLD_200;
+import static com.ef.constants.TestConstants.THRESHOLD_200;
 import static org.junit.Assert.assertArrayEquals;
 
 

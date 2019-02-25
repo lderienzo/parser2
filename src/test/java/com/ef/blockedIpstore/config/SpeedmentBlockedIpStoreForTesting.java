@@ -1,11 +1,11 @@
 /*
- * Created by Luke DeRienzo on 1/20/19 8:35 PM
+ * Created by Luke DeRienzo on 2/25/19 4:27 PM
  * Copyright (c) 2019. All rights reserved
  *
- * Last modified: 1/20/19 8:35 PM
+ * Last modified: 2/25/19 4:27 PM
  */
 
-package com.ef.blockedIpstore;
+package com.ef.blockedIpstore.config;
 
 
 import java.util.List;
@@ -19,20 +19,20 @@ import com.ef.db.parser.parser.blocked_ip.BlockedIp;
 import com.speedment.runtime.core.exception.SpeedmentException;
 import com.speedment.runtime.core.manager.Manager;
 
-public class TestSpeedmentBlockedIpStore implements TestBlockedIpStore {
+public class SpeedmentBlockedIpStoreForTesting implements BlockedIpStoreForTesting {
     private static SpeedmentBlockedIpStore speedmentBlockedIpStore;
     private static SpeedmentStoreComponents speedmentStoreComponents;
 
-    private TestSpeedmentBlockedIpStore() {
+    private SpeedmentBlockedIpStoreForTesting() {
         speedmentStoreComponents =
-            TestParserStoreComponents.getSingletonInstance(SpeedmentStoreComponents.password);
+            ParserStoreComponentsForTesting.getSingletonInstance(SpeedmentStoreComponents.password);
     }
 
     private static class SingletonHolder {
-        static final TestSpeedmentBlockedIpStore instance = new TestSpeedmentBlockedIpStore();
+        static final SpeedmentBlockedIpStoreForTesting instance = new SpeedmentBlockedIpStoreForTesting();
     }
 
-    public static TestSpeedmentBlockedIpStore getSingletonInstance(String pwd, SpeedmentBlockedIpStore blockedIpStore) {
+    public static SpeedmentBlockedIpStoreForTesting getSingletonInstance(String pwd, SpeedmentBlockedIpStore blockedIpStore) {
         SpeedmentStoreComponents.password = pwd;
         speedmentBlockedIpStore = blockedIpStore;
         return SingletonHolder.instance;
@@ -44,7 +44,7 @@ public class TestSpeedmentBlockedIpStore implements TestBlockedIpStore {
         try {
             blockedIps = getBlockedIpsFromEntityManagerStream();
         } catch (SpeedmentException e) {
-            throw new BlockedIpStoreException("Failure in TestSpeedmentBlockedIpStore::readBlockedIps. " +
+            throw new BlockedIpStoreException("Failure in SpeedmentBlockedIpStoreForTesting::readBlockedIps. " +
                     "Error reading blocked IPs from database.", e);
         }
         return blockedIps;
@@ -108,5 +108,16 @@ public class TestSpeedmentBlockedIpStore implements TestBlockedIpStore {
     @Override
     public void saveIpsToBlock(SearchCriteria blockingCriteriaForComment, List<Long> ips) {
         speedmentBlockedIpStore.saveIpsToBlock(blockingCriteriaForComment, ips);
+    }
+
+    @Override
+    public void shutDownStore() {
+        clearTableData();
+        shutdownStore();
+    }
+
+    private void clearTableData() {
+        clearLogEntries();
+        clearBlockedIps();
     }
 }

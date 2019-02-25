@@ -9,13 +9,13 @@ package com.ef.arguments.validation;
 
 import static com.ef.constants.Constants.*;
 import static com.ef.arguments.enums.Duration.HOURLY;
-import static com.ef.utils.ParserTestUtils.ASSERT_EQUALS_MSG;
-import static com.ef.utils.ParserTestUtils.BOGUS_TEST_LOG_FILE_PATH;
-import static com.ef.utils.ParserTestUtils.HOURLY_TEST_START_DATE;
-import static com.ef.utils.ParserTestUtils.HOURLY_TEST_START_DATE_AFTER_CONVERSION_TO_LCL_DT_TIME;
-import static com.ef.utils.ParserTestUtils.INVALID_VALUE;
-import static com.ef.utils.ParserTestUtils.THRESHOLD_200;
-import static com.ef.utils.ParserTestUtils.VALID_TEST_LOG_FILE_PATH;
+import static com.ef.constants.TestConstants.ASSERT_EQUALS_MSG;
+import static com.ef.constants.TestConstants.BOGUS_TEST_LOG_FILE_PATH;
+import static com.ef.constants.TestConstants.HOURLY_TEST_START_DATE;
+import static com.ef.constants.TestConstants.HOURLY_TEST_START_DATE_AFTER_CONVERSION_TO_LCL_DT_TIME;
+import static com.ef.constants.TestConstants.INVALID_VALUE;
+import static com.ef.constants.TestConstants.THRESHOLD_200;
+import static com.ef.constants.TestConstants.VALID_TEST_LOG_FILE_PATH;
 import static org.junit.Assert.*;
 
 import java.time.LocalDateTime;
@@ -45,7 +45,7 @@ public final class ArgValidatorTest {
     }
 
     @Test
-    public void testValidate_allRequiredArgsForSearchCriteriaPresentAndValidHaveProperlyConvertedTypes() {
+    public void testValidate_allRequiredArgsPresentAndValidProduceProperlyConvertedValues() {
         extractedArgs = givenAllRequiredAndValidArgsForSearchCriteria();
 
         validatedArgs = argValidator.validate(extractedArgs);

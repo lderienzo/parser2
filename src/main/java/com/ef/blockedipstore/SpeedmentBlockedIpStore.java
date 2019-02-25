@@ -20,12 +20,12 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import com.ef.constants.Constants;
 import com.ef.db.parser.parser.access_log_entry.AccessLogEntry;
 import com.ef.db.parser.parser.access_log_entry.AccessLogEntryImpl;
 import com.ef.db.parser.parser.blocked_ip.BlockedIpImpl;
 import com.ef.arguments.enums.Duration;
 import com.ef.utils.IpAddressConverter;
-import com.ef.utils.ParserUtils;
 import com.speedment.runtime.core.exception.SpeedmentException;
 import com.speedment.runtime.core.manager.Persister;
 
@@ -76,7 +76,7 @@ public class SpeedmentBlockedIpStore implements BlockedIpStore {
     private final Function<String, AccessLogEntry> toAccessLogEntry = (line) -> {
         String[] entry = line.split(DELIMITER);
         return new AccessLogEntryImpl()
-                .setDate(LocalDateTime.parse(entry[0], ParserUtils.LOG_FILE_DATE_FORMATTER))
+                .setDate(LocalDateTime.parse(entry[0], Constants.LOG_FILE_DATE_FORMATTER))
                 .setIpAddress(IpAddressConverter.fromStringToLong(entry[1]))
                 .setRequest(entry[2])
                 .setStatus(Integer.parseInt(entry[3]))

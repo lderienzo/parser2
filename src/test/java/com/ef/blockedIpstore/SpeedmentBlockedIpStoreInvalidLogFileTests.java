@@ -8,30 +8,38 @@
 package com.ef.blockedIpstore;
 
 import static com.ef.constants.Constants.LOG_ENTRY_STORE_ERR_LOADING_LOG_FILE;
-import static com.ef.utils.ParserTestUtils.BOGUS_TEST_LOG_FILE_PATH;
-import static com.ef.utils.ParserTestUtils.INVALID_LINE_FORMAT_LOG_FILE;
+import static com.ef.constants.TestConstants.BOGUS_TEST_LOG_FILE_PATH;
+import static com.ef.constants.TestConstants.INVALID_LINE_FORMAT_LOG_FILE;
 
 
+import org.junit.AfterClass;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
+import com.ef.blockedIpstore.config.SpeedmentBlockedIpStoreForTesting;
 import com.ef.blockedipstore.BlockedIpStoreException;
+import com.ef.config.TestConfig;
 import com.ef.utils.ParserTestUtils;
 
 
-public class SpeedmentBlockedIpStoreTestsForInvalidLogFile extends ParserBlockedIpStoreAbstractParentForTesting {
+public class SpeedmentBlockedIpStoreInvalidLogFileTests {
+    private static final SpeedmentBlockedIpStoreForTesting TEST_SPEEDMENT_BLOCKED_IP_STORE = TestConfig.getTestStore();
 
     @Rule
     public final ExpectedException thrown = ExpectedException.none();
 
+    @AfterClass
+    public static void clearDB() {
+        TEST_SPEEDMENT_BLOCKED_IP_STORE.shutDownStore();
+    }
 
     @Test
     public void testLoadFile_nonExistentFileShouldThrowLogEntryStoreException() {
         thrown.expect(BlockedIpStoreException.class);
         thrown.expectMessage(LOG_ENTRY_STORE_ERR_LOADING_LOG_FILE);
 
-        testSpeedmentBlockedIpStore.loadFile(BOGUS_TEST_LOG_FILE_PATH);
+        TEST_SPEEDMENT_BLOCKED_IP_STORE.loadFile(BOGUS_TEST_LOG_FILE_PATH);
     }
 
     @Test
@@ -39,7 +47,7 @@ public class SpeedmentBlockedIpStoreTestsForInvalidLogFile extends ParserBlocked
         thrown.expect(BlockedIpStoreException.class);
         thrown.expectMessage(LOG_ENTRY_STORE_ERR_LOADING_LOG_FILE);
 
-        testSpeedmentBlockedIpStore.loadFile(
+        TEST_SPEEDMENT_BLOCKED_IP_STORE.loadFile(
             ParserTestUtils.getAbsoluteFilePathFromClassResourceLoader(
                     ParserTestUtils.getThisObjectsClassLoader(this),
                     INVALID_LINE_FORMAT_LOG_FILE));
@@ -50,7 +58,7 @@ public class SpeedmentBlockedIpStoreTestsForInvalidLogFile extends ParserBlocked
         thrown.expect(BlockedIpStoreException.class);
         thrown.expectMessage(LOG_ENTRY_STORE_ERR_LOADING_LOG_FILE);
 
-        testSpeedmentBlockedIpStore.loadFile("");
+        TEST_SPEEDMENT_BLOCKED_IP_STORE.loadFile("");
     }
 
     @Test
@@ -58,6 +66,6 @@ public class SpeedmentBlockedIpStoreTestsForInvalidLogFile extends ParserBlocked
         thrown.expect(BlockedIpStoreException.class);
         thrown.expectMessage(LOG_ENTRY_STORE_ERR_LOADING_LOG_FILE);
 
-        testSpeedmentBlockedIpStore.loadFile(null);
+        TEST_SPEEDMENT_BLOCKED_IP_STORE.loadFile(null);
     }
 }

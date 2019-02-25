@@ -7,12 +7,11 @@
 
 package com.ef;
 
-import static com.ef.constants.Constants.IP_MATCHING_REGEX;
+import static com.ef.constants.TestConstants.EXPECTED_MULTIPLE_BLOCKED_IPS_FOR_HOUR;
+import static com.ef.constants.TestConstants.IP_MATCHING_REGEX;
 import static com.ef.arguments.enums.Duration.HOURLY;
-import static com.ef.utils.ParserTestUtils.*;
 import static org.junit.Assert.assertEquals;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -20,17 +19,16 @@ import java.util.stream.Stream;
 import org.junit.*;
 
 import com.ef.arguments.CommandLineArgsEmulator;
-import com.ef.blockedIpstore.ParserBlockedIpStoreAbstractParentForTesting;
+import com.ef.blockedIpstore.config.SpeedmentBlockedIpStoreForTesting;
+import com.ef.config.TestConfig;
+import com.ef.constants.TestConstants;
 import com.ef.utils.*;
 
 
-public class ParserTest extends ParserBlockedIpStoreAbstractParentForTesting {
+public class ParserTest {
     private static Parser parser;
-    // TODO: REPEATED - CODE consolidate (keep "D.R.Y.")
-    private final List<Long> expectedMultipleBlockedIpsForHour =
-            Stream.of(3232245325L, 3232248781L, 3232272305L,
-                    3232278978L, 3232287599L, 3232295506L).collect(
-                    Collectors.collectingAndThen(Collectors.toList(), Collections::unmodifiableList));
+    private static final SpeedmentBlockedIpStoreForTesting TEST_SPEEDMENT_BLOCKED_IP_STORE = TestConfig.getTestStore();
+
 
     @Rule
     public final SystemOutResource consoleOutput = new SystemOutResource();
@@ -38,7 +36,12 @@ public class ParserTest extends ParserBlockedIpStoreAbstractParentForTesting {
 
     @BeforeClass
     public static void createParserAppObjectWithStore() {
-        parser = new Parser(testSpeedmentBlockedIpStore);
+        parser = new Parser(TEST_SPEEDMENT_BLOCKED_IP_STORE);
+    }
+
+    @AfterClass
+    public static void clearDB() {
+        TEST_SPEEDMENT_BLOCKED_IP_STORE.shutDownStore();
     }
 
     @Test
@@ -47,15 +50,15 @@ public class ParserTest extends ParserBlockedIpStoreAbstractParentForTesting {
         parser.run(getArgsForFindingSixIpsToBlock());
 
         List<Long> actualBlockedIps = extractActualBlockedIpsFromConsoleOutput();
-        assertEquals(expectedMultipleBlockedIpsForHour, actualBlockedIps);
+        assertEquals(EXPECTED_MULTIPLE_BLOCKED_IPS_FOR_HOUR, actualBlockedIps);
     }
 
     private String[] getArgsForFindingSixIpsToBlock() {
         return new CommandLineArgsEmulator.Builder()
-                .accesslog(VALID_TEST_LOG_FILE_PATH)
-                .startDate(TEST_START_DATE)
+                .accesslog(TestConstants.VALID_TEST_LOG_FILE_PATH)
+                .startDate(TestConstants.TEST_START_DATE)
                 .duration(HOURLY.toString())
-                .threshold(THRESHOLD_FOR_FINDING_SIX_IPS_IN_HOUR)
+                .threshold(TestConstants.THRESHOLD_FOR_FINDING_SIX_IPS_IN_HOUR)
                 .build().getEmulatedArgsArray();
     }
 

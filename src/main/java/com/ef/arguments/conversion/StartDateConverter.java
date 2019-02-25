@@ -9,7 +9,7 @@ package com.ef.arguments.conversion;
 
 import static com.ef.constants.Constants.START_DATE_CONVERTER_ERR_MSG_PREFIX;
 import static com.ef.constants.Constants.START_DATE_CONVERTER_ERR_MSG_SUFFIX;
-import static com.ef.utils.ParserUtils.ARGUMENT_DATE_FORMATTER;
+import static com.ef.constants.Constants.ARGUMENT_DATE_FORMATTER;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeParseException;

@@ -9,14 +9,15 @@ package com.ef.blockedIpstore;
 
 import static com.ef.arguments.enums.Duration.DAILY;
 import static com.ef.arguments.enums.Duration.HOURLY;
-import static com.ef.utils.ParserTestUtils.NUM_OF_TEST_ACCESS_LOG_FILE_ENTRIES;
-import static com.ef.utils.ParserTestUtils.TEST_ACCESS_LOG_FILE;
-import static com.ef.utils.ParserTestUtils.TEST_START_DATE;
-import static com.ef.utils.ParserTestUtils.THRESHOLD_200;
-import static com.ef.utils.ParserTestUtils.THRESHOLD_TO_FIND_MULTIPLE_IPS_FOR_DAY;
-import static com.ef.utils.ParserTestUtils.THRESHOLD_TO_FIND_MULTIPLE_IPS_FOR_HOUR;
-import static com.ef.utils.ParserTestUtils.THRESHOLD_TO_FIND_ONE_IP_FOR_DAY;
-import static com.ef.utils.ParserTestUtils.THRESHOLD_TO_FIND_ONE_IP_FOR_HOUR;
+import static com.ef.constants.TestConstants.EXPECTED_MULTIPLE_BLOCKED_IPS_FOR_HOUR;
+import static com.ef.constants.TestConstants.NUM_OF_TEST_ACCESS_LOG_FILE_ENTRIES;
+import static com.ef.constants.TestConstants.TEST_ACCESS_LOG_FILE;
+import static com.ef.constants.TestConstants.TEST_START_DATE;
+import static com.ef.constants.TestConstants.THRESHOLD_200;
+import static com.ef.constants.TestConstants.THRESHOLD_TO_FIND_MULTIPLE_IPS_FOR_DAY;
+import static com.ef.constants.TestConstants.THRESHOLD_TO_FIND_MULTIPLE_IPS_FOR_HOUR;
+import static com.ef.constants.TestConstants.THRESHOLD_TO_FIND_ONE_IP_FOR_DAY;
+import static com.ef.constants.TestConstants.THRESHOLD_TO_FIND_ONE_IP_FOR_HOUR;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -28,20 +29,24 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import org.junit.After;
+import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.Test;
 
+import com.ef.blockedIpstore.config.SpeedmentBlockedIpStoreForTesting;
 import com.ef.blockedipstore.BlockedIpStoreException;
 import com.ef.blockedipstore.SearchCriteria;
 import com.ef.arguments.enums.Duration;
+import com.ef.config.TestConfig;
+import com.ef.constants.Constants;
 import com.ef.utils.ParserTestUtils;
-import com.ef.utils.ParserUtils;
 
 
-public class SpeedmentBlockedIpStoreTestsWithLoadedLogFile extends ParserBlockedIpStoreAbstractParentForTesting {
+public class SpeedmentBlockedIpStoreLoadedLogFileTests {
     private SearchCriteria blockingCriteria;
     private SearchCriteria blockingCriteriaForComment;
-    private final LocalDateTime startDate = ParserUtils.stringToLocalDateTime(TEST_START_DATE);
+    private static final SpeedmentBlockedIpStoreForTesting TEST_SPEEDMENT_BLOCKED_IP_STORE = TestConfig.getTestStore();
+    private final LocalDateTime startDate = stringToLocalDateTime(TEST_START_DATE);
     private final List<Long> expectedSingleBlockedIpForDay = Collections.singletonList(3232278978L);
     private final List<Long> expectedSingleBlockedIpForHour = Collections.singletonList(3232278978L);
     private final List<Long> expectedMultipleBlockedIpsForDay =
@@ -50,11 +55,16 @@ public class SpeedmentBlockedIpStoreTestsWithLoadedLogFile extends ParserBlocked
                   3232278978L, 3232281022L, 3232286673L, 3232287599L,
                   3232288397L, 3232291594L, 3232295506L).collect(
         Collectors.collectingAndThen(Collectors.toList(), Collections::unmodifiableList));
-    private final List<Long> expectedMultipleBlockedIpsForHour =
-        Stream.of(3232245325L, 3232248781L, 3232272305L,
-                  3232278978L, 3232287599L, 3232295506L).collect(
-            Collectors.collectingAndThen(Collectors.toList(), Collections::unmodifiableList));
 
+
+    private LocalDateTime stringToLocalDateTime(String date) {
+        return LocalDateTime.parse(date, Constants.ARGUMENT_DATE_FORMATTER);
+    }
+
+    @AfterClass
+    public static void clearDB() {
+        TEST_SPEEDMENT_BLOCKED_IP_STORE.shutDownStore();
+    }
 
     @Before
     public void loadLogFileIntoDb() {
@@ -62,13 +72,13 @@ public class SpeedmentBlockedIpStoreTestsWithLoadedLogFile extends ParserBlocked
                 ParserTestUtils.getAbsoluteFilePathFromClassResourceLoader(
                     ParserTestUtils.getThisObjectsClassLoader(this), TEST_ACCESS_LOG_FILE);
 
-        testSpeedmentBlockedIpStore.loadFile(absolutePath);
+        TEST_SPEEDMENT_BLOCKED_IP_STORE.loadFile(absolutePath);
 
         checkLogFileWasLoaded();
     }
 
     private void checkLogFileWasLoaded() {
-        assertEquals(testSpeedmentBlockedIpStore.countLogEntries(), NUM_OF_TEST_ACCESS_LOG_FILE_ENTRIES);
+        assertEquals(TEST_SPEEDMENT_BLOCKED_IP_STORE.countLogEntries(), NUM_OF_TEST_ACCESS_LOG_FILE_ENTRIES);
     }
 
     @After
@@ -81,20 +91,20 @@ public class SpeedmentBlockedIpStoreTestsWithLoadedLogFile extends ParserBlocked
     }
 
     private boolean logEntryStoreIsNonNull() {
-        return testSpeedmentBlockedIpStore != null;
+        return TEST_SPEEDMENT_BLOCKED_IP_STORE != null;
     }
 
     private void clearAccessLogTable() {
-        testSpeedmentBlockedIpStore.clearLogEntries();
+        TEST_SPEEDMENT_BLOCKED_IP_STORE.clearLogEntries();
     }
 
     private void clearBlockedIpTable() {
-        testSpeedmentBlockedIpStore.clearBlockedIps();
+        TEST_SPEEDMENT_BLOCKED_IP_STORE.clearBlockedIps();
     }
 
     private void checkDbWasCleared() {
-        long numberOfLogEntries = testSpeedmentBlockedIpStore.countLogEntries();
-        long numberOfBlockedIpEntries = testSpeedmentBlockedIpStore.countBlockedIps();
+        long numberOfLogEntries = TEST_SPEEDMENT_BLOCKED_IP_STORE.countLogEntries();
+        long numberOfBlockedIpEntries = TEST_SPEEDMENT_BLOCKED_IP_STORE.countBlockedIps();
         assertEquals(numberOfLogEntries, 0L);
         assertEquals(numberOfBlockedIpEntries, 0L);
     }
@@ -116,7 +126,7 @@ public class SpeedmentBlockedIpStoreTestsWithLoadedLogFile extends ParserBlocked
     }
 
     private List<Long> testFindingIpsToBlock(SearchCriteria searchCriteria, List<Long> expectedBlockedIps) {
-        List<Long> iPsToBlock = testSpeedmentBlockedIpStore.findIpsToBlock(searchCriteria);
+        List<Long> iPsToBlock = TEST_SPEEDMENT_BLOCKED_IP_STORE.findIpsToBlock(searchCriteria);
         checkIfFound(expectedBlockedIps, iPsToBlock);
         return iPsToBlock;
     }
@@ -158,7 +168,7 @@ public class SpeedmentBlockedIpStoreTestsWithLoadedLogFile extends ParserBlocked
         blockingCriteria =
             getSearchCriteriaForFindingIpsToBlock(startDate, HOURLY, THRESHOLD_TO_FIND_MULTIPLE_IPS_FOR_HOUR);
 
-        testFindingIpsToBlock(blockingCriteria, expectedMultipleBlockedIpsForHour);
+        testFindingIpsToBlock(blockingCriteria, EXPECTED_MULTIPLE_BLOCKED_IPS_FOR_HOUR);
     }
 
     // ------- save tests ------
@@ -169,13 +179,13 @@ public class SpeedmentBlockedIpStoreTestsWithLoadedLogFile extends ParserBlocked
             getSearchCriteriaForFindingIpsToBlock(startDate, HOURLY, THRESHOLD_TO_FIND_ONE_IP_FOR_HOUR);
 
         List<Long> emptyListOfIps = testNotFindingAnyIpsToBlock();
-        testSpeedmentBlockedIpStore.saveIpsToBlock(blockingCriteriaForComment, emptyListOfIps);
+        TEST_SPEEDMENT_BLOCKED_IP_STORE.saveIpsToBlock(blockingCriteriaForComment, emptyListOfIps);
 
         verifyBlockedIpsWhereSaved(Collections.EMPTY_LIST);
     }
 
     private void verifyBlockedIpsWhereSaved(List<Long> ipsExpectedToBeSaved) {
-        List<Long> savedIps = testSpeedmentBlockedIpStore.readBlockedIps();
+        List<Long> savedIps = TEST_SPEEDMENT_BLOCKED_IP_STORE.readBlockedIps();
         assertEquals(ipsExpectedToBeSaved.size(), savedIps.size());
         assertArrayEquals(ipsExpectedToBeSaved.toArray(), savedIps.toArray());
     }
@@ -186,7 +196,7 @@ public class SpeedmentBlockedIpStoreTestsWithLoadedLogFile extends ParserBlocked
             getSearchCriteriaForFindingIpsToBlock(startDate, HOURLY, THRESHOLD_TO_FIND_ONE_IP_FOR_HOUR);
 
         List<Long> listWithOneIp = testFindingIpsToBlock(blockingCriteriaForComment, expectedSingleBlockedIpForHour);
-        testSpeedmentBlockedIpStore.saveIpsToBlock(blockingCriteriaForComment, listWithOneIp);
+        TEST_SPEEDMENT_BLOCKED_IP_STORE.saveIpsToBlock(blockingCriteriaForComment, listWithOneIp);
 
         verifyBlockedIpsWhereSaved(expectedSingleBlockedIpForHour);
     }
@@ -197,10 +207,10 @@ public class SpeedmentBlockedIpStoreTestsWithLoadedLogFile extends ParserBlocked
             getSearchCriteriaForFindingIpsToBlock(startDate, HOURLY, THRESHOLD_TO_FIND_MULTIPLE_IPS_FOR_HOUR);
 
         List<Long> listOfMultipleIps =
-            testFindingIpsToBlock(blockingCriteriaForComment, expectedMultipleBlockedIpsForHour);
-        testSpeedmentBlockedIpStore.saveIpsToBlock(blockingCriteriaForComment, listOfMultipleIps);
+            testFindingIpsToBlock(blockingCriteriaForComment, EXPECTED_MULTIPLE_BLOCKED_IPS_FOR_HOUR);
+        TEST_SPEEDMENT_BLOCKED_IP_STORE.saveIpsToBlock(blockingCriteriaForComment, listOfMultipleIps);
 
-        verifyBlockedIpsWhereSaved(expectedMultipleBlockedIpsForHour);
+        verifyBlockedIpsWhereSaved(EXPECTED_MULTIPLE_BLOCKED_IPS_FOR_HOUR);
     }
 
     @Test(expected = BlockedIpStoreException.class)
@@ -208,6 +218,6 @@ public class SpeedmentBlockedIpStoreTestsWithLoadedLogFile extends ParserBlocked
         blockingCriteriaForComment = getSearchCriteriaForFindingIpsToBlock(startDate, HOURLY, THRESHOLD_200);
         List<Long> listWithInvalidIp = Collections.singletonList(-2147483648L);
 
-        testSpeedmentBlockedIpStore.saveIpsToBlock(blockingCriteriaForComment, listWithInvalidIp);
+        TEST_SPEEDMENT_BLOCKED_IP_STORE.saveIpsToBlock(blockingCriteriaForComment, listWithInvalidIp);
     }
 }
