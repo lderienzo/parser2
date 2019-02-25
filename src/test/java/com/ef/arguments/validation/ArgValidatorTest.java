@@ -53,7 +53,7 @@ public final class ArgValidatorTest {
         expectedSearchCriteria = validatedArgs.getIpBlockingSearchCriteria();
         assertTrue(expectedSearchCriteria.startDate() instanceof LocalDateTime);
         assertTrue(expectedSearchCriteria.duration() instanceof Duration);
-        assertTrue(expectedSearchCriteria.threshold()*1 == THRESHOLD_200);
+        assertEquals(expectedSearchCriteria.threshold(), THRESHOLD_200);
     }
 
     private ExtractedArgs givenAllRequiredAndValidArgsForSearchCriteria() {

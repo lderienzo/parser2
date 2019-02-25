@@ -64,8 +64,8 @@ public final class IpAddressConverter {
         return Long.toString((longIp >> SHIFT_BITS_RIGHT[bitShiftIndex]) & HEX_BITWISE_AND_MASK);
     }
 
-    private static StringBuilder appendOctetStringToResult(StringBuilder result, String octet) {
-        return result.append(octet);
+    private static void appendOctetStringToResult(StringBuilder result, String octet) {
+        result.append(octet);
     }
 
     private static void appendOctetDotToResultAtIndex(StringBuilder result, int bitShiftIndex) {

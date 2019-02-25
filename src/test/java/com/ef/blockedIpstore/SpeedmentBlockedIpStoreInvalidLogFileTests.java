@@ -20,7 +20,7 @@ import org.junit.rules.ExpectedException;
 import com.ef.blockedIpstore.config.SpeedmentBlockedIpStoreForTesting;
 import com.ef.blockedipstore.BlockedIpStoreException;
 import com.ef.config.TestConfig;
-import com.ef.utils.ParserTestUtils;
+import com.ef.utils.TestUtils;
 
 
 public class SpeedmentBlockedIpStoreInvalidLogFileTests {
@@ -48,8 +48,8 @@ public class SpeedmentBlockedIpStoreInvalidLogFileTests {
         thrown.expectMessage(LOG_ENTRY_STORE_ERR_LOADING_LOG_FILE);
 
         TEST_SPEEDMENT_BLOCKED_IP_STORE.loadFile(
-            ParserTestUtils.getAbsoluteFilePathFromClassResourceLoader(
-                    ParserTestUtils.getThisObjectsClassLoader(this),
+            TestUtils.getAbsoluteFilePathFromClassResourceLoader(
+                    TestUtils.getThisObjectsClassLoader(this),
                     INVALID_LINE_FORMAT_LOG_FILE));
     }
 

@@ -15,7 +15,6 @@ import com.speedment.runtime.core.component.SqlAdapter;
 import com.speedment.runtime.core.db.SqlFunction;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import static com.speedment.common.injector.State.RESOLVED;
 
 /**
  * The generated Sql Adapter for a {@link

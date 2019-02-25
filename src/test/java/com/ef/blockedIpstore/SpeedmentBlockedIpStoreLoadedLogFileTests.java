@@ -39,7 +39,7 @@ import com.ef.blockedipstore.SearchCriteria;
 import com.ef.arguments.enums.Duration;
 import com.ef.config.TestConfig;
 import com.ef.constants.Constants;
-import com.ef.utils.ParserTestUtils;
+import com.ef.utils.TestUtils;
 
 
 public class SpeedmentBlockedIpStoreLoadedLogFileTests {
@@ -69,8 +69,8 @@ public class SpeedmentBlockedIpStoreLoadedLogFileTests {
     @Before
     public void loadLogFileIntoDb() {
         String absolutePath =
-                ParserTestUtils.getAbsoluteFilePathFromClassResourceLoader(
-                    ParserTestUtils.getThisObjectsClassLoader(this), TEST_ACCESS_LOG_FILE);
+                TestUtils.getAbsoluteFilePathFromClassResourceLoader(
+                    TestUtils.getThisObjectsClassLoader(this), TEST_ACCESS_LOG_FILE);
 
         TEST_SPEEDMENT_BLOCKED_IP_STORE.loadFile(absolutePath);
 

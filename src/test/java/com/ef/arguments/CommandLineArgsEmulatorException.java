@@ -8,6 +8,8 @@
 package com.ef.arguments;
 
 class CommandLineArgsEmulatorException extends RuntimeException {
+    private static final long serialVersionUID = 2196071120022239111L;
+
     public CommandLineArgsEmulatorException(String message, Exception e) {
         super(message, e);
     }

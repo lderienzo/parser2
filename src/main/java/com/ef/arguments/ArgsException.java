@@ -9,6 +9,8 @@ package com.ef.arguments;
 
 public class ArgsException extends RuntimeException {
 
+    private static final long serialVersionUID = 1643157061016802927L;
+
     public ArgsException(String message, Exception e) {
         super(message, e);
     }

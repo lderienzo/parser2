@@ -16,9 +16,9 @@ import org.junit.Test;
 
 
 public final class JdbcMySqlConnectionTester {
-    private static String CONNECTION_URL = "jdbc:mysql://localhost:3306/parser?useSSL=false";
-    private static String USERNAME = "parser";
-    private static String PASSWORD = "password";
+    private static final String CONNECTION_URL = "jdbc:mysql://localhost:3306/parser?useSSL=false";
+    private static final String USERNAME = "parser";
+    private static final String PASSWORD = "password";
 
     @Before
     public void setUp() {

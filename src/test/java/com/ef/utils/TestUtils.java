@@ -10,10 +10,15 @@ package com.ef.utils;
 
 import java.io.File;
 
-public final class ParserTestUtils {
+public final class TestUtils {
 
     public static String getAbsoluteFilePathFromClassResourceLoader(ClassLoader classLoader, String path) {
-        return new File(classLoader.getResource(path).getFile()).getAbsolutePath();
+        String absolutePath = "";
+        File file = new File(classLoader.getResource(path).getFile());
+        if (file != null) {
+            absolutePath = file.getAbsolutePath();
+        }
+        return absolutePath;
     }
 
     public static ClassLoader getThisObjectsClassLoader(Object objectProvidingClassLoader) {
