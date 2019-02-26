@@ -73,3 +73,50 @@ Deliverables
 (4) SQL queries for SQL test
 
 
+
+
+MySQL Schema
+------------
+--
+-- Table structure for table `access_log`
+--
+
+DROP TABLE IF EXISTS `access_log`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `access_log` (
+  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `date` datetime NOT NULL,
+  `ip_address` int(4) unsigned NOT NULL,
+  `request` char(16) NOT NULL,
+  `status` smallint(3) unsigned NOT NULL,
+  `user_agent` varchar(180) NOT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=2896066 DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `blocked_ips`
+--
+
+DROP TABLE IF EXISTS `blocked_ips`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `blocked_ips` (
+  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `ip_address` int(4) unsigned NOT NULL,
+  `comment` varchar(180) NOT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=176 DEFAULT CHARSET=utf8;
+
+
+
+
+SQL Queries
+------------
+# Write MySQL query to find IPs that made more than a certain number of requests for a given time period.
+SELECT ip_address, COUNT(*) FROM access_log WHERE date BETWEEN '2017-01-01.15:00:00' AND '2017-01-01.16:00:00' 
+GROUP BY ip_address HAVING COUNT(*) > 100 ;
+
+# Write MySQL query to find requests made by a given IP.
+SELECT * FROM access_log WHERE ip_address = 3232238567;
