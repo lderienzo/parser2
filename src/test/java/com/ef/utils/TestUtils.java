@@ -9,17 +9,24 @@ package com.ef.utils;
 
 
 import java.io.File;
+import java.net.URL;
 
 public final class TestUtils {
 
     public static String getAbsoluteFilePathFromClassResourceLoader(ClassLoader classLoader, String path) {
-        String absolutePath = "";
-        File file = new File(classLoader.getResource(path).getFile());
-        if (file != null) {
-            absolutePath = file.getAbsolutePath();
+        String absoluteFilePath = "";
+        URL resourceUrl = classLoader.getResource(path);
+        if (resourceUrl == null) {
+            return absoluteFilePath;
         }
-        return absolutePath;
+        File file = new File(resourceUrl.getFile());
+        if (file == null) {
+            return absoluteFilePath;
+        }
+        absoluteFilePath = file.getAbsolutePath();
+        return absoluteFilePath;
     }
+
 
     public static ClassLoader getThisObjectsClassLoader(Object objectProvidingClassLoader) {
         return objectProvidingClassLoader.getClass().getClassLoader();

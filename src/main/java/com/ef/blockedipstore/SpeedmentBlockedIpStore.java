@@ -85,28 +85,9 @@ public class SpeedmentBlockedIpStore implements BlockedIpStore {
 
     @Override
     public List<Long> findIpsToBlock(SearchCriteria blockingCriteria) {
-        LocalDateTime startDate = blockingCriteria.startDate();
-        LocalDateTime endDate = getHourlyDefaultedEndDate(startDate);
-        if (blockingCriteria.duration() == DAILY) {
-            endDate = startDate.plusDays(1);
-        }
-
         List<Long> iPsToBlock;
         try {
-            iPsToBlock = speedmentStoreComponents.logEntryManager.stream()
-                    .filter(AccessLogEntry.DATE.between(startDate, endDate, START_INCLUSIVE_END_INCLUSIVE))
-                    .collect(
-                            Collectors.groupingBy(
-                                    AccessLogEntry::getIpAddress,
-                                    Collectors.counting()
-                            )
-                    )
-                    .entrySet()
-                    .stream()
-                    .filter(e -> e.getValue().intValue() >= blockingCriteria.threshold())
-                    .map(Map.Entry::getKey)
-                    .sorted()
-                    .collect(Collectors.toList());
+            iPsToBlock = getIpsToBlockFromLogEntryManager(blockingCriteria);
         } catch (SpeedmentException e) {
             throw new BlockedIpStoreException("Failure in SpeedmentBlockedIpStore::findIpsToBlock. " +
                     "Error finding blocked IPs in database table.", e);
@@ -114,17 +95,30 @@ public class SpeedmentBlockedIpStore implements BlockedIpStore {
         return iPsToBlock;
     }
 
-
-
-    private LocalDateTime getHourlyDefaultedEndDate(LocalDateTime startDate) {
-        return deriveEndDateFromStartDate(startDate);
+    private List<Long> getIpsToBlockFromLogEntryManager(SearchCriteria blockingCriteria) {
+        return speedmentStoreComponents.logEntryManager.stream()
+                .filter(AccessLogEntry.DATE.between(getStartDate(blockingCriteria),
+                        getEndDate(blockingCriteria), START_INCLUSIVE_END_INCLUSIVE))
+                .collect(Collectors.groupingBy(
+                        AccessLogEntry::getIpAddress,
+                        Collectors.counting()))
+                .entrySet().stream().filter(e -> e.getValue().intValue() >= blockingCriteria.threshold())
+                .map(Map.Entry::getKey).sorted().collect(Collectors.toList());
     }
 
-    private LocalDateTime deriveEndDateFromStartDate(LocalDateTime startDate) {
-        return defaultToHourlyDuration(startDate);
+    private LocalDateTime getStartDate(SearchCriteria blockingCriteria) {
+        return blockingCriteria.startDate();
     }
 
-    private LocalDateTime defaultToHourlyDuration(LocalDateTime startDate) {
+    private LocalDateTime getEndDate(SearchCriteria blockingCriteria) {
+        LocalDateTime endDate = defaultEndDateToHourlyDuration(blockingCriteria.startDate());
+        if (blockingCriteria.duration() == DAILY) {
+            endDate = blockingCriteria.startDate().plusDays(1);
+        }
+        return endDate;
+    }
+
+    private LocalDateTime defaultEndDateToHourlyDuration(LocalDateTime startDate) {
         return startDate.plusHours(1);
     }
 
@@ -132,11 +126,7 @@ public class SpeedmentBlockedIpStore implements BlockedIpStore {
     public void saveIpsToBlock(SearchCriteria blockingCriteria, List<Long> iPsToBlock) {
         String comment = getBlockingReasonComment(blockingCriteria);
         try {
-            iPsToBlock.stream()
-                    .map(ip ->
-                         new BlockedIpImpl()
-                        .setIpAddress(ip)
-                        .setComment(comment))
+            iPsToBlock.stream().map(ip -> new BlockedIpImpl().setIpAddress(ip).setComment(comment))
                     .forEach(speedmentStoreComponents.blockedIpManager.persister());
         } catch (SpeedmentException e) {
             throw new BlockedIpStoreException("Failure in SpeedmentBlockedIpStore::saveIpsToBlock. " +
