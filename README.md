@@ -1,5 +1,5 @@
 # parser2
-This program is a small command line executable jar application that loads a server access log file into a MySQL database and blocks IPs for exceeding an access threshold.
+This program is a small command line executable jar application that loads a server access log file into a MySQL database and blocks IPs for exceeding an access threshold within a given timeframe.
 
 Please Note:
 The purpose of this program is NOT to showcase technical prowess and/or bedazzling functionality.
