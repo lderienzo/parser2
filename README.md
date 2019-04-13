@@ -5,7 +5,7 @@ Please Note:
 The purpose of this program is NOT to showcase technical prowess and/or bedazzling functionality.
 But instead, its purpose is to hopefully appear as clean, readable, and coherent code.
 Do the function and variable names clearly describe their purpose?
-Does the code read like a news paper article moving from broad to general moving from top to bottom?
+Does the code read like a news paper article moving from general to specific as the code reads from top to bottom?
 How well does the code adhere to S.O.L.D. design principles?
 
 -------------------------------------------------------------------------------------
